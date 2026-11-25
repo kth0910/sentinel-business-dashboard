@@ -49,8 +49,8 @@ function block(type: BlockType, parentId: string, parentTable: ParentTable, spac
 const rt = (s: string): RichText => [[s]];
 const setOp = (table: string, record: { id: string }, spaceId: string): Op => ({ pointer: { table, id: record.id, spaceId }, path: [], command: 'set', args: record });
 
-function pageWithContent(title: string, specs: Spec[], parentId: string, parentTable: ParentTable, spaceId: string, uid: string): { id: string; ops: Op[] } {
-  const page = block('page', parentId, parentTable, spaceId, uid, { properties: { title: rt(title) } });
+function pageWithContent(title: string, specs: Spec[], parentId: string, parentTable: ParentTable, spaceId: string, uid: string, fullWidth = false): { id: string; ops: Op[] } {
+  const page = block('page', parentId, parentTable, spaceId, uid, { properties: { title: rt(title) }, ...(fullWidth ? { format: { page_full_width: true } as any } : {}) });
   const kids = specs.map((s) => block(s.type, page.id, 'block', spaceId, uid, { properties: s.title ? { title: rt(s.title) } : {}, ...(s.format ? { format: s.format as any } : {}) }));
   page.content = kids.map((k) => k.id);
   return { id: page.id, ops: [setOp('block', page, spaceId), ...kids.map((k) => setOp('block', k, spaceId))] };
@@ -91,7 +91,7 @@ export function ensureDailyPage(uid: string, spaceId: string, date: string, kind
     const top = ops.find((o) => o.args.id === id);
     if (top) top.args.properties = { ...top.args.properties, title: rt(title) };
   } else {
-    ({ id, ops } = pageWithContent(title, kind === 'report' ? reportTemplate() : salesTemplate(date), parentId, 'block', spaceId, uid));
+    ({ id, ops } = pageWithContent(title, kind === 'report' ? reportTemplate() : salesTemplate(date), parentId, 'block', spaceId, uid, kind === 'sales'));
   }
   ops.push({ pointer: { table: 'block', id: parentId, spaceId }, path: ['content'], command: 'listAfter', args: { id } });
   commit(uid, spaceId, ops);

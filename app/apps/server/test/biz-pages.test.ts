@@ -65,6 +65,7 @@ describe('ensureDailyPage', () => {
     const kids = children(id);
     expect(kids.map((b) => b.type)).toEqual(['biz_sales_summary', 'biz_changes', 'biz_monthly_chart', 'biz_pipeline']);
     expect(kids.every((b) => (b.format as any).biz.date === '2026-11-25')).toBe(true);
+    expect((db.getRecord<BlockRecord>('block', id)!.format as any).page_full_width).toBe(true);
   });
 
   it('rpc ensures page and reports page date', async () => {

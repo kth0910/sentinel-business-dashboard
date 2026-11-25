@@ -76,7 +76,9 @@
 .biz-table-wrap { overflow-x: auto; }
 .biz-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .biz-table th { text-align: left; font-weight: 500; font-size: 12px; color: var(--lp-text-secondary); padding: 6px 8px; border-bottom: 1px solid var(--biz-line); white-space: nowrap; }
-.biz-table td { padding: 6px 8px; border-bottom: 1px solid var(--biz-line); vertical-align: top; }
+.biz-table td { padding: 6px 8px; border-bottom: 1px solid var(--biz-line); vertical-align: top; white-space: nowrap; }
+.biz-table td.wrap { white-space: normal; min-width: 140px; }
+.biz-table.wide { min-width: 820px; }
 .biz-table td.num, .biz-table th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .biz-table .old { display: block; font-size: 12px; color: var(--lp-text-tertiary, var(--lp-text-secondary)); }
 .biz-input {
@@ -103,3 +105,25 @@
 .biz-sched-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px; background: var(--biz-soft); }
 .biz-sched-item > .biz-input:not(.biz-time) { flex: 1; }
 @media (max-width: 640px) { .biz-sched-item { flex-wrap: wrap; } .biz-sched-item > .biz-input:not(.biz-time) { flex-basis: 100%; } }
+
+/* ---------- 매출 블록 ---------- */
+.biz-btn-primary { background: var(--biz-up); border-color: var(--biz-up); color: #fff; }
+.biz-btn-primary:hover { background: #1e40af !important; }
+.biz-btn:disabled { opacity: 0.6; cursor: progress; }
+.biz-today { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; padding: 12px 14px; border-radius: 8px; background: var(--biz-soft); }
+.biz-today b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.biz-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.biz-kpi { border: 1px solid var(--biz-line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.biz-kpi b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.biz-targets { display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px dashed var(--biz-line); border-radius: 8px; }
+.biz-target-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.biz-target-field { display: flex; flex-direction: column; gap: 2px; }
+.biz-num { text-align: right; font-variant-numeric: tabular-nums; border-color: var(--biz-line); }
+.biz-select { font: inherit; font-size: 13px; padding: 2px 4px; border: 1px solid var(--biz-line); border-radius: 4px; background: transparent; color: inherit; }
+.biz-cats { display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px dashed var(--biz-line); border-radius: 8px; }
+.biz-ml { margin-left: 6px; }
+.biz-chart { width: 100%; height: 260px; }
+@media (max-width: 640px) {
+  .biz-kpis { grid-template-columns: 1fr; }
+  .biz-target-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
