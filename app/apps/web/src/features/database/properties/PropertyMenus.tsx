@@ -3,6 +3,7 @@
 // Calculate / Sort / Change type submenus and the "+ Add property" type picker.
 // Item lists and per-type gating follow the configured property definitions.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { TRIM } from '../../biz/flags.ts';
 import type { BlockRecord, CollectionRecord, CollectionViewRecord, PropertySchema, PropertyType, SelectOption, SpaceRecord } from '@nc/shared/records.ts';
 import {
   AGGREGATION_LABELS, CREATABLE_TYPES, DATE_FORMATS, NUMBER_FORMATS, NUMBER_PRECISIONS, PICKER_SECTIONS, TIME_FORMATS, defaultFilterOperator, defaultGroupBy,
@@ -717,7 +718,7 @@ export function openPropertyHeaderMenu(anchor: HTMLElement, ctx: PropMenuContext
   if (!NO_ACCESS.has(type) && canRestrictProperty(prop, propId, subitemPairOf(c))) s2.push({ id: 'access', label: 'Property access', icon: 'lockKeyhole', right: hasPropertyRule(prop) ? <span className="nc-menu-value">On</span> : undefined, onSelect: () => openPropertyAccess(collectionId, propId) });
   if (!isTitle && type !== 'auto_increment_id' && !ctx.readOnly) s2.push({ id: 'type', label: 'Change type', icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(collectionId, propId, prop) });
   // header-menu-name / -status: "AI Autofill ›" (no promo badge any more), also on the title column
-  if (AI_AUTOFILL_TYPES.has(type) || isTitle) s2.push({
+  if (!TRIM.ai && (AI_AUTOFILL_TYPES.has(type) || isTitle)) s2.push({
     id: 'ai', label: 'AI Autofill', icon: 'magicWandSparkle',
     // Basic autofill is configured / run by features/ai; Custom Agent autofill comes with Custom Agents
     submenu: () => ({ width: 260, sections: [{ items: [

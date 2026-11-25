@@ -2,6 +2,7 @@
 // Search actions… · Copy link · Copy page contents · Duplicate · Move to · Version history · Updates & analytics |
 // Appearance & layout › | Use with AI › | Suggest edits · Notify me (Comments) › | Lock page · Move to Trash | More › |
 // footer: Last edited (avatar, name, time). Switches are live components so toggles update in place.
+import { TRIM } from '../biz/flags.ts';
 import type { BlockRecord, CollectionRecord, SpaceRecord, TeamRecord, UserRecord } from '@nc/shared/records.ts';
 import { isSpaceAdmin, isSpaceMember } from '@nc/shared/permissions.ts';
 import { toPlainText } from '@nc/shared/richtext.ts';
@@ -279,12 +280,12 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
         item(t('lp.page.updates_analytics', 'Updates & analytics'), 'clock', { keywords: ['analytics', 'views', 'updates', 'activity'], onSelect: () => useUI.getState().set({ rightPanel: 'updates' }) }),
       ] },
       { items: [item(t('lp.page.appearance_layout', 'Appearance & layout'), 'textFormat', { keywords: ['font', 'serif', 'mono', 'small text', 'full width', 'contents list', 'page discussions', 'inline comments', 'customize page', 'style'], submenu: appearance })] },
-      { items: [item(t('lp.page.use_in_ai', 'Use in AI'), 'aiFace', { keywords: ['skill', 'agent', 'instructions'], submenu: useWithAi })] },
-      { items: [
+      ...(TRIM.ai ? [] : [{ items: [item(t('lp.page.use_in_ai', 'Use in AI'), 'aiFace', { keywords: ['skill', 'agent', 'instructions'], submenu: useWithAi })] }]),
+      ...(TRIM.comments ? [] : [{ items: [
         // toggles suggest mode (features/comments/suggest.ts listens); "Stop" while suggesting
         item(t('lp.page.suggest_edits', 'Suggest edits'), 'commentPencil', { right: <SuggestStop pageId={pageId} />, onSelect: () => { window.dispatchEvent(new CustomEvent('nc:suggest-edits', { detail: { pageId } })); }, disabled: !canEdit && role !== 'comment_only' }),
         item(t('lp.page.notify_me', 'Notify me'), 'bell', { keywords: ['notifications', 'follow', 'subscribe', 'all comments', 'replies', 'mentions'], right: <NotifyLabel pageId={pageId} />, submenu: notify }),
-      ] },
+      ] }]),
       { items: [
         // full-page databases: "Lock database" freezes views and properties, data entry stays open
         item(isDb ? t('lp.page.lock_database', 'Lock database') : t('lp.page.lock_page', 'Lock page'), 'lockOpen', { right: <Switch pageId={pageId} k="block_locked" />, onSelect: keep(() => togglePageSetting(pageId, 'block_locked')), disabled: role !== 'editor' && role !== 'read_and_write' }),

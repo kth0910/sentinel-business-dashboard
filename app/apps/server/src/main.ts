@@ -10,8 +10,10 @@ const { realtime } = await import('./realtime.ts');
 const { startScheduler } = await import('./scheduler.ts');
 const { bootstrapOwner } = await import('./bootstrap.ts');
 const { startDemoSandboxCleanup } = await import('./demoSandbox.ts');
+const { applyWorkspaceDefaults } = await import('./biz/defaults.ts');
 
 bootstrapOwner();
+applyWorkspaceDefaults(); // 업무관리 시연판: 기존 워크스페이스도 AI·외부 공개 끔
 scheduleDemoExit();
 // demo sandboxes past their lifetime: once now, then every few minutes
 startDemoSandboxCleanup();

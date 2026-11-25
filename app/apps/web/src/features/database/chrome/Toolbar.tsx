@@ -1,5 +1,6 @@
 // Database toolbar (aria order: Filter, Sort, Automations, AI Autofill, Search, Launch as full entry, Settings)
 // + blue "New" split button with the templates menu ("More create options").
+import { TRIM } from '../../biz/flags.ts';
 import { useEffect, useRef, useState } from 'react';
 import type { BlockRecord, CollectionRecord, CollectionViewRecord } from '@nc/shared/records.ts';
 import { toPlainText } from '@nc/shared/richtext.ts';
@@ -195,8 +196,8 @@ export function Toolbar(p: ToolbarProps) {
           {ToolbarLeading && <ToolbarLeading block={block} view={view} collection={collection} readOnly={p.readOnly} />}
           <ToolButton icon="dbToolFilter" label="Filter" className="lit-collection-filter" active={filterCount > 0} pressed={filterOpen} onClick={(e) => p.onFilter(e.currentTarget)} />
           <ToolButton icon="arrowUpDownSmall" label="Sort" className="lit-collection-sort" active={sortCount > 0} pressed={sortOpen} onClick={(e) => p.onSort(e.currentTarget)} />
-          <ToolButton icon="dbToolLightning" label="Automations" className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />
-          <ToolButton icon="magicWandSmall" label="AI Autofill" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />
+          {!TRIM.automations && (<ToolButton icon="dbToolLightning" label="Automations" className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />)}
+          {!TRIM.ai && (<ToolButton icon="magicWandSmall" label="AI Autofill" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />)}
           <div className={`nc-db-search ${p.search !== null ? 'open' : ''}`}>
             <ToolButton icon="dbToolSearch" label="Search" onClick={() => (p.search === null ? p.setSearch('') : searchRef.current?.focus())} />
             {p.search !== null && (

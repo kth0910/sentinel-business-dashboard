@@ -1,5 +1,6 @@
 // /api/rpc/<name> handlers.
 import { newId } from '@nc/shared/ids.ts';
+import { turnOffTrimmedFeatures } from '../biz/defaults.ts';
 import type { Transaction } from '@nc/shared/ops.ts';
 import { roleAtLeast } from '@nc/shared/permissions.ts';
 import type {
@@ -292,6 +293,7 @@ export const handlers: Record<string, Handler> = {
   createWorkspace(ctx, { name, icon }) {
     const uid = requireUser(ctx);
     const { space } = createWorkspace(uid, String(name || 'My Workspace'), icon);
+    turnOffTrimmedFeatures(space.id); // 업무관리 시연판: AI·외부 공개 끔 (biz/defaults.ts)
     const rm = new RecordMapBuilder(uid);
     return { spaceId: space.id, recordMap: rm.map };
   },

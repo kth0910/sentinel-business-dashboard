@@ -1,5 +1,6 @@
 // Block action menu (⋮⋮ handle click / ⌘/):
 
+import { TRIM } from '../biz/flags.ts';
 import type { BlockRecord } from '@nc/shared/records.ts';
 import { BLOCK_LABELS, TEXT_BLOCKS } from '@nc/shared/blocks.ts';
 import { COLOR_LABELS, COLOR_NAMES } from '@nc/shared/colors.ts';
@@ -145,21 +146,23 @@ export function blockActionMenu(ids: string[]): MenuDef {
       items: [...(custom ?? [...(textual ? [turnIntoItem] : []), colorItem]), ...(directionItem ? [directionItem] : [])],
     },
     { items: actions },
+    ...(TRIM.comments ? [] : [
     {
       items: [
         { label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => startCommentOnBlock(b.id) },
         { label: 'Suggest edits', icon: 'commentPencil', shortcut: '⌘⇧⌥X', onSelect: () => void import('../comments/suggest.ts').then((m) => m.startSuggestingFrom(b.id)) },
       ],
     },
+    ]),
     { items: [{ label: 'Start presenting here', icon: 'playButton', badge: 'Beta', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
     // Settings › Developer › Enable developer features: Copy block / database / data source ID 
     ...(!multi && developerMenuSection(b.id) ? [developerMenuSection(b.id)!] : []),
-    {
+    ...(TRIM.ai ? [] : [{
       items: [
         { label: 'Ask AI', icon: 'aiFace', shortcut: '⌘J', onSelect: () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { blockId: b.id } })) },
         { label: 'Skills', icon: 'paperBolt', submenu: () => blockSkillsMenu(b.id) },
       ],
-    },
+    }]),
   ];
   // "Search actions…" also reaches the Turn into targets and the colors (catalog: action, block and color names)
   const searchSections = (): MenuSectionDef[] => {

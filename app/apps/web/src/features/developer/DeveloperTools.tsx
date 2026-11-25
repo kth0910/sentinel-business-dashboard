@@ -2,6 +2,7 @@
 // section and Settings › Developer › "Open developer tools".
 // Tabs: Connections (workspace API connections with capabilities, tokens, pages, webhooks, and health) and Access tokens.
 // Text keys use the developerPortal namespace.
+import { TRIM } from '../biz/flags.ts';
 import { useEffect, useMemo, useState } from 'react';
 import type { SpaceRecord, UserRecord } from '@nc/shared/records.ts';
 import { api } from '../../lib/api.ts';
@@ -319,7 +320,7 @@ function ConnectionDetail({ id }: { id: string }) {
   const tabs: [DetailTab, string][] = [
     ['configuration', t('lp.developer.configuration', 'Configuration')],
     ['content', t('lp.developer.content_access', 'Content access')],
-    ...(c.canManage ? [['webhooks', t('lp.developer.webhooks', 'Webhooks')], ['health', t('lp.developer.health', 'Health')]] as [DetailTab, string][] : []),
+    ...(c.canManage ? [...(TRIM.webhooks ? [] : [['webhooks', t('lp.developer.webhooks', 'Webhooks')]]), ['health', t('lp.developer.health', 'Health')]] as [DetailTab, string][] : []),
   ];
   return (
     <>

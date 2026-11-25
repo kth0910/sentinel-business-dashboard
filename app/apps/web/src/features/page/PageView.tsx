@@ -3,6 +3,7 @@
 // comments, floating contents list, live cursors of other viewers and the "Start with" bar.
 // Layout grid: [full-start] minmax(96px,1fr) [content-start]
 // minmax(auto,720px) [content-end] var(--margin-right-width, minmax(96px,1fr)) [full-end].
+import { TRIM } from '../biz/flags.ts';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { BlockRecord, SpaceRecord, UserRecord } from '@nc/shared/records.ts';
 import { trashRetentionDays } from '@nc/shared/retention.ts';
@@ -228,7 +229,7 @@ function PageHeader({ page, readOnly, publicView, backlinks }: { page: BlockReco
     );
   }
   if (backlinks === 'popover' && bl.length > 0) controls.push(<BacklinksButton key="bl" pageId={page.id} pages={bl} />);
-  if (canComment && pageSetting(page, 'page_discussions')) {
+  if (!TRIM.comments && canComment && pageSetting(page, 'page_discussions')) {
     controls.push(
       <div key="comment" role="button" className="nc-page-control" onClick={() => startPageComment(page.id)}>
         <Icon name="pageControlComment" size={14} />{t('lp.page.add_comment', 'Add comment')}

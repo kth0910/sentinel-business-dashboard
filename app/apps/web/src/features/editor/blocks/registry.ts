@@ -61,7 +61,9 @@ const slashHidden = new Map<string, () => boolean>();
 
 /** Leave the slash item with `id` out of the menu while `hidden` is true (a feature the workspace turned off). */
 export function hideSlashItemWhen(id: string, hidden: () => boolean) {
-  slashHidden.set(id, hidden);
+  // 여러 모듈이 같은 id에 규칙을 걸 수 있다(업무관리 시연판 features/biz): 하나라도 숨기면 숨긴다.
+  const prev = slashHidden.get(id);
+  slashHidden.set(id, prev ? () => prev() || hidden() : hidden);
 }
 
 export function applySlashOverrides<T extends { id: string; apply: SlashApply }>(items: T[]): T[] {

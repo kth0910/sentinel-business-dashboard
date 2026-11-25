@@ -371,25 +371,26 @@ export interface ViewTypeMeta {
   addMenu: boolean;
 }
 
-/** Add-view grid order: Table, Board, Gallery, List / Chart, Dashboard, Timeline, Feed / Map, Calendar, Form. */
+/** Add-view grid order: Table, Board, Gallery, List / Chart, Dashboard, Timeline, Feed / Map, Calendar, Form.
+ *  업무관리 시연판(설계 11.2): 표·리스트·캘린더·타임라인·차트만 추가 메뉴에 노출. 나머지는 addMenu false(기존 보기는 계속 표시). */
 export const VIEW_TYPES: ViewTypeMeta[] = [
   { type: 'table', label: 'Table', icon: 'dbViewTable', propertiesKey: 'table_properties', defaultPeek: 'side_peek', addMenu: true },
-  { type: 'board', label: 'Board', icon: 'dbViewBoard', propertiesKey: 'board_properties', defaultPeek: 'side_peek', addMenu: true },
-  { type: 'gallery', label: 'Gallery', icon: 'dbViewGallery', propertiesKey: 'gallery_properties', defaultPeek: 'center_peek', addMenu: true },
+  { type: 'board', label: 'Board', icon: 'dbViewBoard', propertiesKey: 'board_properties', defaultPeek: 'side_peek', addMenu: false },
+  { type: 'gallery', label: 'Gallery', icon: 'dbViewGallery', propertiesKey: 'gallery_properties', defaultPeek: 'center_peek', addMenu: false },
   { type: 'list', label: 'List', icon: 'dbViewList', propertiesKey: 'list_properties', defaultPeek: 'side_peek', addMenu: true },
   { type: 'chart', label: 'Chart', icon: 'dbViewChart', propertiesKey: null, defaultPeek: 'side_peek', addMenu: true },
-  { type: 'dashboard', label: 'Dashboard', icon: 'dbViewDashboard', propertiesKey: null, defaultPeek: 'side_peek', addMenu: true },
+  { type: 'dashboard', label: 'Dashboard', icon: 'dbViewDashboard', propertiesKey: null, defaultPeek: 'side_peek', addMenu: false },
   { type: 'timeline', label: 'Timeline', icon: 'dbViewTimeline', propertiesKey: 'timeline_properties', defaultPeek: 'side_peek', addMenu: true },
-  { type: 'feed', label: 'Feed', icon: 'dbViewFeed', propertiesKey: 'feed_properties', defaultPeek: 'center_peek', addMenu: true },
-  { type: 'map', label: 'Map', icon: 'dbViewMap', propertiesKey: null, defaultPeek: 'center_peek', addMenu: true },
+  { type: 'feed', label: 'Feed', icon: 'dbViewFeed', propertiesKey: 'feed_properties', defaultPeek: 'center_peek', addMenu: false },
+  { type: 'map', label: 'Map', icon: 'dbViewMap', propertiesKey: null, defaultPeek: 'center_peek', addMenu: false },
   { type: 'calendar', label: 'Calendar', icon: 'dbViewCalendar', propertiesKey: 'calendar_properties', defaultPeek: 'center_peek', addMenu: true },
-  { type: 'form', label: 'Form', icon: 'dbViewForm', propertiesKey: null, defaultPeek: 'side_peek', addMenu: true },
+  { type: 'form', label: 'Form', icon: 'dbViewForm', propertiesKey: null, defaultPeek: 'side_peek', addMenu: false },
   // wiki "Home": the wiki page's own content; never offered in add-view / layout pickers
   { type: 'page', label: 'Home', icon: 'home', propertiesKey: null, defaultPeek: 'side_peek', addMenu: false },
 ];
 
 /** Layout picker order inside View settings › Layout (3 columns). */
-export const LAYOUT_PICKER_ORDER = ['table', 'board', 'timeline', 'calendar', 'list', 'gallery', 'chart', 'feed', 'map', 'dashboard'];
+export const LAYOUT_PICKER_ORDER = ['table', 'timeline', 'calendar', 'list', 'chart'];
 
 export function viewTypeMeta(type: string | undefined): ViewTypeMeta {
   return VIEW_TYPES.find((v) => v.type === type) ?? VIEW_TYPES[0];

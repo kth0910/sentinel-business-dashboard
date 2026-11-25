@@ -1,6 +1,7 @@
 // "Translate to {language}" pill in the topbar: shown when the page's text is in a different language than the
 // UI locale; click → Litpage AI translate
 // (dispatches `nc:ask-ai` with skill "Translate"); × dismisses the suggestion for this page.
+import { TRIM } from '../biz/flags.ts';
 import { useState } from 'react';
 import { toPlainText } from '@nc/shared/richtext.ts';
 import { Icon } from '../../components/Icon.tsx';
@@ -60,6 +61,7 @@ export function translateTarget(pageId: string): string | null {
 }
 
 export function TranslatePill({ pageId, compact }: { pageId: string; compact?: boolean }) {
+  if (TRIM.ai) return null; // AI 번역은 시연판에서 뺌(설계 11.2)
   useBlock(pageId);
   useTableVersion(['block']);
   const [hidden, setHidden] = useState(() => dismissed().includes(pageId));

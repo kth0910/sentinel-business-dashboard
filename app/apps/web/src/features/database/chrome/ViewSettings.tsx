@@ -2,6 +2,7 @@ import { HELP_URL } from '@nc/shared/brand.ts';
 // View settings panel (290px, sliders icon): main page (Layout, Property visibility, Filter, Sort, Group,
 // Sub-group, Conditional color, Copy link to layout / data source settings) and its sub-pages.
 // Item lists use the layout tab labels.
+import { TRIM } from '../../biz/flags.ts';
 import { useState, type ReactNode } from 'react';
 import { create } from 'zustand';
 import type { BlockRecord, CollectionRecord, CollectionViewRecord, PropertySchema, ViewType } from '@nc/shared/records.ts';
@@ -187,11 +188,11 @@ function MainPage({ ctx, view, collection, go, close }: { ctx: Ctx; view: Collec
             {/* a block with a single data source shows its source as a dimmed, inert row */}
             <SourceRow block={ctx.block} view={view} collection={collection} readOnly={ro} />
             <Row icon="bulletedList" label="Edit properties" onClick={() => go('properties')} />
-            <Row icon="dbLightning" label="Automations" onClick={() => void automationsEntry(collection, () => go('automations'))} />
-            <Row icon="magicWand" label="AI Autofill" onClick={(e) => pick(e.currentTarget, [
+            {!TRIM.automations && <Row icon="dbLightning" label="Automations" onClick={() => void automationsEntry(collection, () => go('automations'))} />}
+            {!TRIM.ai && (<Row icon="magicWand" label="AI Autofill" onClick={(e) => pick(e.currentTarget, [
               { id: 'basic', label: 'Basic', icon: 'magicWand', description: 'Not available in this workspace', disabled: true },
               { id: 'agent', label: 'Custom Agent', icon: 'aiFace', badge: 'New', description: 'Uses advanced models to fill fields based on web search and your connected workspace.', disabled: true },
-            ], 260)} />
+            ], 260)} />)}
             {!ro && <Row icon="dbTurnInto" label="Turn into" onClick={(e) => pick(e.currentTarget, turnIntoItems(collection, close))} />}
             <Row icon="archiveBoxSmall" label={archivedOn ? 'Exit archive view' : 'Show archived entries'} chevron={false} onClick={() => { useArchivedViews.getState().set(ctx.block.id, !archivedOn); close(); }} />
             <Row icon="ellipsis" label="More settings" onClick={(e) => pick(e.currentTarget, moreSettingsItems({ collection, view, block: ctx.block, go: (p) => go(p as Page), close }))} />

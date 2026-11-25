@@ -4,6 +4,7 @@ import { HELP_URL } from '@nc/shared/brand.ts';
 // <workspace> / Anyone on the web with link + role + Link expires), Copy link. Publish tab: "Publish to web"
 // card → published state (site URL, Link expires, Search engine indexing, Duplicate as template, Unpublish,
 // View site). Permission edits are transactions on block.permissions; invites go through the server.
+import { TRIM } from '../biz/flags.ts';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LockKeyhole } from 'lucide-react';
 import { afterSaved } from '../comments/comments.tsx';
@@ -198,7 +199,7 @@ function ShareMenu({ pageId, close, initialTab }: { pageId: string; close: () =>
     <PopoverSurface width={456} maxHeight="90vh" className="lit-share-menu nc-share-menu" style={{ borderRadius: 12 }}>
       <div className="nc-share-head">
         <div className="hide-scrollbar nc-share-tabs" role="tablist">
-          {(['share', 'publish'] as const).map((k) => (
+          {(TRIM.publish ? (['share'] as const) : (['share', 'publish'] as const)).map((k) => (
             <div key={k} className={`nc-share-tab ${tab === k ? 'active' : ''}`}>
               <div role="tab" aria-selected={tab === k} className={`nc-tab ${k === 'publish' ? 'lit-share-menu-publish-tab' : ''}`} onClick={() => setTab(k)}>
                 {k === 'share' ? t('lp.page.share', 'Share') : t('lp.page.publish', 'Publish')}
@@ -492,7 +493,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
  *  row until dismissed (remembered per user on this device). */
 function AgentAccessBanner() {
   const [hidden, setHidden] = useState(() => getPref<boolean>('shareMenuAgentAccessBannerDismissed') === true);
-  if (hidden) return null;
+  if (hidden || TRIM.ai) return null;
   return (
     <div className="nc-share-banner-wrap">
       <div className="nc-share-banner">
