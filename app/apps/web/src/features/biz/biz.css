@@ -97,7 +97,12 @@
 .biz-row > .biz-input { flex: 1; }
 .biz-push { margin-left: auto; }
 .biz-narrow { width: 80px; flex: none !important; }
-.biz-time { width: 104px; flex: none; }
+.biz-time { width: 96px; flex: none; }
+.biz-time.h24 { width: 64px; }
+.biz-seg { display: inline-flex; border: 1px solid var(--lp-border-primary, #e5e7eb); border-radius: 6px; overflow: hidden; }
+.biz-seg button { height: 24px; padding: 0 8px; border: 0; background: transparent; font: inherit; font-size: 12px; color: var(--lp-text-secondary, #6b7280); cursor: pointer; }
+.biz-seg button + button { border-left: 1px solid var(--lp-border-primary, #e5e7eb); }
+.biz-seg button.on { background: var(--biz-soft); color: var(--lp-text-primary, #111827); font-weight: 600; }
 .biz-block > .biz-link { align-self: flex-start; }
 .biz-muted { opacity: 0.8; }
 .biz-sched { display: flex; flex-direction: column; gap: 12px; }
