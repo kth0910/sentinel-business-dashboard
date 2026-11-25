@@ -4,6 +4,7 @@
 // The container is anchored at the selection's focus end (left = focus x, top = bottom of the last line) with a
 // 16px transparent padding, so the 192px card appears 16px right/below the selection end.
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { TRIM } from '../../biz/flags.ts';
 import { createPortal } from 'react-dom';
 import { create } from 'zustand';
 import type { BlockType } from '@nc/shared/records.ts';
@@ -410,6 +411,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               />
             </div>
           </div>
+          {!TRIM.comments && (<>
           <div className="nc-tam-divider" />
           <div className="nc-tam-comment-row">
             <div
@@ -435,6 +437,8 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               <TBtn icon="commentPencil" tip="Suggest edits" sub={`${mod}${shift}${alt}X`} onPress={() => { hideTextMenu(); void import('../../comments/suggest.ts').then((m) => m.startSuggestingOnRange(r)); }} />
             </div>
           </div>
+          </>)}
+          {!TRIM.ai && (<>
           <div className="nc-tam-divider" style={{ marginBlock: '4px 0' }} />
           <div style={{ position: 'relative' }}>
             {/* The list shows a 15px scrollbar and rows 161px wide. */}
@@ -494,6 +498,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
             />
             <div className="nc-tam-ai-hint">{isMac ? '⌘⌃E' : `${ctrl}${alt}E`}</div>
           </div>
+          </>)}
         </div>
       </div>
     </div>

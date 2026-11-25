@@ -2,6 +2,7 @@
 // (Add to favorites, Edit icon, Edit property ›), Open in ›, Comment, Copy link, Duplicate, Move to,
 // Send to trash, and the "Last edited" footer.
 import type { BlockRecord, CollectionRecord, CollectionViewRecord, UserRecord } from '@nc/shared/records.ts';
+import { TRIM } from '../../biz/flags.ts';
 import { toPlainText } from '@nc/shared/richtext.ts';
 import { propertyTypeMeta } from '@nc/shared/database/index.ts';
 import { records } from '../../../lib/store/records.ts';
@@ -71,7 +72,7 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
         { id: 'center', label: 'Center peek', icon: 'centerPeek', onSelect: () => openPeek(first.id, 'center_peek') },
         { id: 'full', label: 'Full page', icon: 'fullPage', onSelect: () => openPage(first.id) },
       ] }] }) } as MenuItemDef,
-      { id: 'comment', label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => { openPeek(first.id, 'side_peek'); setTimeout(() => startPageComment(first.id), 150); } },
+      ...(TRIM.comments ? [] : [{ id: 'comment', label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => { openPeek(first.id, 'side_peek'); setTimeout(() => startPageComment(first.id), 150); } }]),
     ] : []),
   ];
   const manage: MenuItemDef[] = [

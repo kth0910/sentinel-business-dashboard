@@ -6,6 +6,7 @@
 // Image hover bar: Alignment, Caption, Comment, Download, Expand, •••; block menu adds Replace, Alt text,
 // View original, Full screen (help center.x).
 import { useEffect, useState } from 'react';
+import { TRIM } from '../../biz/flags.ts';
 import type { BlockRecord } from '@nc/shared/records.ts';
 import { toPlainText, type RichText } from '@nc/shared/richtext.ts';
 import { safeHref } from '@nc/shared/url.ts';
@@ -188,7 +189,7 @@ function ImageBlock({ block, readOnly }: BlockProps) {
           <AiImageEditButton block={block} readOnly={readOnly} />
           <AlignButton block={block} />
           <ActionButton icon="caption" tooltip="Caption" label="Add a caption" onClick={() => showCaption(block.id)} />
-          <ActionButton icon="commentFilled" tooltip="Comment" onClick={() => startCommentOnBlock(block.id)} />
+          {!TRIM.comments && <ActionButton icon="commentFilled" tooltip="Comment" onClick={() => startCommentOnBlock(block.id)} />}
           <ActionButton icon="crop" tooltip="Crop" label="Crop image" onClick={() => openImageEditor(block.id)} />
           <ActionButton icon="download" tooltip="Download" label="Download file" onClick={() => downloadBlockFile(block)} />
           <ActionButton icon="expand2" tooltip="Expand" label="Open full-screen block" onClick={expand} />
@@ -237,7 +238,7 @@ function VideoBlock({ block, readOnly }: BlockProps) {
         <>
           <AlignButton block={block} />
           <ActionButton icon="caption" tooltip="Caption" onClick={() => showCaption(block.id)} />
-          <ActionButton icon="commentFilled" tooltip="Comment" onClick={() => startCommentOnBlock(block.id)} />
+          {!TRIM.comments && <ActionButton icon="commentFilled" tooltip="Comment" onClick={() => startCommentOnBlock(block.id)} />}
           {fileLike ? <ActionButton icon="download" tooltip="Download" onClick={() => downloadBlockFile(block)} /> : <ActionButton icon="openOriginal" tooltip="View original" label="View source media" onClick={() => openExternal(original)} />}
           <ActionButton icon="ellipsis" tooltip="More actions" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
         </>

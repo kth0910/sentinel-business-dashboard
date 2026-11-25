@@ -1,6 +1,7 @@
 // Input/keyboard behavior shared by all rich-text blocks (text, headings, lists, quote, callout, code).
 // behaviors: (keyboard / markdown_autoformat / text_autoreplace).
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { TRIM } from '../biz/flags.ts';
 import type { BlockType } from '@nc/shared/records.ts';
 import {
   annotationsAt, annotationValue, deleteRange, hasAnnotation, insertText, length, toPlainText, toggleAnnotation, addAnnotation, removeAnnotation,
@@ -215,7 +216,7 @@ export function makeTextHandlers(blockId: string, property = 'title') {
         });
         return;
       }
-      if (e.shiftKey && lower === 'm') {
+      if (e.shiftKey && lower === 'm' && !TRIM.comments) {
         e.preventDefault();
         void import('../comments/comments.tsx').then(({ startCommentOnSelection, startCommentOnBlock }) => {
           if (collapsed) startCommentOnBlock(blockId);
@@ -306,7 +307,7 @@ export function makeTextHandlers(blockId: string, property = 'title') {
     }
     if (m && e.altKey) {
       const code = e.code; // ⌥ changes e.key on macOS (⌥0 = "º"): use the physical key
-      if (e.shiftKey && code === 'KeyX') {
+      if (e.shiftKey && code === 'KeyX' && !TRIM.comments) {
  // ⌘⇧⌥X — Suggest edits (block menu / selection card shortcut)
         e.preventDefault();
         void import('../comments/suggest.ts').then((s) => s.startSuggestingOnRange(range));
