@@ -23,7 +23,7 @@ interface Spec { type: BlockType; title?: string; format?: Record<string, unknow
 function reportTemplate(): Spec[] {
   return [
     { type: 'header', title: '인사 관리' },
-    { type: 'biz_hiring', format: { biz: { sites: '', rows: DEFAULT_HIRING_ROLES.map((role) => ({ role, status: '해당자 없음', note: '' })), applicants: null } } },
+    { type: 'biz_hiring', format: { biz: { sites: '', rows: DEFAULT_HIRING_ROLES.map((role) => ({ id: newId(), role, status: '해당자 없음', note: '' })), applicants: null } } },
     { type: 'header', title: '주요 보고' },
     { type: 'numbered_list' },
     { type: 'header', title: '당일 일정' },
@@ -90,6 +90,8 @@ export function ensureDailyPage(uid: string, spaceId: string, date: string, kind
     ops = [...copier.finish().values()].map((e) => setOp(e.table, e.record as { id: string }, spaceId));
     const top = ops.find((o) => o.args.id === id);
     if (top) top.args.properties = { ...top.args.properties, title: rt(title) };
+    // 일정은 그날 것만: 복사한 일정 블록은 비운다 (설계 5.2, 리뷰 #6)
+    for (const o of ops) if (o.args.type === 'biz_schedule') o.args.format = { ...o.args.format, biz: { items: [] } };
   } else {
     ({ id, ops } = pageWithContent(title, kind === 'report' ? reportTemplate() : salesTemplate(date), parentId, 'block', spaceId, uid, kind === 'sales'));
   }

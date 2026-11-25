@@ -59,6 +59,16 @@ describe('ensureDailyPage', () => {
     expect((copied.format as any).biz.applicants).toBe(14);
   });
 
+  // 리뷰 #6: 일정은 그날 것만 (설계 5.2: 이어받는 건 직접 입력하는 채용 현황·주요 보고)
+  it('next day starts with an empty schedule', () => {
+    const prev = pages.ensureDailyPage(uid, spaceId, '2026-11-23', 'report');
+    const sched = children(prev).find((b) => b.type === 'biz_schedule')!;
+    db.putRecord('block', { ...sched, version: sched.version + 1, format: { biz: { items: [{ time: '10:00', title: '고객 미팅' }] } } } as any);
+    const next = pages.ensureDailyPage(uid, spaceId, '2026-11-24', 'report');
+    expect((children(next).find((b) => b.type === 'biz_schedule')!.format as any).biz).toEqual({ items: [] });
+    expect((db.getRecord<BlockRecord>('block', sched.id)!.format as any).biz.items).toHaveLength(1);
+  });
+
   it('sales blocks carry date', () => {
     const id = pages.ensureDailyPage(uid, spaceId, '2026-11-25', 'sales');
     expect(title(id)).toBe('본영업 목표매출 2026-11-25(수)');

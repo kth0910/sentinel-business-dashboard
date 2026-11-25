@@ -1,14 +1,16 @@
 // 업무 블록 공통: format.biz 읽기·저장, 편집기 단축키와 섞이지 않는 입력칸.
 import { useEffect, useState } from 'react';
 import type { BlockRecord } from '@nc/shared/records.ts';
-import { run, setFormat } from '../../lib/blocks.ts';
+import { getBlock, run, setFormat } from '../../lib/blocks.ts';
 
 export function bizData<T>(block: BlockRecord, fallback: T): T {
   return ((block.format as any)?.biz as T | undefined) ?? fallback;
 }
 
-export function saveBiz<T>(block: BlockRecord, value: T) {
-  run('bizEdit', (tx) => setFormat(tx, block.id, { biz: value } as any));
+/** 저장하는 순간의 최신 블록 값에 변경을 적용한다. 화면을 그린 뒤 다른 사람이 바꾼 칸을 덮어쓰지 않는다(리뷰 #5). */
+export function updateBiz<T>(blockId: string, fallback: T, change: (latest: T) => T) {
+  const latest = getBlock(blockId);
+  run('bizEdit', (tx) => setFormat(tx, blockId, { biz: change(latest ? bizData(latest, fallback) : fallback) } as any));
 }
 
 /** 편집기(블록 이동·삭제 단축키)가 입력칸의 키·마우스 이벤트를 가져가지 않게 막는다. */
