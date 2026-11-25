@@ -1,6 +1,9 @@
 // 업무 화면 RPC (POST /api/rpc/biz*). 로그인만 확인하고 권한은 따로 두지 않는다(설계 11.2).
 import { monthlyConfirmed, normalizeRows, openPipeline, SalesImportError, summarize, type Targets } from '@nc/biz';
+import type { SpaceRecord } from '@nc/shared/records.ts';
+import { getRecord } from '../../db.ts';
 import { readFirstSheet } from '../../biz/excel.ts';
+import { ensureDailyPage, type DailyKind } from '../../biz/pages.ts';
 import * as store from '../../biz/store.ts';
 import { ApiError, type Ctx } from '../handlers.ts';
 
@@ -82,6 +85,21 @@ export const handlers = {
       };
     });
     return { days };
+  },
+
+  async bizEnsureDailyPage(ctx: Ctx, body: { spaceId?: unknown; date?: unknown; kind?: unknown }) {
+    const uid = requireUser(ctx);
+    const date = dateArg(body.date);
+    if (body.kind !== 'report' && body.kind !== 'sales') throw new ApiError('kind는 report 또는 sales입니다', 400);
+    const space = getRecord<SpaceRecord>('space', String(body.spaceId ?? ''));
+    if (!space || !space.permissions?.some((p) => p.user_id === uid && p.role !== 'none')) throw new ApiError('Not found', 404);
+    return { pageId: badRequest(() => ensureDailyPage(uid, space.id, date, body.kind as DailyKind)) };
+  },
+
+  async bizPageDate(ctx: Ctx, body: { pageId?: unknown }) {
+    requireUser(ctx);
+    const hit = store.dailyPageLookup(String(body.pageId ?? ''));
+    return hit ? { date: hit.date, kind: hit.kind } : { date: null, kind: null };
   },
 
   async bizCategories(ctx: Ctx) {

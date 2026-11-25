@@ -146,6 +146,15 @@ export function dailyPageId(date: string, kind: 'report' | 'sales'): string | nu
   return (db.prepare('SELECT page_id FROM biz_daily_page WHERE date = ? AND kind = ?').get(date, kind) as { page_id: string } | undefined)?.page_id ?? null;
 }
 
+export function latestDailyPageBefore(date: string, kind: 'report' | 'sales'): { date: string; pageId: string } | null {
+  const row = db.prepare('SELECT date, page_id FROM biz_daily_page WHERE kind = ? AND date < ? ORDER BY date DESC LIMIT 1').get(kind, date) as { date: string; page_id: string } | undefined;
+  return row ? { date: row.date, pageId: row.page_id } : null;
+}
+
+export function dailyPageLookup(pageId: string): { date: string; kind: 'report' | 'sales' } | null {
+  return (db.prepare('SELECT date, kind FROM biz_daily_page WHERE page_id = ?').get(pageId) as { date: string; kind: 'report' | 'sales' } | undefined) ?? null;
+}
+
 export function setDailyPage(date: string, kind: 'report' | 'sales', pageId: string): void {
   db.prepare('INSERT INTO biz_daily_page (date, kind, page_id) VALUES (?, ?, ?) ON CONFLICT(date, kind) DO UPDATE SET page_id = excluded.page_id').run(date, kind, pageId);
 }

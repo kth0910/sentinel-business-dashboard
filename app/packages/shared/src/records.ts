@@ -76,6 +76,8 @@ export type BlockType =
   | 'factory' | 'external_object_instance' | 'transcription'
   // Custom Agent chat embedded in a page (format.agent_id, features/agents/AgentChat.block.tsx)
   | 'agent_chat'
+  // 업무 블록 (format.biz, apps/web/src/features/biz/*.block.tsx)
+  | 'biz_hiring' | 'biz_schedule' | 'biz_sales_summary' | 'biz_changes' | 'biz_monthly_chart' | 'biz_pipeline'
   // embed provider block types; rendered as embeds
   | 'abstract' | 'codepen' | 'deepnote' | 'drive' | 'excalidraw' | 'figma' | 'framer' | 'gist' | 'hex' | 'invision'
   | 'loom' | 'maps' | 'miro' | 'mixpanel' | 'replit' | 'sketch' | 'tweet' | 'typeform' | 'whimsical';
