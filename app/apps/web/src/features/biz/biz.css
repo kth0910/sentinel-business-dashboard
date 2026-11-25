@@ -85,9 +85,21 @@
 }
 .biz-input:hover { border-color: var(--biz-line); }
 .biz-input:focus { outline: none; border-color: var(--biz-up); background: var(--lp-bg-primary, #fff); }
-.biz-link { border: 0; background: none; padding: 0; color: var(--lp-text-secondary); font: inherit; font-size: 13px; cursor: pointer; }
+.biz-link { white-space: nowrap; border: 0; background: none; padding: 0; color: var(--lp-text-secondary); font: inherit; font-size: 13px; cursor: pointer; }
 .biz-link:hover { color: var(--lp-text-primary); text-decoration: underline; }
 
 /* ---------- 사이드바 ---------- */
 .biz-sb { padding: 4px 0 10px; }
 .biz-sb-title { padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--lp-text-secondary); }
+.biz-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.biz-row > .biz-input { flex: 1; }
+.biz-push { margin-left: auto; }
+.biz-narrow { width: 80px; flex: none !important; }
+.biz-time { width: 104px; flex: none; }
+.biz-block > .biz-link { align-self: flex-start; }
+.biz-muted { opacity: 0.8; }
+.biz-sched { display: flex; flex-direction: column; gap: 12px; }
+.biz-sched-group { display: flex; flex-direction: column; gap: 6px; }
+.biz-sched-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px; background: var(--biz-soft); }
+.biz-sched-item > .biz-input:not(.biz-time) { flex: 1; }
+@media (max-width: 640px) { .biz-sched-item { flex-wrap: wrap; } .biz-sched-item > .biz-input:not(.biz-time) { flex-basis: 100%; } }
