@@ -2,7 +2,7 @@
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { bizData, Field, isolate, updateBiz } from './fields.tsx';
 import { addRow, keyed, patchRow, removeRow } from './listEdit.ts';
-import { BizTable, TableControls, type ColDef } from './table.tsx';
+import { BizBlock, BizTable, type ColDef } from './table.tsx';
 import './biz.css';
 
 interface HiringRow { id?: string; role: string; status: string; note: string }
@@ -21,10 +21,9 @@ function HiringBlock({ block, readOnly }: BlockProps) {
   const setRow = (id: string, patch: Partial<HiringRow>) => update((d) => ({ rows: patchRow(d.rows, id, patch) }));
 
   return (
-    <div className="biz-block" contentEditable={false} data-biz="hiring">
+    <BizBlock block={block} readOnly={readOnly} biz="hiring">
       <div className="biz-block-head">
         <h3>채용 현황</h3>
-        <TableControls block={block} readOnly={readOnly} />
       </div>
       <div className="biz-row">
         <span className="biz-note">구인 사이트</span>
@@ -52,7 +51,7 @@ function HiringBlock({ block, readOnly }: BlockProps) {
           <span className="biz-note">명</span>
         </span>
       </div>
-    </div>
+    </BizBlock>
   );
 }
 

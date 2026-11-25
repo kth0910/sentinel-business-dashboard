@@ -7,6 +7,7 @@ import { formatTime, parseTime, type TimeMode } from './timeFormat.ts';
 import { savePref, usePrefs } from '../settings/userSettings.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import './biz.css';
+import { BizBlock } from './table.tsx';
 
 interface Item { id?: string; start: string; end: string; text: string }
 interface Schedule { items: Item[] }
@@ -56,7 +57,7 @@ function ScheduleBlock({ block, readOnly }: BlockProps) {
   );
 
   return (
-    <div className="biz-block" contentEditable={false} data-biz="schedule">
+    <BizBlock block={block} readOnly={readOnly} biz="schedule">
       <div className="biz-block-head">
         <h3>일정</h3>
         <span className="biz-seg" role="group" aria-label="시간 표시">
@@ -72,7 +73,7 @@ function ScheduleBlock({ block, readOnly }: BlockProps) {
         {group('오후', afternoon)}
       </div>
       {!readOnly && <button {...isolate} type="button" className="biz-link" onClick={() => update((list) => addRow(list, { start: '', end: '', text: '' }))}>+ 일정 추가</button>}
-    </div>
+    </BizBlock>
   );
 }
 

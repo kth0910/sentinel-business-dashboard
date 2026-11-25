@@ -8,13 +8,14 @@ import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { won } from './api.ts';
 import { blockDate, useSalesView } from './sales.ts';
 import './biz.css';
+import { BizBlock } from './table.tsx';
 
 echarts.use([BarChart, LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => `${i + 1}월`);
 const toManwon = (n: number) => Math.round(n / 10000);
 
-function MonthlyChartBlock({ block }: BlockProps) {
+function MonthlyChartBlock({ block, readOnly }: BlockProps) {
   const date = blockDate(block.format);
   const { data } = useSalesView(date);
   const el = useRef<HTMLDivElement>(null);
@@ -42,12 +43,12 @@ function MonthlyChartBlock({ block }: BlockProps) {
   if (!date) return <div className="biz-block" contentEditable={false}><p className="biz-note">날짜가 없는 매출 블록입니다.</p></div>;
   const year = date.slice(0, 4);
   return (
-    <div className="biz-block" contentEditable={false} data-biz="monthly-chart">
+    <BizBlock block={block} readOnly={readOnly} biz="monthly-chart">
       <div className="biz-block-head">
         <h3>{year}년 월별 확정 매출</h3>
       </div>
       <div ref={el} className="biz-chart" role="img" aria-label={`${year}년 월별 확정 매출 막대그래프`} />
-    </div>
+    </BizBlock>
   );
 }
 

@@ -7,7 +7,7 @@ import { arrow, biz, type StoredChange } from './api.ts';
 import { CategoryManager } from './CategoryManager.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
-import { BizTable, TableControls, type ColDef } from './table.tsx';
+import { BizBlock, BizTable, type ColDef } from './table.tsx';
 import './biz.css';
 
 const PAGE = 50;
@@ -51,11 +51,10 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
 
   const rows = data?.changes ?? [];
   return (
-    <div className="biz-block" contentEditable={false} data-biz="changes">
+    <BizBlock block={block} readOnly={readOnly} biz="changes">
       <div className="biz-block-head">
         <h3>변동사항{data?.prevDate && data.hasSnapshot ? ` · ${shortDate(data.prevDate)} 대비` : ''}</h3>
         <span className="biz-row">
-          <TableControls block={block} readOnly={readOnly} />
           {!readOnly && data && <button {...isolate} type="button" className="biz-btn" onClick={() => setManaging((v) => !v)}>구분 관리</button>}
         </span>
       </div>
@@ -93,7 +92,7 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
         </BizTable>
       )}
       {rows.length > shown && <button {...isolate} type="button" className="biz-link" onClick={() => setShown((n) => n + PAGE)}>더 보기 ({(rows.length - shown).toLocaleString('ko-KR')}건 남음)</button>}
-    </div>
+    </BizBlock>
   );
 }
 

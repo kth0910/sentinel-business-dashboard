@@ -7,6 +7,7 @@ import { arrow, biz, signed, won } from './api.ts';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
 import './biz.css';
+import { BizBlock } from './table.tsx';
 
 const rate = (actual: number, target: number) => (target > 0 ? `${Math.round((actual / target) * 100)}%` : '목표 미설정');
 
@@ -61,7 +62,7 @@ function SalesSummaryBlock({ block, readOnly }: BlockProps) {
   );
 
   return (
-    <div className="biz-block" contentEditable={false} data-biz="sales-summary">
+    <BizBlock block={block} readOnly={readOnly} biz="sales-summary">
       <div className="biz-block-head">
         <h3>{s ? `${s.year}년 본영업 매출` : '본영업 매출'}</h3>
       </div>
@@ -89,7 +90,7 @@ function SalesSummaryBlock({ block, readOnly }: BlockProps) {
           {editTargets && <TargetsEditor year={s.year} onDone={() => setEditTargets(false)} />}
         </>
       )}
-    </div>
+    </BizBlock>
   );
 }
 

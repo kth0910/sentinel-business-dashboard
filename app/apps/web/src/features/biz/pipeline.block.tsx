@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, shortDate, useSalesView } from './sales.ts';
-import { BizTable, TableControls, type ColDef } from './table.tsx';
+import { BizBlock, BizTable, type ColDef } from './table.tsx';
 import './biz.css';
 
 const PAGE = 50;
@@ -23,12 +23,11 @@ function PipelineBlock({ block, readOnly }: BlockProps) {
   const total = rows.reduce((a, r) => a + r.amount, 0);
 
   return (
-    <div className="biz-block" contentEditable={false} data-biz="pipeline">
+    <BizBlock block={block} readOnly={readOnly} biz="pipeline">
       <div className="biz-block-head">
         <h3>진행 중 영업 건 · {rows.length.toLocaleString('ko-KR')}건</h3>
         <span className="biz-row">
           <span className="biz-note">공급가 합 {total.toLocaleString('ko-KR')}원{data?.basisDate ? ` · ${shortDate(data.basisDate)} 기준` : ''}</span>
-          <TableControls block={block} readOnly={readOnly} />
         </span>
       </div>
       {data && rows.length === 0 && <p className="biz-note">진행 중인 건이 없습니다.</p>}
@@ -48,7 +47,7 @@ function PipelineBlock({ block, readOnly }: BlockProps) {
         </BizTable>
       )}
       {rows.length > shown && <button {...isolate} type="button" className="biz-link" onClick={() => setShown((n) => n + PAGE)}>더 보기 ({(rows.length - shown).toLocaleString('ko-KR')}건 남음)</button>}
-    </div>
+    </BizBlock>
   );
 }
 

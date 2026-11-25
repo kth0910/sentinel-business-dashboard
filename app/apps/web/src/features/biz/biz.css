@@ -145,9 +145,8 @@
 .biz-table.fixed select, .biz-table.fixed .biz-input { width: 100%; max-width: 100%; box-sizing: border-box; }
 .biz-col-grip { position: absolute; top: 0; right: 0; bottom: 0; width: 7px; cursor: col-resize; touch-action: none; }
 .biz-col-grip:hover, .biz-col-grip:active { background: linear-gradient(to right, transparent 3px, var(--biz-up) 3px, var(--biz-up) 4px, transparent 4px); }
-.biz-table.dens-compact td { padding-top: 2px; padding-bottom: 2px; font-size: 13px; }
-.biz-table.dens-normal td { padding-top: 6px; padding-bottom: 6px; }
-.biz-table.dens-wide td { padding-top: 12px; padding-bottom: 12px; }
+.biz-table.row-sized tbody td { height: var(--biz-row-h); box-sizing: border-box; }
+.biz-table-wrap.row-edge, .biz-table-wrap.row-edge * { cursor: row-resize !important; }
 
 /* 이름 입력 창(nameDialog.tsx) */
 .biz-dialog-backdrop { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding-top: 18vh; background: rgba(15, 23, 42, 0.32); }
@@ -155,3 +154,11 @@
 .biz-dialog h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--lp-text-primary); }
 .biz-dialog .biz-input { width: 100%; box-sizing: border-box; height: 34px; }
 .biz-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* 블록 전체 너비 끌기(table.tsx BizBlock) */
+.biz-block { position: relative; box-sizing: border-box; }
+.biz-block.sized { position: relative; z-index: 1; background: var(--lp-bg-primary, #fff); }
+.biz-block-grip { position: absolute; top: 8px; bottom: 8px; right: -5px; width: 10px; cursor: ew-resize; touch-action: none; border-radius: 4px; }
+.biz-block-grip::after { content: ''; position: absolute; top: 50%; left: 3px; width: 4px; height: 32px; margin-top: -16px; border-radius: 2px; background: var(--lp-border-primary, #d1d5db); opacity: 0; transition: opacity 0.12s; }
+.biz-block:hover > .biz-block-grip::after { opacity: 1; }
+.biz-block-grip:hover::after, .biz-block-grip:active::after { background: var(--biz-up); opacity: 1; }
