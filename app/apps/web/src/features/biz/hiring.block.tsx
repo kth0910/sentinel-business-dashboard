@@ -2,20 +2,25 @@
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { bizData, Field, isolate, updateBiz } from './fields.tsx';
 import { addRow, keyed, patchRow, removeRow } from './listEdit.ts';
-import { BizBlock, BizTable, type ColDef } from './table.tsx';
+import { BizBlock, BizTable, FilterNote, useFilteredRows, type ColDef } from './table.tsx';
 import './biz.css';
 
 interface HiringRow { id?: string; role: string; status: string; note: string }
 interface Hiring { sites: string; rows: HiringRow[]; applicants: number | null }
 
-const COLS: ColDef[] = [{ key: 'role', label: '직군', width: 170 }, { key: 'status', label: '현황', width: 200 }, { key: 'note', label: '비고', width: 260 }];
+const COLS: ColDef[] = [
+  { key: 'role', label: '직군', width: 170, value: (r: HiringRow) => r.role },
+  { key: 'status', label: '현황', width: 200, value: (r: HiringRow) => r.status },
+  { key: 'note', label: '비고', width: 260, value: (r: HiringRow) => r.note },
+];
 const DELETE_COL: ColDef = { key: 'delete', label: '', width: 56 };
 
 const EMPTY: Hiring = { sites: '', rows: [], applicants: null };
 
 function HiringBlock({ block, readOnly }: BlockProps) {
   const data = bizData<Hiring>(block, EMPTY);
-  const rows = keyed(data.rows);
+  const allRows = keyed(data.rows);
+  const rows = useFilteredRows(block, allRows, COLS);
   const update = (change: (d: Hiring) => Partial<Hiring>) => updateBiz<Hiring>(block.id, EMPTY, (d) => ({ ...d, ...change(d) }));
   const save = (patch: Partial<Hiring>) => update(() => patch);
   const setRow = (id: string, patch: Partial<HiringRow>) => update((d) => ({ rows: patchRow(d.rows, id, patch) }));
@@ -24,12 +29,13 @@ function HiringBlock({ block, readOnly }: BlockProps) {
     <BizBlock block={block} readOnly={readOnly} biz="hiring">
       <div className="biz-block-head">
         <h3>채용 현황</h3>
+        <FilterNote block={block} readOnly={readOnly} shown={rows.length} total={allRows.length} />
       </div>
       <div className="biz-row">
         <span className="biz-note">구인 사이트</span>
         <Field ariaLabel="구인 사이트" value={data.sites} readOnly={readOnly} placeholder="예: saramin.co.kr, jobkorea.co.kr" onCommit={(v) => save({ sites: v })} />
       </div>
-      <BizTable block={block} cols={readOnly ? COLS : [...COLS, DELETE_COL]} readOnly={readOnly}>
+      <BizTable block={block} cols={readOnly ? COLS : [...COLS, DELETE_COL]} readOnly={readOnly} filterRows={allRows}>
             {rows.map((r, i) => (
               <tr key={r.id}>
                 <td><Field ariaLabel={`${i + 1}행 직군`} value={r.role} readOnly={readOnly} onCommit={(v) => setRow(r.id, { role: v })} /></td>

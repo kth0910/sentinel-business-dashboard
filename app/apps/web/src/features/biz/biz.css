@@ -174,3 +174,21 @@
 .biz-block-grip-y::after { content: ''; position: absolute; left: 50%; top: 2px; width: 32px; height: 4px; margin-left: -16px; border-radius: 2px; background: var(--lp-border-primary, #d1d5db); opacity: 0; transition: opacity 0.12s; }
 .biz-block:hover > .biz-block-grip-y::after { opacity: 1; }
 .biz-block-grip-y:hover::after, .biz-block-grip-y:active::after { background: var(--biz-up); opacity: 1; }
+
+/* 표 필터(table.tsx, filterPopover.tsx) */
+.biz-col-filter { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 4px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--lp-icon-tertiary, #9ca3af); cursor: pointer; vertical-align: -3px; opacity: 0; transition: opacity 0.12s; }
+.biz-table th:hover .biz-col-filter, .biz-col-filter:focus-visible { opacity: 1; }
+.biz-col-filter:hover { background: var(--biz-soft); color: var(--lp-text-primary); }
+.biz-col-filter.on { opacity: 1; color: var(--biz-up); }
+.biz-filter-note { display: inline-flex; align-items: center; gap: 6px; }
+.biz-popover { position: fixed; z-index: 10000; }
+.biz-filter { width: 260px; max-height: 360px; padding: 10px; display: flex; flex-direction: column; gap: 8px; border-radius: 8px; background: var(--lp-bg-primary, #fff); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--biz-line); font-size: 13px; font-family: var(--font-default); }
+.biz-filter-head { display: flex; align-items: center; justify-content: space-between; }
+.biz-filter-list { display: flex; flex-direction: column; overflow: auto; min-height: 0; }
+.biz-filter-item { display: flex; align-items: center; gap: 8px; padding: 4px 4px; border-radius: 4px; cursor: pointer; }
+.biz-filter-item:hover { background: var(--biz-soft); }
+.biz-filter-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.biz-filter-range { display: flex; align-items: center; gap: 8px; }
+.biz-filter-range > span { width: 32px; color: var(--lp-text-secondary); }
+.biz-filter-range > .biz-input { flex: 1; height: 30px; }
+.biz-filter .biz-input { box-sizing: border-box; width: 100%; height: 30px; }

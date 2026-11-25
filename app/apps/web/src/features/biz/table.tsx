@@ -5,6 +5,9 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { BlockRecord } from '@nc/shared/records.ts';
 import { getBlock, run, setFormat } from '../../lib/blocks.ts';
 import { isolate } from './fields.tsx';
+import { openFilterPopover } from './filterPopover.tsx';
+import { activeFilterCount, applyFilters, distinctValues, type Filters } from './tableFilter.ts';
+import { Icon } from '../../components/Icon.tsx';
 
 export interface TableLayout {
   cols?: Record<string, number>;
@@ -13,6 +16,8 @@ export interface TableLayout {
   /** 블록 전체 크기(px). 없으면 본문 폭·내용 높이. 화면 안을 넘지 않는다. 표 영역은 블록을 따라간다 */
   blockWidth?: number | null;
   blockHeight?: number | null;
+  /** 열 필터(tableFilter.ts) */
+  filters?: Filters;
 }
 export interface ColDef {
   key: string;
@@ -20,6 +25,8 @@ export interface ColDef {
   /** 기본 너비(px) */
   width: number;
   num?: boolean;
+  /** 필터에 쓰는 값. 없으면 이 열은 거르지 않는다 */
+  value?: (row: any) => string | number | null | undefined;
 }
 
 const MIN_COL = 48;
@@ -39,9 +46,47 @@ export function saveTableLayout(blockId: string, patch: Partial<TableLayout>) {
 }
 
 /** 열 너비를 끌어서 바꿀 수 있는 표. tbody 행은 children으로 받는다. */
-export function BizTable({ block, cols, readOnly, className, children }: {
-  block: BlockRecord; cols: ColDef[]; readOnly?: boolean; className?: string; children: ReactNode;
+/** 이 블록에 저장된 필터로 거른 행. */
+export function useFilteredRows<T>(block: BlockRecord, rows: T[], cols: ColDef[]): T[] {
+  return applyFilters(rows, cols, tableLayout(block).filters);
+}
+
+/** 필터가 걸려 있으면 '필터 n개 · 보이는 건수 · 해제'. */
+export function FilterNote({ block, readOnly, shown, total }: { block: BlockRecord; readOnly?: boolean; shown: number; total: number }) {
+  const n = activeFilterCount(tableLayout(block).filters);
+  if (!n) return null;
+  return (
+    <span className="biz-note biz-filter-note">
+      필터 {n}개 · {shown.toLocaleString('ko-KR')}/{total.toLocaleString('ko-KR')}건
+      {!readOnly && <button {...isolate} type="button" className="biz-link" onClick={() => saveTableLayout(block.id, { filters: {} })}>해제</button>}
+    </span>
+  );
+}
+
+/** 열 너비를 끌어서 바꿀 수 있는 표. filterRows(거르기 전 전체 행)를 주면 머리글에 필터가 생긴다. */
+export function BizTable({ block, cols, readOnly, className, filterRows, children }: {
+  block: BlockRecord; cols: ColDef[]; readOnly?: boolean; className?: string; filterRows?: unknown[]; children: ReactNode;
 }) {
+  const filters = tableLayout(block).filters ?? {};
+  const openFilter = (e: React.MouseEvent, c: ColDef) => {
+    e.stopPropagation();
+    const all = filterRows ?? [];
+    const counts: Record<string, number> = {};
+    for (const v of all.map((r) => distinctValues([r], c)[0])) counts[v] = (counts[v] ?? 0) + 1;
+    openFilterPopover((e.currentTarget as HTMLElement).getBoundingClientRect(), {
+      title: typeof c.label === 'string' ? c.label : c.key,
+      num: !!c.num,
+      values: c.num ? [] : distinctValues(all, c),
+      counts,
+      current: filters[c.key],
+      onChange: (f) => {
+        const cur = { ...(tableLayout(getBlock(block.id) ?? block).filters ?? {}) };
+        if (f) cur[c.key] = f;
+        else delete cur[c.key];
+        saveTableLayout(block.id, { filters: cur });
+      },
+    });
+  };
   const layout = tableLayout(block);
   const [drag, setDrag] = useState<{ key: string; width: number } | null>(null);
   const [rowDrag, setRowDrag] = useState<number | null>(null);
@@ -119,6 +164,15 @@ export function BizTable({ block, cols, readOnly, className, children }: {
             {cols.map((c) => (
               <th key={c.key} className={c.num ? 'num' : undefined}>
                 {c.label}
+                {filterRows && c.value && !readOnly && (
+                  <button
+                    {...isolate} type="button" aria-label={`${typeof c.label === 'string' ? c.label : c.key} 필터`} title="필터"
+                    className={`biz-col-filter ${activeFilterCount({ [c.key]: filters[c.key] ?? {} }) ? 'on' : ''}`}
+                    onClick={(e) => openFilter(e, c)}
+                  >
+                    <Icon name="dbToolFilter" size={13} />
+                  </button>
+                )}
                 {!readOnly && (
                   <span
                     className="biz-col-grip" role="separator" aria-label="열 너비 조절(두 번 누르면 원래대로)" title="끌어서 열 너비 조절 · 두 번 누르면 원래대로"

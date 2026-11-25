@@ -1,22 +1,34 @@
 // 변동사항 블록 (biz_changes): 전일 대비 바뀐 영업 건, '기존' 값 표시, 구분 변경과 관리(설계 5.4, 7.2).
 import { useState } from 'react';
-import type { FieldDiff } from '@nc/biz';
+import type { Category, FieldDiff } from '@nc/biz';
 import { useUI } from '../../lib/store/ui.ts';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { arrow, biz, type StoredChange } from './api.ts';
 import { CategoryManager } from './CategoryManager.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
-import { BizBlock, BizTable, type ColDef } from './table.tsx';
+import { BizBlock, BizTable, FilterNote, useFilteredRows, type ColDef } from './table.tsx';
 import './biz.css';
 
 const PAGE = 50;
 
-const COLS: ColDef[] = [
-  { key: 'customer', label: '고객명', width: 150 }, { key: 'category', label: '구분', width: 150 }, { key: 'product', label: '제품', width: 170 },
-  { key: 'amount', label: '순매출', width: 140, num: true }, { key: 'delta', label: '증감액', width: 140, num: true }, { key: 'probability', label: '확도', width: 100 },
-  { key: 'weight', label: '가중치', width: 130 }, { key: 'revenueType', label: '매출 구분', width: 100 }, { key: 'revenueDate', label: '매출일정', width: 120 },
-];
+const rowOf = (c: StoredChange) => c.after ?? c.before!;
+
+/** 열 정의(필터 값 포함). 구분은 이름으로 거른다. */
+function colsFor(categories: Category[]): ColDef[] {
+  const label = (id: string) => categories.find((x) => x.id === id)?.label ?? id;
+  return [
+    { key: 'customer', label: '고객명', width: 150, value: (c: StoredChange) => rowOf(c).customer },
+    { key: 'category', label: '구분', width: 150, value: (c: StoredChange) => label(c.categoryId) },
+    { key: 'product', label: '제품', width: 170, value: (c: StoredChange) => rowOf(c).product },
+    { key: 'amount', label: '순매출', width: 140, num: true, value: (c: StoredChange) => c.after?.amount ?? null },
+    { key: 'delta', label: '증감액', width: 140, num: true, value: (c: StoredChange) => c.delta },
+    { key: 'probability', label: '확도', width: 100, value: (c: StoredChange) => rowOf(c).probability },
+    { key: 'weight', label: '가중치', width: 130, value: (c: StoredChange) => rowOf(c).weight },
+    { key: 'revenueType', label: '매출 구분', width: 100, value: (c: StoredChange) => rowOf(c).revenueType },
+    { key: 'revenueDate', label: '매출일정', width: 120, value: (c: StoredChange) => rowOf(c).revenueDate },
+  ];
+}
 
 const won = (v: unknown) => `${Number(v ?? 0).toLocaleString('ko-KR')}원`;
 
@@ -49,12 +61,15 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
     }
   };
 
-  const rows = data?.changes ?? [];
+  const all = data?.changes ?? [];
+  const cols = colsFor(data?.categories ?? []);
+  const rows = useFilteredRows(block, all, cols);
   return (
     <BizBlock block={block} readOnly={readOnly} biz="changes">
       <div className="biz-block-head">
         <h3>변동사항{data?.prevDate && data.hasSnapshot ? ` · ${shortDate(data.prevDate)} 대비` : ''}</h3>
         <span className="biz-row">
+          <FilterNote block={block} readOnly={readOnly} shown={rows.length} total={all.length} />
           {!readOnly && data && <button {...isolate} type="button" className="biz-btn" onClick={() => setManaging((v) => !v)}>구분 관리</button>}
         </span>
       </div>
@@ -62,9 +77,9 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
       {error && <p className="biz-note">{error}</p>}
       {data && !data.hasSnapshot && <p className="biz-note">이 날짜의 매출 데이터가 없습니다.</p>}
       {data?.baseline && <p className="biz-note">기준 데이터 — 다음 날부터 변동이 표시됩니다.</p>}
-      {data?.hasSnapshot && !data.baseline && rows.length === 0 && <p className="biz-note">전일 대비 변동이 없습니다.</p>}
-      {rows.length > 0 && (
-        <BizTable block={block} cols={COLS} readOnly={readOnly} className="biz-changes">
+      {data?.hasSnapshot && !data.baseline && all.length === 0 && <p className="biz-note">전일 대비 변동이 없습니다.</p>}
+      {all.length > 0 && (
+        <BizTable block={block} cols={cols} readOnly={readOnly} className="biz-changes" filterRows={all}>
               {rows.slice(0, shown).map((c) => {
                 const r = c.after ?? c.before!;
                 return (
