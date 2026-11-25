@@ -11,6 +11,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@nc/biz": "workspace:*",
     "@nc/shared": "workspace:*",
     "date-fns": "4.4.0",
     "emojibase-data": "18.0.0",

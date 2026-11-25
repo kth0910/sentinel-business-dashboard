@@ -20,6 +20,7 @@ export type Route =
   | { name: 'onboarding' }
   | { name: 'root' }
   | { name: 'home'; domain: string }
+  | { name: 'calendar'; domain: string }
   | { name: 'page'; domain: string; pageId: string }
   | { name: 'chat'; domain: string; chatId?: string }
   | { name: 'meetings'; domain: string }
@@ -44,7 +45,7 @@ export interface Location {
   hash: string;
 }
 
-const SPECIAL = new Set(['chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers']);
+const SPECIAL = new Set(['calendar', 'chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers']);
 
 export function parseLocation(pathname: string, search: string, hash: string): Location {
   const parts = pathname.split('/').filter(Boolean).map(decodeURIComponent);
@@ -68,7 +69,8 @@ export function parseLocation(pathname: string, search: string, hash: string): L
     route = id ? { name: 'page', domain: '', pageId: id } : { name: 'home', domain: parts[0] };
   } else if (SPECIAL.has(parts[1])) {
     const domain = parts[0];
-    if (parts[1] === 'chat') route = { name: 'chat', domain, chatId: parts[2] };
+    if (parts[1] === 'calendar') route = { name: 'calendar', domain };
+    else if (parts[1] === 'chat') route = { name: 'chat', domain, chatId: parts[2] };
     else if (parts[1] === 'meetings') route = { name: 'meetings', domain };
     else if (parts[1] === 'marketplace') route = { name: 'marketplace', domain, tab: parts[2] };
     else if (parts[1] === 'people') route = { name: 'people', domain, userId: parts[2] };

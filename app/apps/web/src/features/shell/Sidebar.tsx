@@ -1,4 +1,5 @@
 import { HELP_URL } from '@nc/shared/brand.ts';
+import { BizSidebarSection } from '../biz/BizSidebarSection.tsx';
 // Sidebar (nav.lit-sidebar-container), tabbed layout: header (close / inbox / New…), "Search or ask",
 // Home·Chat·Meetings tabs, per-tab shortcuts + sections, "Customize sidebar", footer (workspace switcher, help, apps).
 // Behaviour: close/peek/reopen, resize 270–600 with arrow keys, section collapse, customize mode.
@@ -285,6 +286,7 @@ function SidebarBody() {
         <div role="tabpanel" className="nc-sb-tabpanel">
           <div className="lit-scroller vertical nc-sb-scroller">
             <div className="nc-sb-content">
+              {!customizing && <BizSidebarSection />}
               {tab && (customizing ? <CustomizeTabBody tab={tab} /> : <TabContent tab={tab} />)}
               {!customizing && (
                 <div className="nc-sb-bottom">

@@ -1,0 +1,93 @@
+/* 업무 화면 공통 스타일. 색: 증가 파랑, 감소 주황, 직접 입력 주황 계열, 자동 파랑 계열. */
+:root {
+  --biz-up: #1d4ed8;
+  --biz-down: #b45309;
+  --biz-line: var(--lp-border-primary-transparent, rgba(55, 53, 47, 0.16));
+  --biz-soft: var(--lp-bg-secondary-transparent, rgba(55, 53, 47, 0.06));
+  --biz-auto-bg: #dbeafe;
+  --biz-auto-ink: #1e3a8a;
+  --biz-hand-bg: #ffedd5;
+  --biz-hand-ink: #9a3412;
+}
+
+.biz-delta.up { color: var(--biz-up); }
+.biz-delta.down { color: var(--biz-down); }
+.biz-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.biz-dot.report { background: #ea580c; }
+.biz-dot.sales { background: #2563eb; }
+.biz-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 4px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.biz-tag.auto { background: var(--biz-auto-bg); color: var(--biz-auto-ink); }
+.biz-tag.hand { background: var(--biz-hand-bg); color: var(--biz-hand-ink); }
+
+/* ---------- 캘린더 ---------- */
+.biz-cal { box-sizing: border-box; width: 100%; min-width: 0; max-width: 1080px; margin: 0 auto; padding: 32px 40px 64px; display: flex; flex-direction: column; gap: 20px; color: var(--lp-text-primary); }
+.biz-cal-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.biz-cal-head h1 { margin: 0; font-size: 28px; font-weight: 700; }
+.biz-cal-nav { display: flex; gap: 6px; }
+.biz-cal-nav button, .biz-btn {
+  height: 32px; min-width: 32px; padding: 0 10px; border: 1px solid var(--biz-line); border-radius: 6px;
+  background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer;
+}
+.biz-cal-nav button:hover, .biz-btn:hover { background: var(--biz-soft); }
+.biz-cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-left: auto; font-size: 13px; color: var(--lp-text-secondary); }
+.biz-cal-scroll { overflow-x: auto; }
+.biz-cal-grid { min-width: 700px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.biz-cal-wd { padding: 2px 10px; font-size: 13px; color: var(--lp-text-secondary); }
+.biz-cal-cell {
+  min-height: 92px; padding: 8px 10px; border: 1px solid var(--biz-line); border-radius: 8px; background: transparent;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; font: inherit; color: inherit; cursor: pointer;
+}
+.biz-cal-cell:hover { background: var(--biz-soft); }
+.biz-cal-cell.empty { border-color: transparent; cursor: default; }
+.biz-cal-cell.selected { border-color: var(--biz-up); box-shadow: 0 0 0 1px var(--biz-up) inset; }
+.biz-cal-num { font-size: 14px; font-weight: 600; display: flex; gap: 6px; align-items: center; }
+.biz-cal-cell.today .biz-cal-num em { font-style: normal; font-size: 11px; font-weight: 600; color: #fff; background: var(--biz-down); border-radius: 10px; padding: 1px 7px; }
+.biz-cal-marks { min-height: 8px; }
+.biz-cal-cell .biz-delta { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.biz-cal-day { border: 1px solid var(--biz-line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.biz-cal-day h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.biz-cal-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.biz-cal-actions button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: 8px;
+  border: 1px solid var(--biz-line); background: var(--biz-soft); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.biz-cal-actions button:hover:not(:disabled) { border-color: var(--biz-up); }
+.biz-cal-actions button:disabled { opacity: 0.6; cursor: progress; }
+.biz-cal-actions b { font-size: 16px; }
+.biz-cal-actions span { font-size: 13px; color: var(--lp-text-secondary); }
+@media (max-width: 640px) {
+  .biz-cal { padding: 20px 12px 48px; }
+  .biz-cal-head h1 { font-size: 22px; }
+  .biz-cal-actions { grid-template-columns: 1fr; }
+  .biz-cal-legend { margin-left: 0; }
+  .biz-cal-grid { min-width: 0; gap: 3px; }
+  .biz-cal-wd { padding: 2px 4px; }
+  .biz-cal-cell { min-height: 56px; padding: 5px 4px; gap: 3px; }
+  .biz-cal-num { font-size: 13px; }
+  .biz-cal-cell.today .biz-cal-num em { display: none; }
+  .biz-cal-cell .biz-delta { font-size: 10px; letter-spacing: -0.2px; word-break: break-all; }
+}
+
+/* ---------- 블록 공통 ---------- */
+.biz-block { margin: 6px 0; padding: 14px 16px; border: 1px solid var(--biz-line); border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+.biz-block-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.biz-block-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.biz-note { font-size: 13px; color: var(--lp-text-secondary); }
+.biz-table-wrap { overflow-x: auto; }
+.biz-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.biz-table th { text-align: left; font-weight: 500; font-size: 12px; color: var(--lp-text-secondary); padding: 6px 8px; border-bottom: 1px solid var(--biz-line); white-space: nowrap; }
+.biz-table td { padding: 6px 8px; border-bottom: 1px solid var(--biz-line); vertical-align: top; }
+.biz-table td.num, .biz-table th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.biz-table .old { display: block; font-size: 12px; color: var(--lp-text-tertiary, var(--lp-text-secondary)); }
+.biz-input {
+  width: 100%; min-width: 60px; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px; background: transparent;
+  font: inherit; color: inherit;
+}
+.biz-input:hover { border-color: var(--biz-line); }
+.biz-input:focus { outline: none; border-color: var(--biz-up); background: var(--lp-bg-primary, #fff); }
+.biz-link { border: 0; background: none; padding: 0; color: var(--lp-text-secondary); font: inherit; font-size: 13px; cursor: pointer; }
+.biz-link:hover { color: var(--lp-text-primary); text-decoration: underline; }
+
+/* ---------- 사이드바 ---------- */
+.biz-sb { padding: 4px 0 10px; }
+.biz-sb-title { padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--lp-text-secondary); }

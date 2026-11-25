@@ -47,6 +47,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@nc/biz':
+        specifier: workspace:*
+        version: link:../../packages/biz
       '@nc/shared':
         specifier: workspace:*
         version: link:../../packages/shared

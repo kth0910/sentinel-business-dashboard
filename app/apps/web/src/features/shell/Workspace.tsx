@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { BlockRecord, SpaceRecord, SpaceViewRecord, TeamRecord, UserSettingsRecord } from '@nc/shared/records.ts';
 import { navigate, openPage, useLocation, spaceDomain } from '../../lib/router.ts';
+import { CalendarPage } from '../biz/CalendarPage.tsx';
 import { currentSpaceView } from '../../lib/store/session.ts';
 import { useSession, type DemoMode } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
@@ -63,7 +64,8 @@ export function Workspace() {
         return;
       }
     }
-    openStartPage(spaceId);
+    // 업무관리: 첫 화면은 캘린더(설계 5.1)
+    navigate(`/${spaceDomain(spaceId)}/calendar`, { replace: true });
   }, [route, spaceId]);
 
   // switching workspaces through a URL of another workspace's page
@@ -100,6 +102,8 @@ export function Workspace() {
 
   const content = useMemo(() => {
     switch (route.name) {
+      case 'calendar':
+        return <CalendarPage />;
       case 'page':
         return <PageView key={route.pageId} pageId={route.pageId} state={loaded} />;
       case 'chat':
