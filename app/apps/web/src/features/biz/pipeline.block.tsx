@@ -5,6 +5,7 @@ import { isolate } from './fields.tsx';
 import { blockDate, shortDate, useSalesView } from './sales.ts';
 import type { SalesRow } from '@nc/biz';
 import { BizBlock, BizTable, FilterNote, useFilteredRows, type ColDef } from './table.tsx';
+import { EditCell } from './editCell.tsx';
 import './biz.css';
 
 const PAGE = 50;
@@ -42,13 +43,13 @@ function PipelineBlock({ block, readOnly }: BlockProps) {
         <BizTable block={block} cols={COLS} readOnly={readOnly} filterRows={all}>
               {rows.slice(0, shown).map((r) => (
                 <tr key={r.key}>
-                  <td className="wrap">{r.customer}</td>
-                  <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</td>
-                  <td className="num">{r.amount.toLocaleString('ko-KR')}</td>
-                  <td>{r.probability || '—'}</td>
-                  <td>{r.progress}</td>
-                  <td>{r.rep}</td>
-                  <td>{r.startDate ?? '—'}</td>
+                  <td className="wrap"><EditCell date={date} row={r} field="customer" readOnly={readOnly} /></td>
+                  <td className="wrap"><EditCell date={date} row={r} field="product" readOnly={readOnly}>{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</EditCell></td>
+                  <td className="num"><EditCell date={date} row={r} field="amount" readOnly={readOnly} fmt={(v) => Number(v ?? 0).toLocaleString('ko-KR')} /></td>
+                  <td><EditCell date={date} row={r} field="probability" readOnly={readOnly} /></td>
+                  <td><EditCell date={date} row={r} field="progress" readOnly={readOnly} /></td>
+                  <td><EditCell date={date} row={r} field="rep" readOnly={readOnly} /></td>
+                  <td><EditCell date={date} row={r} field="startDate" readOnly={readOnly} /></td>
                 </tr>
               ))}
         </BizTable>

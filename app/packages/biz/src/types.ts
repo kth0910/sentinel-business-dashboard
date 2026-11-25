@@ -33,7 +33,16 @@ export interface SalesRow {
   revenueType?: string | null;
   /** 매출일정 YYYY-MM-DD */
   revenueDate?: string | null;
+  /** 직접 수정한 칸: 필드 → 받아온(원래) 값. 읽을 때 채워진다(서버 biz_override) */
+  edited?: Record<string, string | number | null>;
 }
+
+/** 화면에서 직접 고칠 수 있는 칸과 값 종류. 영업코드·구분(본 영업 여부)은 식별·집계 기준이라 뺀다. */
+export const EDITABLE_FIELDS = {
+  customer: 'text', product: 'text', contractor: 'text', rep: 'text', progress: 'text', probability: 'text',
+  weight: 'text', revenueType: 'text', amount: 'number', contractDate: 'date', startDate: 'date', revenueDate: 'date',
+} as const;
+export type EditableField = keyof typeof EDITABLE_FIELDS;
 
 export type ChangeKind = 'new' | 'confirm' | 'exclude' | 'raise' | 'advance' | 'unclassified';
 

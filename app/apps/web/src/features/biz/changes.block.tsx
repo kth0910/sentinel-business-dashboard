@@ -1,6 +1,7 @@
 // 변동사항 블록 (biz_changes): 전일 대비 바뀐 영업 건, '기존' 값 표시, 구분 변경과 관리(설계 5.4, 7.2).
 import { useState } from 'react';
-import type { Category, FieldDiff } from '@nc/biz';
+import type { Category, EditableField, FieldDiff } from '@nc/biz';
+import { EditCell } from './editCell.tsx';
 import { useUI } from '../../lib/store/ui.ts';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { arrow, biz, type StoredChange } from './api.ts';
@@ -33,13 +34,19 @@ function colsFor(categories: Category[]): ColDef[] {
 const won = (v: unknown) => `${Number(v ?? 0).toLocaleString('ko-KR')}원`;
 
 /** 바뀐 칸: 새 값은 파란색, 아래에 '기존 : 이전 값'. 안 바뀐 칸은 값만. */
-function Cell({ c, field, value, fmt = (v) => (v === null || v === undefined || v === '' ? '-' : String(v)) }: {
-  c: StoredChange; field: FieldDiff['field']; value: unknown; fmt?: (v: unknown) => string;
+/** 값 칸: 전일 대비 바뀌었으면 파란색 + '기존', 직접 고칠 수 있음(삭제된 건은 제외). */
+function Cell({ c, date, field, readOnly, fmt = (v) => (v === null || v === undefined || v === '' ? '-' : String(v)), extra }: {
+  c: StoredChange; date: string; field: EditableField; readOnly?: boolean; fmt?: (v: unknown) => string; extra?: React.ReactNode;
 }) {
-  const d = c.after ? c.diffs.find((x) => x.field === field) : undefined;
+  const d = c.after ? c.diffs.find((x) => x.field === (field as FieldDiff['field'])) : undefined;
+  const r = c.after ?? c.before!;
   return (
     <>
-      <span className={d ? 'chg' : undefined}>{fmt(value)}</span>
+      <span className={d ? 'chg' : undefined}>
+        {c.after
+          ? <EditCell date={date} row={c.after} field={field} readOnly={readOnly} fmt={fmt}>{fmt((c.after as any)[field])}{extra}</EditCell>
+          : <>{fmt((r as any)[field])}{extra}</>}
+      </span>
       {d && <span className="old">기존 : {fmt(d.before)}</span>}
     </>
   );
@@ -84,7 +91,7 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
                 const r = c.after ?? c.before!;
                 return (
                   <tr key={c.key}>
-                    <td className="wrap">{r.customer}</td>
+                    <td className="wrap"><Cell c={c} date={date} field="customer" readOnly={readOnly} /></td>
                     <td>
                       {readOnly
                         ? data!.categories.find((x) => x.id === c.categoryId)?.label
@@ -94,13 +101,13 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
                           </select>
                         )}
                     </td>
-                    <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</td>
-                    <td className="num">{c.after ? <Cell c={c} field="amount" value={c.after.amount} fmt={won} /> : <><span>삭제됨</span><span className="old">기존 : {won(c.before?.amount)}</span></>}</td>
+                    <td className="wrap"><Cell c={c} date={date} field="product" readOnly={readOnly} extra={r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>} /></td>
+                    <td className="num">{c.after ? <Cell c={c} date={date} field="amount" readOnly={readOnly} fmt={won} /> : <><span>삭제됨</span><span className="old">기존 : {won(c.before?.amount)}</span></>}</td>
                     <td className={`num biz-delta ${c.delta > 0 ? 'up' : c.delta < 0 ? 'down' : ''}`}>{c.delta ? `${won(Math.abs(Math.round(c.delta)))}${arrow(c.delta)}` : '-'}</td>
-                    <td><Cell c={c} field="probability" value={r.probability} /></td>
-                    <td><Cell c={c} field="weight" value={r.weight} /></td>
-                    <td><Cell c={c} field="revenueType" value={r.revenueType} /></td>
-                    <td><Cell c={c} field="revenueDate" value={r.revenueDate} /></td>
+                    <td><Cell c={c} date={date} field="probability" readOnly={readOnly} /></td>
+                    <td><Cell c={c} date={date} field="weight" readOnly={readOnly} /></td>
+                    <td><Cell c={c} date={date} field="revenueType" readOnly={readOnly} /></td>
+                    <td><Cell c={c} date={date} field="revenueDate" readOnly={readOnly} /></td>
                   </tr>
                 );
               })}

@@ -1,5 +1,5 @@
 // 업무 데이터 저장소(SQLite, litpage와 같은 DB 파일). 스냅샷·변동·구분·목표·날짜별 페이지.
-import { DEFAULT_CATEGORIES, diffSnapshots, emptyTargets, type Category, type Change, type ChangeKind, type SalesRow, type Targets } from '@nc/biz';
+import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, type Category, type Change, type ChangeKind, type EditableField, type SalesRow, type Targets } from '@nc/biz';
 import { newId } from '@nc/shared/ids.ts';
 import { db, tx } from '../db.ts';
 
@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS biz_category (id TEXT PRIMARY KEY, label TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS biz_target (year INTEGER PRIMARY KEY, json TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS biz_daily_page (date TEXT NOT NULL, kind TEXT NOT NULL, page_id TEXT NOT NULL, PRIMARY KEY (date, kind));
 CREATE TABLE IF NOT EXISTS biz_kv (k TEXT PRIMARY KEY, v TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS biz_override (
+  key TEXT NOT NULL, field TEXT NOT NULL, value_json TEXT NOT NULL, from_date TEXT NOT NULL,
+  edited_by TEXT, edited_time INTEGER NOT NULL, PRIMARY KEY (key, field)
+);
 `);
 
 if (!(db.prepare('SELECT COUNT(*) AS n FROM biz_category').get() as { n: number }).n) {
@@ -42,9 +46,71 @@ export function latestSnapshotOnOrBefore(date: string): string | null {
   return (db.prepare('SELECT MAX(date) AS d FROM biz_snapshot_day WHERE date <= ?').get(date) as { d: string | null }).d;
 }
 
+/** 그 날짜 데이터(직접 수정한 값을 적용한 것). 원래 값은 row.edited에 남긴다. */
 export function snapshotRows(date: string): SalesRow[] | null {
   if (!hasSnapshot(date)) return null;
-  return (db.prepare('SELECT row_json FROM biz_snapshot WHERE date = ?').all(date) as { row_json: string }[]).map((r) => JSON.parse(r.row_json));
+  const rows = (db.prepare('SELECT row_json FROM biz_snapshot WHERE date = ?').all(date) as { row_json: string }[]).map((r) => JSON.parse(r.row_json) as SalesRow);
+  const ov = db.prepare('SELECT key, field, value_json FROM biz_override WHERE from_date <= ?').all(date) as { key: string; field: string; value_json: string }[];
+  if (!ov.length) return rows;
+  const byKey = new Map<string, { field: string; value: unknown }[]>();
+  for (const o of ov) byKey.set(o.key, [...(byKey.get(o.key) ?? []), { field: o.field, value: JSON.parse(o.value_json) }]);
+  return rows.map((row) => {
+    const list = byKey.get(row.key);
+    if (!list) return row;
+    const out: any = { ...row, edited: {} };
+    for (const { field, value } of list) {
+      out.edited[field] = (row as any)[field] ?? null;
+      out[field] = value;
+    }
+    return out as SalesRow;
+  });
+}
+
+// ---------- 직접 수정 ---------
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+function checkOverride(field: string, value: unknown): string | number | null {
+  const kind = (EDITABLE_FIELDS as Record<string, string>)[field];
+  if (!kind) throw new Error('고칠 수 없는 칸입니다');
+  if (kind === 'number') {
+    const n = typeof value === 'number' ? value : Number(String(value ?? '').replace(/[,원\s]/g, ''));
+    if (!Number.isFinite(n) || n < 0) throw new Error('0 이상의 숫자를 넣으세요');
+    return Math.round(n);
+  }
+  const s = String(value ?? '').trim();
+  if (kind === 'date') {
+    if (!s) return null;
+    if (!DATE_ONLY.test(s)) throw new Error('날짜는 YYYY-MM-DD로 넣으세요');
+    return s;
+  }
+  if (s.length > 200) throw new Error('200자까지 넣을 수 있습니다');
+  return s;
+}
+
+/** fromDate와 그 뒤 모든 날짜의 변동을 다시 계산한다(수정값이 양쪽 날짜에 들어가거나 빠지므로). */
+function recomputeFrom(fromDate: string) {
+  const first = latestSnapshotOnOrBefore(fromDate) ?? fromDate;
+  for (const d of (db.prepare('SELECT date FROM biz_snapshot_day WHERE date >= ? ORDER BY date').all(first) as { date: string }[])) recompute(d.date);
+}
+
+export function setOverride(key: string, field: EditableField | string, value: unknown, fromDate: string, uid: string | null): void {
+  const v = checkOverride(field, value);
+  tx(() => {
+    const old = db.prepare('SELECT from_date FROM biz_override WHERE key = ? AND field = ?').get(key, field) as { from_date: string } | undefined;
+    db.prepare(`INSERT INTO biz_override (key, field, value_json, from_date, edited_by, edited_time) VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(key, field) DO UPDATE SET value_json = excluded.value_json, from_date = excluded.from_date, edited_by = excluded.edited_by, edited_time = excluded.edited_time`)
+      .run(key, field, JSON.stringify(v), fromDate, uid, Date.now());
+    recomputeFrom(old && old.from_date < fromDate ? old.from_date : fromDate);
+  });
+}
+
+export function clearOverride(key: string, field: string): void {
+  tx(() => {
+    const old = db.prepare('SELECT from_date FROM biz_override WHERE key = ? AND field = ?').get(key, field) as { from_date: string } | undefined;
+    if (!old) return;
+    db.prepare('DELETE FROM biz_override WHERE key = ? AND field = ?').run(key, field);
+    recomputeFrom(old.from_date);
+  });
 }
 
 function recompute(date: string) {

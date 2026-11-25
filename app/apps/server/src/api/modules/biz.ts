@@ -64,6 +64,17 @@ export const handlers = {
     };
   },
 
+  /** 직접 수정: value가 null이면 받아온 값으로 되돌린다. date(보고 있는 날짜)부터 적용 */
+  async bizSetOverride(ctx: Ctx, body: { date?: unknown; key?: unknown; field?: unknown; value?: unknown }) {
+    const uid = requireUser(ctx);
+    const date = dateArg(body.date);
+    const key = String(body.key ?? '');
+    if (!key) throw new ApiError('영업 건이 없습니다', 400);
+    if (body.value === null) store.clearOverride(key, String(body.field ?? ''));
+    else badRequest(() => store.setOverride(key, String(body.field ?? ''), body.value, date, uid));
+    return { ok: true };
+  },
+
   async bizCalendar(ctx: Ctx, body: { month?: unknown }) {
     requireUser(ctx);
     if (typeof body.month !== 'string' || !MONTH_RE.test(body.month)) throw new ApiError('월 형식은 YYYY-MM입니다', 400);
