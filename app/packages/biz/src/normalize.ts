@@ -28,6 +28,11 @@ export function normalizeRows(table: unknown[][]): { rows: SalesRow[]; warnings:
   if (missing.length) throw new SalesImportError([...missing]);
   const col = Object.fromEntries(REQUIRED_COLUMNS.map((c) => [c, head.indexOf(c)])) as Record<(typeof REQUIRED_COLUMNS)[number], number>;
 
+  // 선택 열(업무관리시스템 API로 받을 값): 있으면 읽는다
+  const opt = (...names: string[]) => names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1;
+  const optCol = { weight: opt('가중치'), revenueType: opt('매출 구분', '매출구분'), revenueDate: opt('매출일정', '매출 일정') };
+  const optText = (raw: unknown[], i: number) => (i < 0 ? null : text(raw?.[i]) || null);
+
   const byKey = new Map<string, SalesRow>();
   const warnings: string[] = [];
   for (const raw of table.slice(1)) {
@@ -49,6 +54,9 @@ export function normalizeRows(table: unknown[][]): { rows: SalesRow[]; warnings:
       startDate: date(cell('영업개시일')),
       probability: text(cell('최종영업확도')),
       isCloud: /\(cloud\)/i.test(product),
+      weight: optText(raw, optCol.weight),
+      revenueType: optText(raw, optCol.revenueType),
+      revenueDate: optCol.revenueDate < 0 ? null : date(raw?.[optCol.revenueDate]),
     };
     const prev = byKey.get(row.key);
     if (prev) {

@@ -21,7 +21,7 @@ if (!(db.prepare('SELECT COUNT(*) AS n FROM biz_category').get() as { n: number 
   for (const c of DEFAULT_CATEGORIES) ins.run(c.id, c.label, c.position, c.system ? 1 : 0);
 }
 
-const KIND_CATEGORY: Record<ChangeKind, string> = { new: 'new', confirm: 'confirm', exclude: 'exclude', raise: 'raise', unclassified: 'unclassified' };
+const KIND_CATEGORY: Record<ChangeKind, string> = { new: 'new', confirm: 'confirm', exclude: 'exclude', raise: 'raise', advance: 'advance', unclassified: 'unclassified' };
 
 export type StoredChange = Change & { categoryId: string; manual: boolean };
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { FieldDiff } from '@nc/biz';
 import { useUI } from '../../lib/store/ui.ts';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
-import { arrow, biz, signed, type StoredChange } from './api.ts';
+import { arrow, biz, type StoredChange } from './api.ts';
 import { CategoryManager } from './CategoryManager.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
@@ -11,11 +11,19 @@ import './biz.css';
 
 const PAGE = 50;
 
-function before(c: StoredChange, field: FieldDiff['field']) {
-  const d = c.diffs.find((x) => x.field === field);
-  if (!d) return null;
-  const v = field === 'amount' ? Number(d.before ?? 0).toLocaleString('ko-KR') : d.before || '없음';
-  return <span className="old">기존 {v}</span>;
+const won = (v: unknown) => `${Number(v ?? 0).toLocaleString('ko-KR')}원`;
+
+/** 바뀐 칸: 새 값은 파란색, 아래에 '기존 : 이전 값'. 안 바뀐 칸은 값만. */
+function Cell({ c, field, value, fmt = (v) => (v === null || v === undefined || v === '' ? '-' : String(v)) }: {
+  c: StoredChange; field: FieldDiff['field']; value: unknown; fmt?: (v: unknown) => string;
+}) {
+  const d = c.after ? c.diffs.find((x) => x.field === field) : undefined;
+  return (
+    <>
+      <span className={d ? 'chg' : undefined}>{fmt(value)}</span>
+      {d && <span className="old">기존 : {fmt(d.before)}</span>}
+    </>
+  );
 }
 
 function ChangesBlock({ block, readOnly }: BlockProps) {
@@ -45,14 +53,14 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
       </div>
       {managing && data && <CategoryManager categories={data.categories} onClose={() => setManaging(false)} />}
       {error && <p className="biz-note">{error}</p>}
-      {data && !data.hasSnapshot && <p className="biz-note">이 날짜에 올린 엑셀이 없습니다.</p>}
-      {data?.baseline && <p className="biz-note">기준 데이터 — 다음 업로드부터 변동이 표시됩니다.</p>}
+      {data && !data.hasSnapshot && <p className="biz-note">이 날짜의 매출 데이터가 없습니다.</p>}
+      {data?.baseline && <p className="biz-note">기준 데이터 — 다음 날부터 변동이 표시됩니다.</p>}
       {data?.hasSnapshot && !data.baseline && rows.length === 0 && <p className="biz-note">전일 대비 변동이 없습니다.</p>}
       {rows.length > 0 && (
         <div className="biz-table-wrap">
-          <table className="biz-table wide">
+          <table className="biz-table wide biz-changes">
             <thead>
-              <tr><th>고객</th><th>구분</th><th>제품</th><th className="num">공급가</th><th className="num">증감액</th><th>확도</th><th>진행사항</th><th>영업대표</th></tr>
+              <tr><th>고객명</th><th>구분</th><th>제품</th><th className="num">순매출</th><th className="num">증감액</th><th>확도</th><th>가중치</th><th>매출 구분</th><th>매출일정</th></tr>
             </thead>
             <tbody>
               {rows.slice(0, shown).map((c) => {
@@ -70,11 +78,12 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
                         )}
                     </td>
                     <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</td>
-                    <td className="num">{c.after ? c.after.amount.toLocaleString('ko-KR') : '삭제됨'}{before(c, 'amount')}</td>
-                    <td className={`num biz-delta ${c.delta > 0 ? 'up' : c.delta < 0 ? 'down' : ''}`}>{c.delta ? `${signed(c.delta)} ${arrow(c.delta)}` : '—'}</td>
-                    <td>{r.probability || '—'}{before(c, 'probability')}</td>
-                    <td>{r.progress}{before(c, 'progress')}</td>
-                    <td>{r.rep}</td>
+                    <td className="num">{c.after ? <Cell c={c} field="amount" value={c.after.amount} fmt={won} /> : <><span>삭제됨</span><span className="old">기존 : {won(c.before?.amount)}</span></>}</td>
+                    <td className={`num biz-delta ${c.delta > 0 ? 'up' : c.delta < 0 ? 'down' : ''}`}>{c.delta ? `${won(Math.abs(Math.round(c.delta)))}${arrow(c.delta)}` : '-'}</td>
+                    <td><Cell c={c} field="probability" value={r.probability} /></td>
+                    <td><Cell c={c} field="weight" value={r.weight} /></td>
+                    <td><Cell c={c} field="revenueType" value={r.revenueType} /></td>
+                    <td><Cell c={c} field="revenueDate" value={r.revenueDate} /></td>
                   </tr>
                 );
               })}

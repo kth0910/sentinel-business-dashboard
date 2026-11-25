@@ -19,8 +19,15 @@ describe('normalizeRows', () => {
     expect(rows[0]).toEqual({
       key: '8225::CF v4.0(Cloud)', code: 8225, product: 'CF v4.0(Cloud)', division: '본 영업', rep: '홍길동',
       customer: '고객사 A', contractor: '협력사 A', amount: 9600000, progress: '진행', contractDate: '2026-11-17',
-      startDate: '2026-11-24', probability: '중A', isCloud: true,
+      startDate: '2026-11-24', probability: '중A', isCloud: true, weight: null, revenueType: null, revenueDate: null,
     });
+  });
+
+  // 가중치·매출 구분·매출일정: 지금 엑셀에는 없고 업무관리시스템 API로 받을 열. 있으면 읽는다.
+  it('reads 가중치, 매출 구분, 매출일정 when the columns exist', () => {
+    const head = [...HEAD, '가중치', '매출 구분', '매출일정'];
+    const { rows } = normalizeRows([head, [...row(), 'High(100%)', '과업매출', '2026-12-18 00:00:00.0']]);
+    expect(rows[0]).toMatchObject({ weight: 'High(100%)', revenueType: '과업매출', revenueDate: '2026-12-18' });
   });
 
   it('empty date and null probability', () => {

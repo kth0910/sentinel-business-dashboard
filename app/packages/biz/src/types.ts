@@ -26,12 +26,19 @@ export interface SalesRow {
   /** 최종영업확도 ('' 허용) */
   probability: string;
   isCloud: boolean;
+  // 아래 셋은 지금 엑셀에 없고 업무관리시스템 API로 받을 값. 없으면 null(예전 스냅샷은 키 자체가 없을 수 있음).
+  /** 가중치 (예: 'High(100%)', '미반영') */
+  weight?: string | null;
+  /** 매출 구분 (예: '과업매출', '기반매출') */
+  revenueType?: string | null;
+  /** 매출일정 YYYY-MM-DD */
+  revenueDate?: string | null;
 }
 
-export type ChangeKind = 'new' | 'confirm' | 'exclude' | 'raise' | 'unclassified';
+export type ChangeKind = 'new' | 'confirm' | 'exclude' | 'raise' | 'advance' | 'unclassified';
 
 export interface FieldDiff {
-  field: 'amount' | 'probability' | 'progress' | 'contractDate';
+  field: 'amount' | 'probability' | 'progress' | 'contractDate' | 'weight' | 'revenueType' | 'revenueDate';
   before: string | number | null;
   after: string | number | null;
 }

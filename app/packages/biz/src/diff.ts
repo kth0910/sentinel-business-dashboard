@@ -1,10 +1,12 @@
 // 전일 스냅샷과 오늘 스냅샷을 비교해 변동을 만들고 자동 분류한다 (설계 11.4).
 import { CONFIRMED, EXCLUDE_PROGRESS, isMain, LOW_PROBABILITY, type Change, type FieldDiff, type SalesRow } from './types.ts';
 
-const FIELDS: FieldDiff['field'][] = ['amount', 'probability', 'progress', 'contractDate'];
+const FIELDS: FieldDiff['field'][] = ['amount', 'probability', 'progress', 'contractDate', 'weight', 'revenueType', 'revenueDate'];
 
 function fieldDiffs(before: SalesRow, after: SalesRow): FieldDiff[] {
-  return FIELDS.filter((f) => before[f] !== after[f]).map((f) => ({ field: f, before: before[f], after: after[f] }));
+  // 예전 스냅샷에는 새 칸이 없을 수 있다: 없음(undefined)과 null은 같은 값으로 본다
+  const v = (r: SalesRow, f: FieldDiff['field']) => (r[f] ?? null) as FieldDiff['before'];
+  return FIELDS.filter((f) => v(before, f) !== v(after, f)).map((f) => ({ field: f, before: v(before, f), after: v(after, f) }));
 }
 
 /** 목표에서 빠진 건: 확도 하·매우낮음 또는 진행사항 보류·실패. */
@@ -24,6 +26,7 @@ function classify(before: SalesRow, after: SalesRow, diffs: FieldDiff[]): Change
   if (before.probability !== CONFIRMED && after.probability === CONFIRMED) return { ...base, kind: 'confirm', delta };
   if (!isExcluded(before) && isExcluded(after)) return { ...base, kind: 'exclude', delta };
   if (!isExcluded(before) && !isExcluded(after) && after.amount > before.amount) return { ...base, kind: 'raise', delta };
+  if (before.revenueDate && after.revenueDate && after.revenueDate < before.revenueDate) return { ...base, kind: 'advance', delta };
   return { ...base, kind: 'unclassified', delta };
 }
 

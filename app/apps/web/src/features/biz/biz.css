@@ -80,6 +80,8 @@
 .biz-table td.wrap { white-space: normal; min-width: 140px; }
 .biz-table.wide { min-width: 820px; }
 .biz-table td.num, .biz-table th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.biz-table .chg { color: var(--biz-up); }
+.biz-changes .biz-delta.down { color: #dc2626; }
 .biz-table .old { display: block; font-size: 12px; color: var(--lp-text-tertiary, var(--lp-text-secondary)); }
 .biz-input {
   width: 100%; min-width: 60px; border: 1px solid transparent; border-radius: 4px; padding: 3px 6px; background: transparent;

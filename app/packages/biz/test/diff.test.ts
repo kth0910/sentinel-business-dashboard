@@ -111,4 +111,26 @@ describe('diffSnapshots', () => {
     expect(c.kind).toBe('confirm');
     expect(c.delta).toBe(100);
   });
+
+  // 가중치·매출 구분·매출일정도 비교한다. 매출일정이 당겨지면 '매출일정 앞당김'
+  it('revenue date moved earlier is advance', () => {
+    const [c] = diffSnapshots([r({ revenueDate: '2026-12-31' })], [r({ revenueDate: '2026-11-25' })]);
+    expect(c.kind).toBe('advance');
+    expect(c.delta).toBe(0);
+    expect(c.diffs).toEqual([{ field: 'revenueDate', before: '2026-12-31', after: '2026-11-25' }]);
+  });
+
+  it('revenue date moved later is unclassified', () => {
+    expect(diffSnapshots([r({ revenueDate: '2026-11-25' })], [r({ revenueDate: '2026-12-31' })])[0].kind).toBe('unclassified');
+  });
+
+  it('amount up wins over an earlier revenue date', () => {
+    expect(diffSnapshots([r({ revenueDate: '2026-12-31' })], [r({ amount: 150, revenueDate: '2026-11-25' })])[0].kind).toBe('raise');
+  });
+
+  it('weight change is a field diff; missing and null count as the same', () => {
+    const [c] = diffSnapshots([r({ weight: 'Low(10%)' })], [r({ weight: '미반영' })]);
+    expect(c.diffs).toEqual([{ field: 'weight', before: 'Low(10%)', after: '미반영' }]);
+    expect(diffSnapshots([r()], [r({ weight: null, revenueType: null, revenueDate: null })])).toEqual([]);
+  });
 });
