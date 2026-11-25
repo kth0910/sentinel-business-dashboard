@@ -2,7 +2,8 @@
 @import './tokens.css';
 
 :root {
-  --font-default: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  /* 업무관리 시연판: Pretendard(OFL-1.1, npm pretendard, main.tsx에서 불러옴) */
+  --font-default: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   --font-serif: "Iowan Old Style", "Charter", Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --font-code: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;

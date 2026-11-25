@@ -6157,3 +6157,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+
+## pretendard 1.3.9
+
+Pretendard font (web app bundle, `pretendardvariable-dynamic-subset.css`), added for the CoolNotion! demo.
+Copyright (c) 2021, Kil Hyung-jin (https://github.com/orioncactus/pretendard), with Reserved Font Name "Pretendard".
+Licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org).
