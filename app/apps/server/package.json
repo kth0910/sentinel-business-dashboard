@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.135.0",
-    "@nc/shared": "workspace:*",
     "@hono/node-server": "2.1.5",
+    "@nc/biz": "workspace:*",
+    "@nc/shared": "workspace:*",
+    "exceljs": "4.4.0",
     "hono": "4.13.13",
     "ws": "8.22.0"
   },
