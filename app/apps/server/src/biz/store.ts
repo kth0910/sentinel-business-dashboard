@@ -55,9 +55,12 @@ function recompute(date: string) {
   );
   db.prepare('DELETE FROM biz_change WHERE date = ?').run(date);
   const ins = db.prepare('INSERT INTO biz_change (date, key, kind, category_id, manual, delta, change_json) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  // 구분 관리에서 지운 구분이면 미분류로 (리뷰 #2)
+  const exists = new Set((db.prepare('SELECT id FROM biz_category').all() as { id: string }[]).map((r) => r.id));
+  const valid = (id: string | undefined) => (id && exists.has(id) ? id : 'unclassified');
   for (const c of changes) {
     const kept = manual.get(c.key);
-    ins.run(date, c.key, c.kind, kept ?? KIND_CATEGORY[c.kind], kept ? 1 : 0, Math.round(c.delta), JSON.stringify(c));
+    ins.run(date, c.key, c.kind, valid(kept ?? KIND_CATEGORY[c.kind]), kept ? 1 : 0, Math.round(c.delta), JSON.stringify(c));
   }
   return changes.length;
 }

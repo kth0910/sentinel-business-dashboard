@@ -128,3 +128,42 @@ describe('biz rpc', () => {
     expect(days.find((d: any) => d.date === '2026-11-01')).toMatchObject({ hasSnapshot: false, dayDelta: 0 });
   });
 });
+
+// 리뷰 #4: 일부만 담긴(필터된) 엑셀이나 빈 엑셀이 '목표매출 제외'를 쏟아내지 않게
+describe('partial export guard', () => {
+  const row = (i: number) => [i, '본 영업', '홍길동', 800 + i, '고객사', '협력사', `제품 ${i}`, 1000, '진행', null, 1, '2026-11-01', null, '중A'];
+  const many = (n: number) => Array.from({ length: n }, (_, i) => row(i));
+
+  it('rejects a file with headers but no rows, writing nothing', async () => {
+    const fileBase64 = await xlsx([HEAD]);
+    await expect(biz.handlers.bizImportSales(ctx, { date: '2026-12-09', fileBase64 })).rejects.toMatchObject({ status: 400 });
+    expect(store.snapshotRows('2026-12-09')).toBeNull();
+  });
+
+  it("asks before accepting a file missing many of yesterday's 본 영업 rows", async () => {
+    await biz.handlers.bizImportSales(ctx, { date: '2026-12-10', fileBase64: await xlsx([HEAD, ...many(50)]) });
+    const partial = await xlsx([HEAD, ...many(5)]);
+    await expect(biz.handlers.bizImportSales(ctx, { date: '2026-12-11', fileBase64: partial })).rejects.toMatchObject({ status: 409 });
+    expect(store.snapshotRows('2026-12-11')).toBeNull();
+    const res = await biz.handlers.bizImportSales(ctx, { date: '2026-12-11', fileBase64: partial, force: true });
+    expect(res).toMatchObject({ rowCount: 5, missingCount: 45, changeCount: 45 });
+  });
+
+  it('a few missing rows go through without asking', async () => {
+    await biz.handlers.bizImportSales(ctx, { date: '2026-12-12', fileBase64: await xlsx([HEAD, ...many(50)]) });
+    const res = await biz.handlers.bizImportSales(ctx, { date: '2026-12-13', fileBase64: await xlsx([HEAD, ...many(50).slice(1)]) });
+    expect(res).toMatchObject({ rowCount: 49, missingCount: 1 });
+  });
+});
+
+// 리뷰 #2: 지운 기본 구분을 가리키는 변동이 생기지 않는다 (파일 맨 끝: 다른 테스트에 영향 없게)
+describe('deleted default category', () => {
+  it('later auto-classified changes fall back to unclassified', () => {
+    store.importSnapshot('2027-01-04', [r({ key: '7::Z', amount: 100 })]);
+    store.deleteCategory('raise');
+    store.importSnapshot('2027-01-05', [r({ key: '7::Z', amount: 200 })]);
+    const [c] = store.changesFor('2027-01-05');
+    expect(c.kind).toBe('raise');
+    expect(c.categoryId).toBe('unclassified');
+  });
+});

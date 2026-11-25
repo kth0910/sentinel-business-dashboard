@@ -80,4 +80,35 @@ describe('diffSnapshots', () => {
     const curr = [r({ key: 'a', amount: 110 }), r({ key: 'b', amount: 50 }), r({ key: 'c', amount: 110 })];
     expect(diffSnapshots(prev, curr).map((c) => c.key)).toEqual(['b', 'a', 'c']);
   });
+
+  // 리뷰 #3: 이미 목표에서 빠진 건(확도 하·매우낮음 또는 보류·실패)은 다시 빼지 않는다
+  it('low then stopped is not excluded twice', () => {
+    const [c] = diffSnapshots([r({ probability: '하' })], [r({ probability: '하', progress: '실패' })]);
+    expect(c.kind).toBe('unclassified');
+    expect(c.delta).toBe(0);
+  });
+
+  it('removed after being excluded subtracts nothing', () => {
+    const [c] = diffSnapshots([r({ probability: '하' })], []);
+    expect(c.kind).toBe('exclude');
+    expect(c.delta).toBe(0);
+  });
+
+  it('amount up on an excluded row is not a raise', () => {
+    const [c] = diffSnapshots([r({ progress: '보류' })], [r({ progress: '보류', amount: 500 })]);
+    expect(c.kind).toBe('unclassified');
+    expect(c.delta).toBe(0);
+  });
+
+  it('coming back from low probability adds the amount back', () => {
+    const [c] = diffSnapshots([r({ probability: '하' })], [r({ probability: '중A', amount: 120 })]);
+    expect(c.kind).toBe('unclassified');
+    expect(c.delta).toBe(120);
+  });
+
+  it('confirming an excluded row counts its full amount', () => {
+    const [c] = diffSnapshots([r({ probability: '하' })], [r({ probability: '확정' })]);
+    expect(c.kind).toBe('confirm');
+    expect(c.delta).toBe(100);
+  });
 });

@@ -13,7 +13,7 @@ export interface SalesView {
   monthly: number[]; monthTargets: number[]; pipeline: SalesRow[];
 }
 
-export interface ImportResult { date: string; rowCount: number; changeCount: number; baseline: boolean; warnings: string[] }
+export interface ImportResult { date: string; rowCount: number; changeCount: number; missingCount: number; baseline: boolean; warnings: string[] }
 
 async function fileToBase64(file: File): Promise<string> {
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -27,7 +27,7 @@ export const biz = {
   ensurePage: (spaceId: string, date: string, kind: DailyKind) => api<{ pageId: string }>('bizEnsureDailyPage', { spaceId, date, kind }),
   pageDate: (pageId: string) => api<{ date: string | null; kind: DailyKind | null }>('bizPageDate', { pageId }),
   salesView: (date: string) => api<SalesView>('bizSalesView', { date }),
-  importSales: async (date: string, file: File) => api<ImportResult>('bizImportSales', { date, fileBase64: await fileToBase64(file) }),
+  importSales: async (date: string, file: File, force = false) => api<ImportResult>('bizImportSales', { date, fileBase64: await fileToBase64(file), force }),
   categories: () => api<{ categories: Category[] }>('bizCategories', {}),
   saveCategory: (c: { id?: string; label: string }) => api<{ category: Category; categories: Category[] }>('bizSaveCategory', c),
   deleteCategory: (id: string) => api<{ categories: Category[] }>('bizDeleteCategory', { id }),

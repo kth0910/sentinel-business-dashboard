@@ -16,10 +16,20 @@ export function ExcelUpload({ date }: { date: string }) {
     }
     setBusy(true);
     try {
-      const r = await biz.importSales(date, file);
+      let r;
+      try {
+        r = await biz.importSales(date, file);
+      } catch (e: any) {
+        // 직전 업로드보다 본 영업 건이 많이 빠진 파일(필터된 엑셀 등): 확인 후에만 반영
+        if (e?.status !== 409 || !confirm(`${e.message}
+
+그래도 이 파일로 반영할까요?`)) throw e.status === 409 ? new Error('업로드를 취소했습니다') : e;
+        r = await biz.importSales(date, file, true);
+      }
+      const n = (v: number) => v.toLocaleString('ko-KR');
       const msg = r.baseline
-        ? `${r.rowCount.toLocaleString('ko-KR')}건을 기준 데이터로 저장했습니다`
-        : `${r.rowCount.toLocaleString('ko-KR')}건 반영 · 변동 ${r.changeCount.toLocaleString('ko-KR')}건`;
+        ? `${n(r.rowCount)}건을 기준 데이터로 저장했습니다`
+        : `${n(r.rowCount)}건 반영 · 변동 ${n(r.changeCount)}건${r.missingCount ? ` (빠진 건 ${n(r.missingCount)})` : ''}`;
       useUI.getState().toast(r.warnings.length ? `${msg} (확인 필요 ${r.warnings.length}건)` : msg);
       refreshSales();
     } catch (e: any) {

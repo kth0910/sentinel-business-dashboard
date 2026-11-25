@@ -1,5 +1,5 @@
 // 업무 화면 RPC (POST /api/rpc/biz*). 로그인만 확인하고 권한은 따로 두지 않는다(설계 11.2).
-import { monthlyConfirmed, normalizeRows, openPipeline, SalesImportError, summarize, type Targets } from '@nc/biz';
+import { isMain, monthlyConfirmed, normalizeRows, openPipeline, SalesImportError, summarize, type Targets } from '@nc/biz';
 import type { SpaceRecord } from '@nc/shared/records.ts';
 import { getRecord } from '../../db.ts';
 import { readFirstSheet } from '../../biz/excel.ts';
@@ -9,6 +9,10 @@ import { ApiError, type Ctx } from '../handlers.ts';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const MONTH_RE = /^\d{4}-\d{2}$/;
+/** 직전 업로드의 본 영업 건 중 이 비율보다 많이 빠지면 확인을 받는다. */
+const MISSING_LIMIT = 0.2;
+/** 몇 건 안 빠졌으면(작은 데이터) 묻지 않는다. */
+const MISSING_MIN = 10;
 
 function requireUser(ctx: Ctx): string {
   if (!ctx.userId) throw new ApiError('Unauthorized', 401);
@@ -30,7 +34,7 @@ function badRequest<T>(fn: () => T): T {
 }
 
 export const handlers = {
-  async bizImportSales(ctx: Ctx, body: { date?: unknown; fileBase64?: unknown }) {
+  async bizImportSales(ctx: Ctx, body: { date?: unknown; fileBase64?: unknown; force?: unknown }) {
     requireUser(ctx);
     const date = dateArg(body.date);
     if (typeof body.fileBase64 !== 'string' || !body.fileBase64) throw new ApiError('엑셀 파일이 없습니다', 400);
@@ -47,8 +51,17 @@ export const handlers = {
       if (e instanceof SalesImportError) throw new ApiError(e.message, 400);
       throw e;
     }
+    if (!parsed.rows.length) throw new ApiError('엑셀에 데이터 행이 없습니다', 400);
+    // 리뷰 #4: 필터된 엑셀이면 빠진 본 영업 건이 전부 '목표매출 제외'로 잡힌다 → 20% 넘게 빠지면 확인을 받는다
+    const prevDate = store.prevSnapshotDate(date);
+    const prevMain = prevDate ? (store.snapshotRows(prevDate) ?? []).filter(isMain).map((r) => r.key) : [];
+    const keys = new Set(parsed.rows.map((r) => r.key));
+    const missingCount = prevMain.filter((k) => !keys.has(k)).length;
+    if (missingCount >= MISSING_MIN && missingCount / prevMain.length > MISSING_LIMIT && body.force !== true) {
+      throw new ApiError(`직전 업로드(${prevDate})의 본 영업 ${prevMain.length.toLocaleString('ko-KR')}건 중 ${missingCount.toLocaleString('ko-KR')}건이 이 파일에 없습니다. 필터 없이 전체를 내려받은 파일인지 확인하세요.`, 409);
+    }
     const res = store.importSnapshot(date, parsed.rows);
-    return { date, rowCount: parsed.rows.length, ...res, warnings: parsed.warnings };
+    return { date, rowCount: parsed.rows.length, missingCount, ...res, warnings: parsed.warnings };
   },
 
   async bizSalesView(ctx: Ctx, body: { date?: unknown }) {
