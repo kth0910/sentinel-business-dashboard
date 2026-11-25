@@ -134,3 +134,24 @@
   .biz-kpis { grid-template-columns: 1fr; }
   .biz-target-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* 업무 표 크기 조절(table.tsx): 열 너비 끌기, 행 높이, 표 영역 모서리 끌기 */
+.biz-table-wrap.resizable { resize: both; overflow: auto; }
+.biz-table.fixed { table-layout: fixed; }
+.biz-table.fixed th { position: relative; overflow: hidden; text-overflow: ellipsis; }
+.biz-table.fixed td { white-space: normal; overflow-wrap: anywhere; }
+.biz-table.fixed td.num { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.biz-table.fixed td.wrap { min-width: 0; }
+.biz-table.fixed select, .biz-table.fixed .biz-input { width: 100%; max-width: 100%; box-sizing: border-box; }
+.biz-col-grip { position: absolute; top: 0; right: 0; bottom: 0; width: 7px; cursor: col-resize; touch-action: none; }
+.biz-col-grip:hover, .biz-col-grip:active { background: linear-gradient(to right, transparent 3px, var(--biz-up) 3px, var(--biz-up) 4px, transparent 4px); }
+.biz-table.dens-compact td { padding-top: 2px; padding-bottom: 2px; font-size: 13px; }
+.biz-table.dens-normal td { padding-top: 6px; padding-bottom: 6px; }
+.biz-table.dens-wide td { padding-top: 12px; padding-bottom: 12px; }
+
+/* 이름 입력 창(nameDialog.tsx) */
+.biz-dialog-backdrop { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: flex-start; justify-content: center; padding-top: 18vh; background: rgba(15, 23, 42, 0.32); }
+.biz-dialog { width: min(380px, calc(100vw - 32px)); padding: 18px; border-radius: 10px; background: var(--lp-bg-primary, #fff); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); display: flex; flex-direction: column; gap: 12px; font-family: var(--font-default); }
+.biz-dialog h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--lp-text-primary); }
+.biz-dialog .biz-input { width: 100%; box-sizing: border-box; height: 34px; }
+.biz-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }

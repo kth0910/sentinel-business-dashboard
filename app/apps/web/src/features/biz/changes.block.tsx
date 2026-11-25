@@ -7,9 +7,16 @@ import { arrow, biz, type StoredChange } from './api.ts';
 import { CategoryManager } from './CategoryManager.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
+import { BizTable, TableControls, type ColDef } from './table.tsx';
 import './biz.css';
 
 const PAGE = 50;
+
+const COLS: ColDef[] = [
+  { key: 'customer', label: '고객명', width: 150 }, { key: 'category', label: '구분', width: 150 }, { key: 'product', label: '제품', width: 170 },
+  { key: 'amount', label: '순매출', width: 140, num: true }, { key: 'delta', label: '증감액', width: 140, num: true }, { key: 'probability', label: '확도', width: 100 },
+  { key: 'weight', label: '가중치', width: 130 }, { key: 'revenueType', label: '매출 구분', width: 100 }, { key: 'revenueDate', label: '매출일정', width: 120 },
+];
 
 const won = (v: unknown) => `${Number(v ?? 0).toLocaleString('ko-KR')}원`;
 
@@ -48,6 +55,7 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
       <div className="biz-block-head">
         <h3>변동사항{data?.prevDate && data.hasSnapshot ? ` · ${shortDate(data.prevDate)} 대비` : ''}</h3>
         <span className="biz-row">
+          <TableControls block={block} readOnly={readOnly} />
           {!readOnly && data && <button {...isolate} type="button" className="biz-btn" onClick={() => setManaging((v) => !v)}>구분 관리</button>}
         </span>
       </div>
@@ -57,12 +65,7 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
       {data?.baseline && <p className="biz-note">기준 데이터 — 다음 날부터 변동이 표시됩니다.</p>}
       {data?.hasSnapshot && !data.baseline && rows.length === 0 && <p className="biz-note">전일 대비 변동이 없습니다.</p>}
       {rows.length > 0 && (
-        <div className="biz-table-wrap">
-          <table className="biz-table wide biz-changes">
-            <thead>
-              <tr><th>고객명</th><th>구분</th><th>제품</th><th className="num">순매출</th><th className="num">증감액</th><th>확도</th><th>가중치</th><th>매출 구분</th><th>매출일정</th></tr>
-            </thead>
-            <tbody>
+        <BizTable block={block} cols={COLS} readOnly={readOnly} className="biz-changes">
               {rows.slice(0, shown).map((c) => {
                 const r = c.after ?? c.before!;
                 return (
@@ -87,9 +90,7 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
                   </tr>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+        </BizTable>
       )}
       {rows.length > shown && <button {...isolate} type="button" className="biz-link" onClick={() => setShown((n) => n + PAGE)}>더 보기 ({(rows.length - shown).toLocaleString('ko-KR')}건 남음)</button>}
     </div>

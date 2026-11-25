@@ -3,11 +3,18 @@ import { useState } from 'react';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, shortDate, useSalesView } from './sales.ts';
+import { BizTable, TableControls, type ColDef } from './table.tsx';
 import './biz.css';
 
 const PAGE = 50;
 
-function PipelineBlock({ block }: BlockProps) {
+const COLS: ColDef[] = [
+  { key: 'customer', label: '고객', width: 160 }, { key: 'product', label: '제품', width: 190 }, { key: 'amount', label: '공급가', width: 130, num: true },
+  { key: 'probability', label: '확도', width: 80 }, { key: 'progress', label: '진행사항', width: 90 }, { key: 'rep', label: '영업대표', width: 90 },
+  { key: 'startDate', label: '영업개시일', width: 110 },
+];
+
+function PipelineBlock({ block, readOnly }: BlockProps) {
   const date = blockDate(block.format);
   const { data } = useSalesView(date);
   const [shown, setShown] = useState(PAGE);
@@ -19,14 +26,14 @@ function PipelineBlock({ block }: BlockProps) {
     <div className="biz-block" contentEditable={false} data-biz="pipeline">
       <div className="biz-block-head">
         <h3>진행 중 영업 건 · {rows.length.toLocaleString('ko-KR')}건</h3>
-        <span className="biz-note">공급가 합 {total.toLocaleString('ko-KR')}원{data?.basisDate ? ` · ${shortDate(data.basisDate)} 기준` : ''}</span>
+        <span className="biz-row">
+          <span className="biz-note">공급가 합 {total.toLocaleString('ko-KR')}원{data?.basisDate ? ` · ${shortDate(data.basisDate)} 기준` : ''}</span>
+          <TableControls block={block} readOnly={readOnly} />
+        </span>
       </div>
       {data && rows.length === 0 && <p className="biz-note">진행 중인 건이 없습니다.</p>}
       {rows.length > 0 && (
-        <div className="biz-table-wrap">
-          <table className="biz-table wide">
-            <thead><tr><th>고객</th><th>제품</th><th className="num">공급가</th><th>확도</th><th>진행사항</th><th>영업대표</th><th>영업개시일</th></tr></thead>
-            <tbody>
+        <BizTable block={block} cols={COLS} readOnly={readOnly}>
               {rows.slice(0, shown).map((r) => (
                 <tr key={r.key}>
                   <td className="wrap">{r.customer}</td>
@@ -38,9 +45,7 @@ function PipelineBlock({ block }: BlockProps) {
                   <td>{r.startDate ?? '—'}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+        </BizTable>
       )}
       {rows.length > shown && <button {...isolate} type="button" className="biz-link" onClick={() => setShown((n) => n + PAGE)}>더 보기 ({(rows.length - shown).toLocaleString('ko-KR')}건 남음)</button>}
     </div>
