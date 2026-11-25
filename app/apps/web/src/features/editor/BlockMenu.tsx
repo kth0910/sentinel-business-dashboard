@@ -30,7 +30,7 @@ import { useSkills } from '../ai/aiStores.ts';
 
 function blockLabel(b: BlockRecord): string {
   if (b.format?.toggleable) return `Toggle ${BLOCK_LABELS[b.type] ?? 'block'}`.replace('Toggle Heading', 'Toggle heading');
-  return BLOCK_LABELS[b.type] ?? 'Block';
+  return BLOCK_LABELS[b.type] ?? '블록';
 }
 
 export function turnIntoMenu(ids: string[]): MenuDef {
@@ -84,9 +84,9 @@ export function colorMenu(ids: string[]): MenuDef {
     maxHeight: '70vh',
     role: 'menu',
     sections: [
-      ...(last ? [{ title: 'Last used', items: [{ label: colorLabel(last), icon: <ColorSwatch color={last} />, shortcut: '⌘⇧H', onSelect: () => apply(last) }] }] : []),
-      { title: 'Text color', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} text`, icon: <ColorSwatch color={c} />, onSelect: () => apply(c) })) },
-      { title: 'Background color', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} background`, icon: <ColorSwatch color={c === 'default' ? 'default_background' : `${c}_background`} />, onSelect: () => apply(c === 'default' ? 'default' : `${c}_background`) })) },
+      ...(last ? [{ title: '마지막 사용', items: [{ label: colorLabel(last), icon: <ColorSwatch color={last} />, shortcut: '⌘⇧H', onSelect: () => apply(last) }] }] : []),
+      { title: '텍스트 색상', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} 텍스트`, icon: <ColorSwatch color={c} />, onSelect: () => apply(c) })) },
+      { title: '배경색', items: COLOR_NAMES.map((c) => ({ label: `${COLOR_LABELS[c]} 배경`, icon: <ColorSwatch color={c === 'default' ? 'default_background' : `${c}_background`} />, onSelect: () => apply(c === 'default' ? 'default' : `${c}_background`) })) },
     ],
   };
 }
@@ -118,20 +118,20 @@ export function blockActionMenu(ids: string[]): MenuDef {
   const { words, chars } = selectionCounts(ids);
   const countable = ids.some((id) => { const x = getBlock(id); return !!x && (TEXT_BLOCKS.has(x.type) || x.type === 'page' || !!x.content?.length); });
   const actions: MenuItemDef[] = [
-    { label: 'Copy block URL', icon: 'link', shortcut: '⌘⌃L', onSelect: () => copyPageLink(pageIdOfBlock(b.id) ?? b.id, b.id) },
-    blockDuplicateItem({ ids, block: b }) ?? { label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { duplicateBlocks(ids); } },
-    { label: 'Move to', icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(ids, document.querySelector(`[data-block-id="${b.id}"]`) as HTMLElement) },
-    { label: 'Delete', icon: 'trash', shortcut: 'Del', onSelect: () => deleteBlocks(ids) },
+    { label: '블록 URL 복사', icon: 'link', shortcut: '⌘⌃L', onSelect: () => copyPageLink(pageIdOfBlock(b.id) ?? b.id, b.id) },
+    blockDuplicateItem({ ids, block: b }) ?? { label: '복제', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { duplicateBlocks(ids); } },
+    { label: '옮기기', icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(ids, document.querySelector(`[data-block-id="${b.id}"]`) as HTMLElement) },
+    { label: '삭제', icon: 'trash', shortcut: 'Del', onSelect: () => deleteBlocks(ids) },
   ];
-  const turnIntoItem: MenuItemDef = { label: 'Turn into', icon: 'arrowSquarePathUpDown', submenu: () => turnIntoMenu(ids) };
-  const colorItem: MenuItemDef = { label: 'Color', icon: 'blockColor', submenu: () => colorMenu(ids) };
+  const turnIntoItem: MenuItemDef = { label: '전환', icon: 'arrowSquarePathUpDown', submenu: () => turnIntoMenu(ids) };
+  const colorItem: MenuItemDef = { label: '색상', icon: 'blockColor', submenu: () => colorMenu(ids) };
   // Text direction (Settings › Preferences › Always show text direction controls, or an RTL language): format.block_text_direction
   const directionItem: MenuItemDef | null = textual && showTextDirectionControls() ? {
-    label: 'Text direction', icon: 'textDirection',
+    label: '텍스트 방향', icon: 'textDirection',
     submenu: () => ({
       width: 200,
       sections: [{
-        items: ([['auto', 'Auto-detect'], ['ltr', 'Read left to right'], ['rtl', 'Read right to left']] as const).map(([d, label]) => ({
+        items: ([['auto', 'Auto-detect'], ['ltr', '왼쪽에서 오른쪽으로 읽기'], ['rtl', '오른쪽에서 왼쪽으로 읽기']] as const).map(([d, label]) => ({
           label, checked: ((getBlock(b.id)?.format as any)?.block_text_direction ?? 'auto') === d,
           onSelect: () => run('setTextDirection', (tx) => { for (const id of ids) setFormat(tx, id, { block_text_direction: d === 'auto' ? undefined : d }); }),
         })),
@@ -142,25 +142,25 @@ export function blockActionMenu(ids: string[]): MenuDef {
   const custom = !multi ? blockMenuItems({ ids, block: b, turnInto: turnIntoItem, color: colorItem }) : null;
   const sections: MenuDef['sections'] = [
     {
-      title: multi ? `${ids.length} blocks` : blockLabel(b),
+      title: multi ? `블록 ${ids.length}개` : blockLabel(b),
       items: [...(custom ?? [...(textual ? [turnIntoItem] : []), colorItem]), ...(directionItem ? [directionItem] : [])],
     },
     { items: actions },
     ...(TRIM.comments ? [] : [
     {
       items: [
-        { label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => startCommentOnBlock(b.id) },
-        { label: 'Suggest edits', icon: 'commentPencil', shortcut: '⌘⇧⌥X', onSelect: () => void import('../comments/suggest.ts').then((m) => m.startSuggestingFrom(b.id)) },
+        { label: '댓글', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => startCommentOnBlock(b.id) },
+        { label: '편집 제안', icon: 'commentPencil', shortcut: '⌘⇧⌥X', onSelect: () => void import('../comments/suggest.ts').then((m) => m.startSuggestingFrom(b.id)) },
       ],
     },
     ]),
-    { items: [{ label: 'Start presenting here', icon: 'playButton', badge: 'Beta', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
+    { items: [{ label: '여기서부터 발표 시작', icon: 'playButton', badge: '베타', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
     // Settings › Developer › Enable developer features: Copy block / database / data source ID 
     ...(!multi && developerMenuSection(b.id) ? [developerMenuSection(b.id)!] : []),
     ...(TRIM.ai ? [] : [{
       items: [
-        { label: 'Ask AI', icon: 'aiFace', shortcut: '⌘J', onSelect: () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { blockId: b.id } })) },
-        { label: 'Skills', icon: 'paperBolt', submenu: () => blockSkillsMenu(b.id) },
+        { label: 'AI에게 질문', icon: 'aiFace', shortcut: '⌘J', onSelect: () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { blockId: b.id } })) },
+        { label: '스킬', icon: 'paperBolt', submenu: () => blockSkillsMenu(b.id) },
       ],
     }]),
   ];
@@ -168,17 +168,17 @@ export function blockActionMenu(ids: string[]): MenuDef {
   const searchSections = (): MenuSectionDef[] => {
     const out: MenuSectionDef[] = [];
     if (textual || custom?.includes(turnIntoItem)) {
-      out.push({ title: 'Turn into', items: turnIntoMenu(ids).sections[0].items.map((it) => ({ ...it, keywords: ['turn into', 'turn', 'convert'] })) });
+      out.push({ title: '전환', items: turnIntoMenu(ids).sections[0].items.map((it) => ({ ...it, keywords: ['turn into', 'turn', 'convert'] })) });
     }
     if (!custom || custom.includes(colorItem)) {
-      out.push({ title: 'Color', items: colorMenu(ids).sections.filter((sec) => sec.title !== 'Last used').flatMap((sec) => sec.items).map((it) => ({ ...it, keywords: ['color', 'colour', ...(String(it.label).startsWith('Gray') ? ['grey'] : [])] })) });
+      out.push({ title: '색상', items: colorMenu(ids).sections.filter((sec) => sec.title !== 'Last used').flatMap((sec) => sec.items).map((it) => ({ ...it, keywords: ['color', 'colour', ...(String(it.label).startsWith('Gray') ? ['grey'] : [])] })) });
     }
     return out;
   };
   return {
     width: 265,
     maxHeight: '70vh',
-    search: 'Search actions…',
+    search: '작업 검색…',
     initialActive: -1, // “Search actions…” menus open with no highlighted row
     sections,
     searchSections,
@@ -188,20 +188,20 @@ export function blockActionMenu(ids: string[]): MenuDef {
       <div className="nc-menu-section nc-block-menu-footer">
         <div className="nc-block-menu-footer-row">
           <div className="nc-block-menu-footer-col">
-            <div className="title">Last edited</div>
+            <div className="title">마지막 편집</div>
             <div className="who">
               <UserAvatar userId={b.last_edited_by_id} size={24} />
-              <span className="name nc-ellipsis">{editor ? userName(editor) : 'Unknown'}</span>
+              <span className="name nc-ellipsis">{editor ? userName(editor) : '알 수 없음'}</span>
             </div>
             <div className="when">{formatDateTime(b.last_edited_time)}</div>
           </div>
-          {textual && <div className="count">{words} words, {chars} characters</div>}
+          {textual && <div className="count">단어 {words}개, 글자 {chars}자</div>}
         </div>
       </div>
     ) : countable ? (
       <div className="nc-menu-section nc-block-menu-footer">
         <div className="nc-block-menu-footer-row">
-          <div className="count">{words} words, {chars} characters</div>
+          <div className="count">단어 {words}개, 글자 {chars}자</div>
         </div>
       </div>
     ) : undefined,
@@ -260,8 +260,8 @@ function blockSkillsMenu(blockId: string): MenuDef {
   return {
     sections: [
       { items: builtin.map((s) => ({ label: s, icon: 'sparkle', onSelect: ask({ skill: s }) })) },
-      ...(mine.length ? [{ title: 'Your skills', items: mine.map((x) => ({ label: x.name, icon: 'paperBolt', description: x.description || undefined, onSelect: ask({ skill: x.name, skillId: x.id }) })) }] : []),
-      { items: [{ label: 'Manage skills', icon: 'sliders', onSelect: ask({ skill: 'manage' }) }] },
+      ...(mine.length ? [{ title: '내 스킬', items: mine.map((x) => ({ label: x.name, icon: 'paperBolt', description: x.description || undefined, onSelect: ask({ skill: x.name, skillId: x.id }) })) }] : []),
+      { items: [{ label: '스킬 관리', icon: 'sliders', onSelect: ask({ skill: 'manage' }) }] },
     ],
   };
 }

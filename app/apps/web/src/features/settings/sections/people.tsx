@@ -620,19 +620,19 @@ function ProfileSettings({ space }: { space: SpaceRecord }) {
         id="people-directory"
         label={t('lp.settings.people_directory', 'People directory')}
         description={t('lp.settings.turn_on_member_profiles_and_a', 'Turn on member profiles and a people directory in this workspace')}
-        control={<Switch label="People directory" checked={spaceSetting<boolean>(space, 'people_profiles_enabled', true) !== false} onChange={(v) => saveSpaceSettings(space.id, { people_profiles_enabled: v })} />}
+        control={<Switch label="사용자 디렉터리" checked={spaceSetting<boolean>(space, 'people_profiles_enabled', true) !== false} onChange={(v) => saveSpaceSettings(space.id, { people_profiles_enabled: v })} />}
       />
       <Row
         id="hover-cards"
         label={t('lp.settings.hover_cards', 'Hover cards')}
         description={t('lp.settings.hovering_over_a_name_reveals_that', 'Hovering over a name reveals that person’s profile details')}
-        control={<Switch label="Hover cards" checked={spaceSetting<boolean>(space, 'hover_cards_enabled', true) !== false} onChange={(v) => saveSpaceSettings(space.id, { hover_cards_enabled: v })} />}
+        control={<Switch label="호버 카드" checked={spaceSetting<boolean>(space, 'hover_cards_enabled', true) !== false} onChange={(v) => saveSpaceSettings(space.id, { hover_cards_enabled: v })} />}
       />
       <Row
         id="people-activity"
         label={t('lp.settings.add_recent_activity_to_each_person', 'Add recent activity to each person’s profile')}
         description={t('lp.settings.list_the_pages_someone_has_recently', 'List the pages someone has recently created or edited, plus their latest comments')}
-        control={<Switch label="Display recent activity on member profiles" checked={spaceSetting<boolean>(space, 'people_activity_enabled', true) !== false} onChange={(v) => saveSpaceSettings(space.id, { people_activity_enabled: v })} />}
+        control={<Switch label="멤버 프로필에 최근 활동 표시" checked={spaceSetting<boolean>(space, 'people_activity_enabled', true) !== false} onChange={(v) => saveSpaceSettings(space.id, { people_activity_enabled: v })} />}
       />
     </Group>
   );
@@ -772,7 +772,7 @@ function GroupsTab({ space, admin, me, groups }: { space: SpaceRecord; admin: bo
           id="group-creation"
           label={t('lp.settings.any_member_can_create_groups', 'Any member can create groups')}
           description={t('lp.settings.if_this_is_off_group_creation', 'If this is off, group creation is limited to workspace owners and membership admins')}
-          control={<Switch label="Let every member create groups" checked={!spaceSetting(space, 'restrict_group_creation', false)} onChange={(v) => saveSpaceSettings(space.id, { restrict_group_creation: !v })} />}
+          control={<Switch label="모든 멤버가 그룹을 만들 수 있도록 허용" checked={!spaceSetting(space, 'restrict_group_creation', false)} onChange={(v) => saveSpaceSettings(space.id, { restrict_group_creation: !v })} />}
         />
       )}
     </div>
@@ -882,7 +882,7 @@ function AddMembersBody({ space, admin, owner, close }: { space: SpaceRecord; ad
           return (
             <span key={em} className="nc-set-chip" title={who?.name ? em : undefined} data-email={em}>
               {who?.name ? <><UserAvatar user={{ name: who.name, email: em, profile_photo: who.profilePhoto }} size={16} />{who.name}</> : em}
-              <span role="button" className="x" aria-label="Remove" onClick={() => setEmails((l) => l.filter((x) => x !== em))}><Icon name="xMarkSmall" size={14} /></span>
+              <span role="button" className="x" aria-label="제거" onClick={() => setEmails((l) => l.filter((x) => x !== em))}><Icon name="xMarkSmall" size={14} /></span>
             </span>
           );
         })}
@@ -989,7 +989,7 @@ function InviteLinkBox({ space, link, enabled }: { space: SpaceRecord; link: str
       >
         {t('lp.settings.copy_link', 'Copy link')}
       </Button>
-      <Switch label="Invite link" checked={on && enabled !== false} onChange={(v) => void toggle(v)} />
+      <Switch label="초대 링크" checked={on && enabled !== false} onChange={(v) => void toggle(v)} />
     </div>
   );
 }

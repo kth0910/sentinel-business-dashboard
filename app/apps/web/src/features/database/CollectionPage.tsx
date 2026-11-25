@@ -39,17 +39,17 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
       <div className="lit-page-controls nc-db-page-controls" style={{ opacity: hover && !readOnly ? 1 : 0, pointerEvents: hover && !readOnly ? 'auto' : 'none' }}>
         {!icon && (
           <div role="button" className="nc-page-control" onClick={() => run('addPageIcon', (tx) => setFormat(tx, b.id, { page_icon: randomEmoji() }))}>
-            <Icon name="emojiFace" size={14} />Add icon
+            <Icon name="emojiFace" size={14} />아이콘 추가
           </div>
         )}
         {!hasCover && (
           <div role="button" className="nc-page-control" onClick={() => run('addPageCover', (tx) => setFormat(tx, b.id, { page_cover: randomCover(), page_cover_position: 0.5 }))}>
-            <Icon name="photo" size={14} />Add cover
+            <Icon name="photo" size={14} />커버 추가
           </div>
         )}
         {!desc.length && !showDesc && (
           <div role="button" className="nc-page-control" onClick={() => setShowDesc(true)}>
-            <Icon name="info" size={14} />Add description
+            <Icon name="info" size={14} />설명 추가
           </div>
         )}
       </div>
@@ -62,7 +62,7 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
             readOnly={readOnly || linked}
             tagName="h1"
             className="content-editable-leaf-rtl nc-db-page-title"
-            placeholder="New database"
+            placeholder="새 데이터베이스"
             placeholderAlways
             onChange={(next) => run('renameDatabase', (tx) => tx.set('collection', col.id, ['name'], next), { coalesceKey: `dbname:${col.id}` })}
             onKeyDown={(e) => {
@@ -82,7 +82,7 @@ export function CollectionPage({ block, inPeek }: { block: BlockRecord; inPeek?:
             value={desc}
             readOnly={readOnly}
             className="nc-db-page-description-leaf"
-            placeholder="Add a description…"
+            placeholder="설명 추가…"
             placeholderAlways
             onChange={(next) => run('setDatabaseDescription', (tx) => tx.set('collection', col.id, ['description'], next), { coalesceKey: `dbdesc:${col.id}` })}
             onBlur={() => setShowDesc(false)}

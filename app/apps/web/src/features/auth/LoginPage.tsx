@@ -1,4 +1,5 @@
 import { HELP_URL } from '@nc/shared/brand.ts';
+import { TRIM_AUTH } from '../biz/flags.ts';
 
 
 // Flow: email → (temporary login code | password) → session. Provider buttons are faithful but not wired here.
@@ -10,7 +11,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { openMenu } from '../../components/Menu.tsx';
-import { getLocale, LOCALES, setLocale, t } from '../shell/i18n.ts';
+import { FORCED_LOCALE, getLocale, LOCALES, setLocale, t } from '../shell/i18n.ts';
 import koCatalog from '../shell/i18n.ko-KR.json';
 import { AddAccountBar } from '../shell/accounts.tsx';
 import { signInWithPasskey } from '../settings/passkeys.tsx';
@@ -24,28 +25,28 @@ const RESEND_SECONDS = 30;
 
 
 export const LANGUAGE_OPTIONS: { id: string; native: string; english: string }[] = [
-  { id: 'ar-SA', native: 'العربية', english: 'Arabic' },
-  { id: 'da-DK', native: 'Dansk', english: 'Danish' },
-  { id: 'nl-NL', native: 'Nederlands', english: 'Dutch' },
-  { id: 'en-GB', native: 'English (UK)', english: 'English (UK)' },
-  { id: 'en-US', native: 'English (US)', english: 'English (US)' },
-  { id: 'fi-FI', native: 'Suomi', english: 'Finnish' },
-  { id: 'fr-FR', native: 'Français (France)', english: 'French (France)' },
-  { id: 'de-DE', native: 'Deutsch', english: 'German' },
+  { id: 'ar-SA', native: 'العربية', english: '아랍어' },
+  { id: 'da-DK', native: 'Dansk', english: '덴마크어' },
+  { id: 'nl-NL', native: 'Nederlands', english: '네덜란드어' },
+  { id: 'en-GB', native: 'English (UK)', english: '영어(영국)' },
+  { id: 'en-US', native: 'English (US)', english: '영어(미국)' },
+  { id: 'fi-FI', native: 'Suomi', english: '핀란드어' },
+  { id: 'fr-FR', native: 'Français (France)', english: '프랑스어(프랑스)' },
+  { id: 'de-DE', native: 'Deutsch', english: '독일어' },
   { id: 'he-IL', native: 'עברית', english: 'Hebrew' },
-  { id: 'id-ID', native: 'Bahasa Indonesia', english: 'Indonesian' },
+  { id: 'id-ID', native: 'Bahasa Indonesia', english: '인도네시아어' },
   { id: 'it-IT', native: 'Italiano', english: 'Italian' },
-  { id: 'ja-JP', native: '日本語', english: 'Japanese' },
-  { id: 'ko-KR', native: '한국어', english: 'Korean' },
+  { id: 'ja-JP', native: '日本語', english: '일본어' },
+  { id: 'ko-KR', native: '한국어', english: '한국어' },
   { id: 'nb-NO', native: 'Norsk', english: 'Norwegian' },
-  { id: 'pt-BR', native: 'Português (Brasil)', english: 'Portuguese (Brazil)' },
-  { id: 'zh-CN', native: '简体中文', english: 'Simplified Chinese' },
-  { id: 'es-LA', native: 'Español (Latinoamérica)', english: 'Spanish (Latin American)' },
-  { id: 'es-ES', native: 'Español (España)', english: 'Spanish (Spain)' },
-  { id: 'sv-SE', native: 'Svenska', english: 'Swedish' },
-  { id: 'th-TH', native: 'ภาษาไทย', english: 'Thai' },
-  { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese' },
-  { id: 'vi-VN', native: 'Tiếng Việt', english: 'Vietnamese' },
+  { id: 'pt-BR', native: 'Português (Brasil)', english: '포르투갈어(브라질)' },
+  { id: 'zh-CN', native: '简体中文', english: '중국어(간체)' },
+  { id: 'es-LA', native: 'Español (Latinoamérica)', english: '스페인어(중남미)' },
+  { id: 'es-ES', native: 'Español (España)', english: '스페인어(스페인)' },
+  { id: 'sv-SE', native: 'Svenska', english: '스웨덴어' },
+  { id: 'th-TH', native: 'ภาษาไทย', english: '태국어' },
+  { id: 'zh-TW', native: '繁體中文', english: '중국어(번체)' },
+  { id: 'vi-VN', native: 'Tiếng Việt', english: '베트남어' },
 ];
 
 export function openLanguageMenu(anchor: HTMLElement) {
@@ -182,7 +183,7 @@ function Terms() {
   return (
     <div className="nc-auth-terms">
       <p>
-        {rich(msg('lp.auth.continuing_confirms_your_understanding_o', 'Continuing confirms your understanding of and agreement with our <termsandconditionslink>Terms & Conditions</termsandconditionslink> and <privacypolicylink>Privacy Policy</privacypolicylink>'), {
+        {rich(msg('lp.auth.continuing_confirms_your_understanding_o', 'Continuing confirms your understanding of and agreement with our <termsandconditionslink>Terms & Conditions</termsandconditionslink> and <privacypolicylink>개인정보 처리방침</privacypolicylink>'), {
           termsandconditionslink: (c) => HELP_URL ? <a className="nc-auth-link-muted" href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           privacypolicylink: (c) => HELP_URL ? <a className="nc-auth-link-muted" href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
         })}
@@ -254,7 +255,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
   const showEmailForm = !demo.enabled || !!demo.sharedAccount;
 
   useEffect(() => {
-    document.title = mode === 'signup' ? `Litpage - ${t('lp.auth.sign_up', 'Sign up')}` : `Litpage - ${t('lp.auth.log_in', 'Log in')}`;
+    document.title = mode === 'signup' ? `CoolNotion! - ${t('lp.auth.sign_up', 'Sign up')}` : `CoolNotion! - ${t('lp.auth.log_in', 'Log in')}`;
   }, [mode]);
 
   useEffect(() => {
@@ -387,10 +388,10 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
   const submitLabel = step === 'password' ? t('lp.auth.continue_with_a_password', 'Continue with a password') : step === 'mfa' ? t('lp.auth.continue', 'Continue') : t('lp.auth.continue', 'Continue');
 
   const switchLink = mode === 'signup'
-    ? rich(msg('lp.auth.already_a_user_log_in', 'Already a user? <loginlink>Log in</loginlink>'), {
+    ? rich(msg('lp.auth.already_a_user_log_in', 'Already a user? <loginlink>로그인</loginlink>'), {
         loginlink: (c) => <a className="nc-auth-link-sec" href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>{c}</a>,
       })
-    : rich(msg('lp.auth.new_to_litpage_sign_up', 'New to Litpage? <signuplink>Sign up</signuplink>'), {
+    : rich(msg('lp.auth.new_to_litpage_sign_up', 'New to CoolNotion!? <signuplink>가입하기</signuplink>'), {
         signuplink: (c) => <a className="nc-auth-link-sec" href="/signup" onClick={(e) => { e.preventDefault(); navigate('/signup'); }}>{c}</a>,
       });
 
@@ -406,7 +407,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
       <div className="nc-auth-hint-line">
         {backupLeft > 0
           ? t('lp.auth.backup_codes_remaining', 'Backup codes remaining: {numRemainingCodes}.', { numRemainingCodes: backupLeft })
-          : rich(msg('lp.auth.every_recovery_code_has_been_used', 'Every recovery code has been used. To get a fresh set, open Litpage in a browser or the desktop app and select <boldtext>Settings & members</boldtext> > <boldtext>My account</boldtext> > <boldtext>Regenerate backup codes</boldtext>.'), { boldtext: (c) => <b>{c}</b> })}
+          : rich(msg('lp.auth.every_recovery_code_has_been_used', 'Every recovery code has been used. To get a fresh set, open CoolNotion! in a browser or the desktop app and select <boldtext>Settings & members</boldtext> > <boldtext>내 계정</boldtext> > <boldtext>백업 코드 다시 만들기</boldtext>.'), { boldtext: (c) => <b>{c}</b> })}
       </div>
       <button className="nc-auth-submit" type="button" onClick={() => void finishLogin(true)}>{t('lp.auth.open_account_settings', 'Open account settings')}</button>
       <button className="nc-auth-textbtn" type="button" onClick={() => void finishLogin(false)}>{t('lp.auth.skip_for_now', 'Do this later')}</button>
@@ -459,7 +460,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
         )}
         {step === 'email' && mode === 'signup' && (
           <div className="nc-auth-tip">
-            {rich(msg('lp.auth.tip_use_your_work_email_if', '<bold>Tip: use your work email</bold> (if available) to help your team join Litpage'), {
+            {rich(msg('lp.auth.tip_use_your_work_email_if', '<bold>팁: 업무용 이메일을 사용하세요</bold> (if available) to help your team join CoolNotion!'), {
               bold: (c) => <b>{c}</b>,
             })}
           </div>
@@ -579,9 +580,12 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
       )}
       {showEmailForm && (
         <>
+          {/* 업무관리 시연판: 이메일+비밀번호 로그인만. 외부 로그인·가입 링크 숨김(계정은 scripts/biz-user.ts로 만든다) */}
+          {!TRIM_AUTH && (<>
           <Divider />
           <Providers mode={mode} />
           <div className="nc-auth-switch">{switchLink}</div>
+          </>)}
         </>
       )}
       <Terms />
@@ -590,8 +594,8 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
 
   const heading = (
     <div className="nc-auth-heading">
-      <h1>{mode === 'signup' ? t('lp.auth.litpage_a_workspace_with_ai_built', 'Litpage: a workspace with AI built in.') : t('lp.auth.your_ai_workspace', 'Your intelligent workspace')}</h1>
-      <h2>{mode === 'signup' ? t('lp.auth.create_an_account_using_a_work', 'Create an account using a work email') : t('lp.auth.sign_in_to_keep_working_in', 'Sign in to keep working in Litpage')}</h2>
+      <h1>{mode === 'signup' ? t('lp.auth.litpage_a_workspace_with_ai_built', 'CoolNotion!: a workspace with AI built in.') : t('lp.auth.your_ai_workspace', 'Your intelligent workspace')}</h1>
+      <h2>{mode === 'signup' ? t('lp.auth.create_an_account_using_a_work', 'Create an account using a work email') : t('lp.auth.sign_in_to_keep_working_in', 'Sign in to keep working in CoolNotion!')}</h2>
     </div>
   );
 
@@ -623,6 +627,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
             <div className="nc-auth-spacer-bottom" />
           </div>
           <div className="nc-auth-footer">
+            {!FORCED_LOCALE && (
             <div
               role="button"
               aria-label={t('lp.auth.language', 'Language: {language}', { language: currentLanguageName() })}
@@ -633,6 +638,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
               <span>{t('lp.auth.language', 'Language: {language}', { language: currentLanguageName() })}</span>
               <Icon name="arrowChevronSingleDownSmall" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
             </div>
+            )}
           </div>
         </div>
       </main>

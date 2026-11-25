@@ -38,8 +38,8 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
 export function ShowAsPicker({ value, onChange }: { value: string; onChange: (v: 'number' | 'bar' | 'ring') => void }) {
   return (
     <div className="nc-rollup-showas">
-      <div role="button" className={`opt ${value === 'number' ? 'on' : ''}`} onClick={() => onChange('number')}><b>42</b>Number</div>
-      <div role="button" className={`opt ${value === 'bar' ? 'on' : ''}`} onClick={() => onChange('bar')}><span className="bar"><span /></span>Bar</div>
+      <div role="button" className={`opt ${value === 'number' ? 'on' : ''}`} onClick={() => onChange('number')}><b>42</b>숫자</div>
+      <div role="button" className={`opt ${value === 'bar' ? 'on' : ''}`} onClick={() => onChange('bar')}><span className="bar"><span /></span>막대</div>
       <div role="button" className={`opt ${value === 'ring' ? 'on' : ''}`} onClick={() => onChange('ring')}>
         <svg width={16} height={16} viewBox="0 0 20 20" aria-hidden><circle cx={10} cy={10} r={7} fill="none" stroke="var(--lp-border-primary)" strokeWidth={3} /><circle cx={10} cy={10} r={7} fill="none" stroke="var(--lp-icon-secondary)" strokeWidth={3} strokeDasharray="22 44" transform="rotate(-90 10 10)" /></svg>Ring
       </div>

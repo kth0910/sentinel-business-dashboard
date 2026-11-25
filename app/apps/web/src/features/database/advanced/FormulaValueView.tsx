@@ -35,7 +35,7 @@ function runStyle(anns: Annotation[]): { className: string; style: React.CSSProp
 
 function pageTitle(id: string): string {
   const b = records.get<BlockRecord>('block', id);
-  return (b?.properties?.title ?? []).map((d) => d[0]).join('') || 'Untitled';
+  return (b?.properties?.title ?? []).map((d) => d[0]).join('') || '제목 없음';
 }
 
 function userName(id: string): string {

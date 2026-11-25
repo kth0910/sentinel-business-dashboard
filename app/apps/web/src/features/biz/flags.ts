@@ -13,3 +13,6 @@ export const HIDDEN_SLASH_IDS = [
   'ai-meeting-notes', 'ai-meeting-notes-2', 'ai-block', 'ask-ai', 'ai-skill', 'ai-image', 'comment',
   'db-board', 'db-gallery', 'db-feed', 'db-dashboard', 'db-map', 'form',
 ];
+
+/** 로그인 화면: 외부 로그인(Google 등)·패스키·SSO 버튼과 가입 링크를 숨긴다. */
+export const TRIM_AUTH = true;

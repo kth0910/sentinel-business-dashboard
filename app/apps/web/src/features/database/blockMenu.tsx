@@ -28,26 +28,26 @@ export function setDatabaseBlockType(blockId: string, type: 'collection_view' | 
 }
 
 registerBlockMenu(['collection_view'], ({ block }) => (canEdit(block) ? [
-  { label: 'Change to entry', icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view_page') },
+  { label: '항목으로 전환', icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view_page') },
   // features/import/MergeCsv.tsx: column mapping, rows added to this database's data source
-  ...(ownsData(block) ? [{ label: 'Combine with CSV', icon: 'fileCsv', description: 'A header row is required', onSelect: () => { void import('../import/MergeCsv.tsx').then((m) => m.openMergeCsv(block.id)); } }] : []),
+  ...(ownsData(block) ? [{ label: 'CSV와 병합', icon: 'fileCsv', description: '헤더 행이 필요합니다', onSelect: () => { void import('../import/MergeCsv.tsx').then((m) => m.openMergeCsv(block.id)); } }] : []),
 ] : []));
 
 registerBlockMenu(['collection_view_page'], ({ block }) => [
-  ...(canEdit(block) ? [{ label: 'Change to inline table', icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view') }] : []),
-  { label: 'Launch in a new tab', icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
+  ...(canEdit(block) ? [{ label: '인라인 테이블로 전환', icon: 'arrowSquarePathUpDown', onSelect: () => setDatabaseBlockType(block.id, 'collection_view') }] : []),
+  { label: '새 탭에서 열기', icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
 ]);
 
 registerDuplicateItem(['collection_view', 'collection_view_page'], ({ block }) => {
   if (!ownsData(block)) return null; // a linked view duplicates as another linked view
   return {
-    label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D',
+    label: '복제', icon: 'duplicate', shortcut: '⌘D',
     submenu: () => ({
       width: 275,
       role: 'menu',
       sections: [{ items: [
-        { label: 'Make a copy with content', shortcut: '⌘D', onSelect: () => { duplicateDatabaseBlock(block.id, true); } },
-        { label: 'Make an empty copy', onSelect: () => { duplicateDatabaseBlock(block.id, false); } },
+        { label: '내용과 함께 복사본 만들기', shortcut: '⌘D', onSelect: () => { duplicateDatabaseBlock(block.id, true); } },
+        { label: '빈 사본 만들기', onSelect: () => { duplicateDatabaseBlock(block.id, false); } },
       ] }],
     }),
   };

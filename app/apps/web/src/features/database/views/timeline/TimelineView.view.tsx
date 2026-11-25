@@ -63,7 +63,7 @@ export const ZOOMS: Record<ZoomLevel, ZoomConfig> = {
   '5_years': { snap: 'day', primary: 'month', secondary: 'year', msPerPixel: 864e5, align: 'start', divider: 'month', weekends: false, highlight: false, placeholder: { weeks: 20 } },
 };
 
-export const ZOOM_LABEL: Record<ZoomLevel, string> = { hours: 'Hours', day: 'Day', week: 'Week', bi_week: 'Bi-week', month: 'Month', quarter: 'Quarter', year: 'Year', '5_years': '5 Years' };
+export const ZOOM_LABEL: Record<ZoomLevel, string> = { hours: '시간', day: '일', week: '주', bi_week: 'Bi-week', month: '월', quarter: '분기', year: '연도', '5_years': '5년' };
 const ZOOM_ORDER: ZoomLevel[] = ['hours', 'day', 'week', 'bi_week', 'month', 'quarter', 'year', '5_years'];
 const ROW = 36;
 const HEAD = 68;
@@ -124,7 +124,7 @@ function secondaryTitle(ms: number, unit: ZoomConfig['secondary'], tz: string): 
 
 /** In-canvas secondary labels at each unit start (peek out between the sticky title and the controls). */
 function secondaryShort(d: DT, unit: ZoomConfig['secondary']): string {
-  if (unit === 'day') return `${weekdayName(d.weekday, 'short')} ${monthName(d.month, true)} ${d.day}`;
+  if (unit === 'day') return `${monthName(d.month, true)} ${d.day}일 (${weekdayName(d.weekday, 'short')})`;
   if (unit === 'year') return String(d.year);
   return monthName(d.month);
 }
@@ -167,8 +167,8 @@ interface Drag {
 function NoDate({ onAdd, readOnly }: { onAdd: () => void; readOnly: boolean }) {
   return (
     <div className="nc-cal-nodate">
-      <div className="nc-cal-nodate-title">No date field</div>
-      {readOnly ? <div>Timeline layouts need a date field to display entries.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>Add a date field</span> to this table to display a timeline layout.</div>}
+      <div className="nc-cal-nodate-title">날짜 속성 없음</div>
+      {readOnly ? <div>타임라인 보기에는 항목을 표시할 날짜 속성이 필요합니다.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>날짜 속성 추가</span> to this table to display a timeline layout.</div>}
     </div>
   );
 }
@@ -483,7 +483,7 @@ function TimelineView(props: ViewProps) {
         {showTable && (
           <div className="nc-tl-table" style={{ width: tableW }}>
             <div className="nc-tl-table-top">
-              <div role="button" className="nc-tl-iconbtn" aria-label="Hide table" data-tooltip="Hide table" onClick={() => toggleTable(false)}><Icon name="arrowChevronDoubleLeft" size={16} /></div>
+              <div role="button" className="nc-tl-iconbtn" aria-label="표 숨기기" data-tooltip="표 숨기기" onClick={() => toggleTable(false)}><Icon name="arrowChevronDoubleLeft" size={16} /></div>
             </div>
             <div className="nc-tl-table-head">
               {cols.map((c) => (
@@ -523,7 +523,7 @@ function TimelineView(props: ViewProps) {
                       ? (
                         <span className="nc-tl-title-wrap">
                           {v.info && <SubitemToggle info={v.info} />}
-                          <span role="link" className="nc-tl-title-cell" onClick={() => kit.openRow(it.row.id)}>{showIcon && <PageIcon block={it.row} size={18} fallback="page" />}<span className="nc-tl-title-text">{titleOf(it.row) || 'Untitled'}</span></span>
+                          <span role="link" className="nc-tl-title-cell" onClick={() => kit.openRow(it.row.id)}>{showIcon && <PageIcon block={it.row} size={18} fallback="page" />}<span className="nc-tl-title-text">{titleOf(it.row) || '제목 없음'}</span></span>
                           {v.count > 0 && <SubitemCount count={v.count} />}
                         </span>
                       )
@@ -576,7 +576,7 @@ function TimelineView(props: ViewProps) {
                   const has = !!it.range;
                   const left = has ? x(it.startMs) + 2 : 0;
                   const w = has ? Math.max(10, x(it.endMs) - x(it.startMs) - 3) : 0;
-                  const title = titleOf(it.row) || 'Untitled';
+                  const title = titleOf(it.row) || '제목 없음';
                   const ghost = !has && hover?.rowId === it.row.id ? { left: x(hover.ms) + 2, w: Math.max(10, x(placeholderEnd(hover.ms)) - x(hover.ms) - 3), ms: hover.ms } : null;
                   return (
                     <div
@@ -592,7 +592,7 @@ function TimelineView(props: ViewProps) {
                           <a role="link" className="nc-tl-bar" data-testid="timeline-item-bar" style={colorsOf(it.row)?.row ? { background: conditionalBg(colorsOf(it.row)?.row) } : undefined} onPointerDown={(e) => beginDrag(e, it, 'move')} onClick={(e) => { e.preventDefault(); if (!editable) kit.openRow(it.row.id); }} />
                           {editable && <div className="lit-timeline-item-resizer-left nc-tl-resizer left" onPointerDown={(e) => beginDrag(e, it, 'left')} />}
                           {editable && <div className="lit-timeline-item-resizer-right nc-tl-resizer right" onPointerDown={(e) => beginDrag(e, it, 'right')} />}
-                          {editable && arrowsBy && schema[arrowsBy] && <div className="nc-tl-connector" role="button" aria-label="Drag to add a dependency" data-testid="timeline-connector" onPointerDown={(e) => link.start(e, it.row.id)} />}
+                          {editable && arrowsBy && schema[arrowsBy] && <div className="nc-tl-connector" role="button" aria-label="드래그해서 종속 관계 추가" data-testid="timeline-connector" onPointerDown={(e) => link.start(e, it.row.id)} />}
                         </div>
                       )}
                       {has && (
@@ -613,14 +613,14 @@ function TimelineView(props: ViewProps) {
                 {hasMore && (
                   <div className="lit-timeline-item-row nc-tl-row nc-tl-addrow">
                     <div role="button" className="nc-tl-add nc-tl-load-more" onClick={() => setLoadLimit((n) => n + firstLimit)}>
-                      <Icon name="arrowDown" size={16} color="var(--lp-icon-tertiary)" /><span>Load more</span>
+                      <Icon name="arrowDown" size={16} color="var(--lp-icon-tertiary)" /><span>더 불러오기</span>
                     </div>
                   </div>
                 )}
                 {!readOnly && (
                   <div className="lit-timeline-item-row nc-tl-row nc-tl-addrow">
                     <div role="button" data-timeline-add-row-indicator="true" className="nc-tl-add" onClick={() => kit.addRow(undefined, { open: true })}>
-                      <Icon name="plus" size={16} color="var(--lp-icon-tertiary)" /><span>New</span>
+                      <Icon name="plus" size={16} color="var(--lp-icon-tertiary)" /><span>신규</span>
                     </div>
                   </div>
                 )}
@@ -652,19 +652,19 @@ function TimelineView(props: ViewProps) {
             </div>
           </div>
           <div className="nc-tl-head-left">
-            {!showTable && !readOnly && <div role="button" className="nc-tl-iconbtn" aria-label="Show table" data-tooltip="Show table" onClick={() => toggleTable(true)}><Icon name="arrowChevronDoubleRight" size={16} /></div>}
+            {!showTable && !readOnly && <div role="button" className="nc-tl-iconbtn" aria-label="테이블 표시" data-tooltip="테이블 표시" onClick={() => toggleTable(true)}><Icon name="arrowChevronDoubleRight" size={16} /></div>}
             <span className="nc-tl-title" style={{ paddingInlineStart: !showTable && !readOnly ? 0 : 16 }}>{secondaryTitle(msAt(scrollLeft + 8), z.secondary, tz)}</span>
             <div className="nc-tl-fade left" />
           </div>
           <div className="nc-tl-head-right">
             <div className="nc-tl-fade right" />
             <div className="nc-tl-controls">
-              <div role="button" className="nc-tl-manage" onClick={() => useUI.getState().toast('Calendar sync is not available')}><Icon name="calendar" size={16} /><span>Manage in Calendar</span></div>
+              <div role="button" className="nc-tl-manage" onClick={() => useUI.getState().toast('캘린더 동기화를 사용할 수 없습니다')}><Icon name="calendar" size={16} /><span>캘린더에서 관리</span></div>
               <div role="button" className="nc-tl-zoom" aria-haspopup="dialog" onClick={zoomMenu}>{ZOOM_LABEL[zoom]}<Icon name="chevronDown" size={14} /></div>
             </div>
-            <div role="button" className="nc-tl-nav" aria-label="Previous" onClick={() => step(-1)} style={{ marginInlineStart: 4 }}><Icon name="chevronLeft" size={16} /></div>
-            <div role="button" className="nc-tl-today" onClick={() => scrollToMs(Date.now())}>Today</div>
-            <div role="button" className="nc-tl-nav" aria-label="Next" onClick={() => step(1)}><Icon name="chevronRight" size={16} /></div>
+            <div role="button" className="nc-tl-nav" aria-label="이전" onClick={() => step(-1)} style={{ marginInlineStart: 4 }}><Icon name="chevronLeft" size={16} /></div>
+            <div role="button" className="nc-tl-today" onClick={() => scrollToMs(Date.now())}>오늘</div>
+            <div role="button" className="nc-tl-nav" aria-label="다음" onClick={() => step(1)}><Icon name="chevronRight" size={16} /></div>
           </div>
           <div className="nc-tl-offscreen-layer" style={{ top: HEAD }}>
             {shownRows.map((v, i) => {
@@ -702,22 +702,22 @@ function TimelineLayoutSettings({ view, collection, readOnly }: LayoutSettingsPr
     <>
       {separate ? (
         <>
-          <SettingsRow label="Start date" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
-          <SettingsRow label="End date" value={end ? schema[end]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by_end')} />
+          <SettingsRow label="시작 날짜" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
+          <SettingsRow label="종료일" value={end ? schema[end]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by_end')} />
         </>
       ) : (
-        <SettingsRow label="Group timeline by" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
+        <SettingsRow label="타임라인 그룹 기준" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={pick('timeline_by')} />
       )}
-      <SettingsToggle label="Use separate start and end dates" on={separate} disabled={readOnly} onChange={(v) => {
+      <SettingsToggle label="시작일과 종료일을 따로 사용" on={separate} disabled={readOnly} onChange={(v) => {
         if (!v) return setQuery2(view, { timeline_by_end: undefined }, 'timeline.separateDates');
         const other = dateProperties(schema).find(([id, p]) => id !== by && p.type === 'date')?.[0];
         if (other) return setQuery2(view, { timeline_by_end: other }, 'timeline.separateDates');
         const pid = addProperty(collection.id, 'date', { name: 'End date', view });
         if (pid) setQuery2(view, { timeline_by_end: pid }, 'timeline.separateDates');
       }} />
-      <SettingsToggle label="Show table" on={fmt.timeline_show_table === true} disabled={readOnly} onChange={(v) => setFormat(view, { timeline_show_table: v, ...(v && !fmt.timeline_table_properties ? { timeline_table_properties: [{ property: 'title', visible: true, width: 280 }] } : {}) })} />
+      <SettingsToggle label="테이블 표시" on={fmt.timeline_show_table === true} disabled={readOnly} onChange={(v) => setFormat(view, { timeline_show_table: v, ...(v && !fmt.timeline_table_properties ? { timeline_table_properties: [{ property: 'title', visible: true, width: 280 }] } : {}) })} />
       {fmt.timeline_show_table === true && (
-        <SettingsRow label="Table properties" value={`${tableColumns(view, schema).length} shown`} disabled={readOnly} onClick={(e) => {
+        <SettingsRow label="테이블 속성" value={`${tableColumns(view, schema).length} shown`} disabled={readOnly} onClick={(e) => {
           const cur = (fmt.timeline_table_properties as { property: string; visible?: boolean; width?: number }[] | undefined) ?? [{ property: 'title', visible: true, width: 280 }];
           const ids = ['title', ...Object.keys(schema).filter((k) => k !== 'title')];
           pickMenu(e.currentTarget, ids.filter((id) => schema[id]).map((id) => {
@@ -731,14 +731,14 @@ function TimelineLayoutSettings({ view, collection, readOnly }: LayoutSettingsPr
                 setFormat(view, { timeline_table_properties: next.length ? next : [{ property: 'title', visible: true, width: 280 }] });
               },
             };
-          }), 260, 'Find a field…');
+          }), 260, '필드 찾기…');
         }} />
       )}
-      <SettingsRow label="Dependencies" value={arrows && schema[arrows] ? schema[arrows].name : 'Off'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
-        { id: 'off', label: 'Off', checked: !arrows, onSelect: () => setFormat(view, { timeline_arrows_by: undefined }) },
+      <SettingsRow label="종속 관계" value={arrows && schema[arrows] ? schema[arrows].name : 'Off'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
+        { id: 'off', label: '표시 안 함', checked: !arrows, onSelect: () => setFormat(view, { timeline_arrows_by: undefined }) },
         ...selfRelations.map(([id, p]) => ({ id, label: p.name, icon: 'relation', checked: arrows === id, onSelect: () => setFormat(view, { timeline_arrows_by: { property: id } }) })),
         {
-          id: 'create', label: 'Create “Blocked by” and “Blocking”', icon: 'plus', onSelect: () => {
+          id: 'create', label: '“차단됨”과 “차단 중” 만들기', icon: 'plus', onSelect: () => {
             // turns on the Dependencies feature: "Blocking" (arrows) ↔ "Blocked by", default date shifting
             const pid = turnOnDependencies(getCollection(collection.id) ?? collection, { view });
             if (pid && getCollection(collection.id)?.schema[pid]) setFormat(view, { timeline_arrows_by: { property: pid } });

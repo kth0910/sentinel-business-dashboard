@@ -132,8 +132,8 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
         <CardBody row={row} view={view} collection={collection} props={props} showTitle={showTitle} readOnly={readOnly} editing={db?.editingTitle === row.id} onDoneEditing={() => db?.setEditingTitle(null)} />
         {!readOnly && (
           <div className="nc-card-hover-pill" onClick={(e) => e.stopPropagation()}>
-            <span role="button" className="nc-card-pill-btn" data-tooltip="Edit" onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
-            <span role="button" className="nc-card-pill-btn" data-tooltip="Rename, remove, send, and more…" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
+            <span role="button" className="nc-card-pill-btn" data-tooltip="편집" onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
+            <span role="button" className="nc-card-pill-btn" data-tooltip="이름 변경, 제거, 보내기 등…" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
           </div>
         )}
       </div>
@@ -157,13 +157,13 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
         {rows.length > shown.length && (
           <div role="button" className="nc-board-load-more" onClick={() => setLimits((m) => ({ ...m, [key]: lim + firstLimit }))}>
             <Icon name="arrowDown" size={16} />
-            <span>Load more</span>
+            <span>더 불러오기</span>
           </div>
         )}
         {!readOnly && (
           <div role="button" className="nc-board-new" onClick={() => db?.addRow({ group: g, subgroup: sub ?? null, position: 'end', editTitle: true })}>
             <Icon name="plusSmall" size={16} />
-            <span>New page</span>
+            <span>새 페이지</span>
           </div>
         )}
       </div>
@@ -188,13 +188,13 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
       }}
       onDragEnd={() => setColDrag(null)}
     >
-      <div className="nc-board-header-pill" title={g.uncategorized ? `Any items with an empty ${collection.schema[gb.property]?.name} property will go here. This group cannot be removed.` : undefined}><GroupToken group={g} /></div>
-      {g.aggregation && <span role="button" className="nc-board-count" data-tooltip="Aggregate">{g.aggregation.display}</span>}
+      <div className="nc-board-header-pill" title={g.uncategorized ? `${collection.schema[gb.property]?.name} 속성이 비어 있는 항목이 여기에 표시됩니다. 이 그룹은 삭제할 수 없습니다.` : undefined}><GroupToken group={g} /></div>
+      {g.aggregation && <span role="button" className="nc-board-count" data-tooltip="집계">{g.aggregation.display}</span>}
       <div className="nc-board-header-spacer" />
       {!readOnly && (
         <>
-          {!structureRO && <span role="button" className="nc-board-header-btn" aria-label="More group actions" onClick={(e) => openGroupMenu(e.currentTarget, g, view, collection, result.groups!, gb.property)}><Icon name="ellipsisSmall" size={16} /></span>}
-          <span role="button" className="nc-board-header-btn" aria-label="New page" onClick={() => db?.addRow({ group: g, position: 'start', editTitle: true })}><Icon name="plusSmall" size={16} /></span>
+          {!structureRO && <span role="button" className="nc-board-header-btn" aria-label="그룹 작업 더 보기" onClick={(e) => openGroupMenu(e.currentTarget, g, view, collection, result.groups!, gb.property)}><Icon name="ellipsisSmall" size={16} /></span>}
+          <span role="button" className="nc-board-header-btn" aria-label="새 페이지" onClick={() => db?.addRow({ group: g, position: 'start', editTitle: true })}><Icon name="plusSmall" size={16} /></span>
         </>
       )}
     </div>
@@ -204,11 +204,11 @@ function BoardView({ block, view, collection, readOnly }: ViewProps) {
   const canAddGroup = !(db?.schemaReadOnly ?? structureRO) && ['select', 'multi_select'].includes(collection.schema[gb.property]?.type ?? '');
   const newGroup = canAddGroup && (
     <div role="button" className="nc-board-new-group" onClick={() => {
-      const name = window.prompt('New group');
+      const name = window.prompt('새 그룹');
       if (name?.trim()) addOption(collection.id, gb.property, name.trim());
     }}>
       <Icon name="plusSmall" size={16} />
-      <span>New group</span>
+      <span>새 그룹</span>
     </div>
   );
 

@@ -40,12 +40,12 @@ export function Toggle({ on, onChange, disabled, decorative }: { on: boolean; on
 }
 
 export function reminderLabel(r: DateValue['reminder'] | { unit: string; value?: number; time?: string } | undefined, hasTime: boolean): string {
-  if (!r || r.unit === 'none') return 'None';
+  if (!r || r.unit === 'none') return '없음';
   const t = (r as any).time ? formatTime(ymdToMs('2000-01-01', (r as any).time)) : '';
   const v = (r as any).value ?? 0;
-  if (r.unit === 'minute' && v === 0) return 'At time of event';
-  if (r.unit === 'minute') return `${v} minute${v === 1 ? '' : 's'} before`;
-  if (r.unit === 'hour') return `${v} hour${v === 1 ? '' : 's'} before`;
+  if (r.unit === 'minute' && v === 0) return '이벤트 시작 시';
+  if (r.unit === 'minute') return `${v}분 전`;
+  if (r.unit === 'hour') return `${v}시간 전`;
   if (r.unit === 'day' && v === 0) return `On day of event${t ? ` (${t})` : ''}`;
   const unit = r.unit === 'day' ? 'day' : r.unit === 'week' ? 'week' : r.unit === 'month' ? 'month' : 'year';
   void hasTime;
@@ -190,11 +190,11 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
     const city = (z: string) => z.split('/').pop()!.replace(/_/g, ' ');
     openNestedMenu(anchor, {
       width: 342,
-      search: 'Search for a timezone…',
+      search: '시간대 검색…',
       maxHeight: 'min(70vh, 600px)',
       sections: [
-        { title: 'Current timezone', items: [{ id: `cur:${zone}`, label: city(zone), text: `${city(zone)} ${zone}`, description: gmtOffset(zone, 'long'), checked: true, onSelect: () => update({ timeZone: zone }) }] },
-        { title: 'Select a timezone', items: zones.filter((z) => z !== zone).map((z) => ({ id: z, label: city(z), text: `${city(z)} ${z}`, description: gmtOffset(z, 'long'), onSelect: () => update({ timeZone: z, timeOn: true }) })) },
+        { title: '현재 시간대', items: [{ id: `cur:${zone}`, label: city(zone), text: `${city(zone)} ${zone}`, description: gmtOffset(zone, 'long'), checked: true, onSelect: () => update({ timeZone: zone }) }] },
+        { title: '시간대 선택', items: zones.filter((z) => z !== zone).map((z) => ({ id: z, label: city(z), text: `${city(z)} ${z}`, description: gmtOffset(z, 'long'), onSelect: () => update({ timeZone: z, timeOn: true }) })) },
       ],
     }, { placement: 'right-start', backdrop: 'transparent' });
   };
@@ -207,8 +207,8 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
     }, { placement: 'right-start', backdrop: 'transparent' });
   };
 
-  const fmtLabel = DATE_FORMATS.find((f) => f.id === (df ?? 'll'))?.label ?? 'Full date';
-  const tfLabel = TIME_FORMATS.find((f) => f.id === timeFormatId(tf))?.label ?? '12 hour';
+  const fmtLabel = DATE_FORMATS.find((f) => f.id === (df ?? 'll'))?.label ?? '전체 날짜';
+  const tfLabel = TIME_FORMATS.find((f) => f.id === timeFormatId(tf))?.label ?? '12시간';
   return (
     <div className="nc-date-picker">
       <div className={`nc-date-inputs ${s.endOn && !simple ? 'range' : ''}`}>
@@ -219,9 +219,9 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
         <div className="nc-date-month">
           <span className="nc-date-month-label">{monthLabel(month, true)}</span>
           <div className="nc-date-month-nav">
-            <span role="button" className="nc-date-today" onClick={() => setMonth(startOfMonth(Date.now()))}>{s.timeOn && !simple ? 'Now' : 'Today'}</span>
-            <span role="button" className="nc-date-nav" aria-label="Previous month" onClick={() => setMonth(addMonths(month, -1))}><Icon name="chevronLeft" size={16} /></span>
-            <span role="button" className="nc-date-nav" aria-label="Next month" onClick={() => setMonth(addMonths(month, 1))}><Icon name="chevronRight" size={16} /></span>
+            <span role="button" className="nc-date-today" onClick={() => setMonth(startOfMonth(Date.now()))}>{s.timeOn && !simple ? '지금' : '오늘'}</span>
+            <span role="button" className="nc-date-nav" aria-label="이전 달" onClick={() => setMonth(addMonths(month, -1))}><Icon name="chevronLeft" size={16} /></span>
+            <span role="button" className="nc-date-nav" aria-label="다음 달" onClick={() => setMonth(addMonths(month, 1))}><Icon name="chevronRight" size={16} /></span>
           </div>
         </div>
         <div className="nc-date-weekdays">
@@ -243,17 +243,17 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
       </div>
       {!simple && (
         <div className="nc-date-options">
-          <Row label="End date" right={<Toggle on={s.endOn} onChange={(v) => { update({ endOn: v, end: v ? s.end ?? s.start : null }); setField(v ? 'end' : 'start'); }} />} onClick={() => { update({ endOn: !s.endOn, end: !s.endOn ? s.end ?? s.start : null }); }} />
-          <Row label="Date format" right={<span className="nc-menu-value">{fmtLabel}</span>} chevron onClick={(e) => dateFormatMenu(e.currentTarget)} />
-          <Row label="Include time" right={<Toggle on={s.timeOn} onChange={(v) => update({ timeOn: v })} />} onClick={() => update({ timeOn: !s.timeOn })} />
-          {s.timeOn && <Row label="Time format" right={<span className="nc-menu-value">{tfLabel}</span>} chevron onClick={(e) => timeFormatMenu(e.currentTarget)} />}
-          {s.timeOn && <Row label="Timezone" right={<span className="nc-menu-value">{gmtOffset(zone, 'short')}</span>} chevron onClick={(e) => timezoneMenu(e.currentTarget)} />}
-          <Row label="Remind" right={<span className="nc-menu-value">{reminderLabel(s.reminder, s.timeOn)}</span>} chevron onClick={(e) => remindMenu(e.currentTarget)} />
+          <Row label="종료일" right={<Toggle on={s.endOn} onChange={(v) => { update({ endOn: v, end: v ? s.end ?? s.start : null }); setField(v ? 'end' : 'start'); }} />} onClick={() => { update({ endOn: !s.endOn, end: !s.endOn ? s.end ?? s.start : null }); }} />
+          <Row label="날짜 형식" right={<span className="nc-menu-value">{fmtLabel}</span>} chevron onClick={(e) => dateFormatMenu(e.currentTarget)} />
+          <Row label="시간 포함" right={<Toggle on={s.timeOn} onChange={(v) => update({ timeOn: v })} />} onClick={() => update({ timeOn: !s.timeOn })} />
+          {s.timeOn && <Row label="시간 형식" right={<span className="nc-menu-value">{tfLabel}</span>} chevron onClick={(e) => timeFormatMenu(e.currentTarget)} />}
+          {s.timeOn && <Row label="시간대" right={<span className="nc-menu-value">{gmtOffset(zone, 'short')}</span>} chevron onClick={(e) => timezoneMenu(e.currentTarget)} />}
+          <Row label="리마인더" right={<span className="nc-menu-value">{reminderLabel(s.reminder, s.timeOn)}</span>} chevron onClick={(e) => remindMenu(e.currentTarget)} />
         </div>
       )}
       <div className="nc-date-footer">
         <div role="button" className="nc-menu-item nc-date-row" onMouseDown={(e) => e.preventDefault()} onClick={() => setS({ ...toState(null), endOn: false })}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-label">Clear</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-label">지우기</div></div>
         </div>
       </div>
       {!simple && (
@@ -261,7 +261,7 @@ export function DatePicker({ value, onChange, prop, simple }: DatePickerProps) {
           {HELP_URL && <a className="nc-menu-item nc-date-row nc-date-learn" href={HELP_URL} target="_blank" rel="noopener noreferrer" onMouseDown={(e) => e.preventDefault()}>
             <div className="nc-menu-item-inner">
               <div className="nc-menu-icon"><Icon name="questionMarkCircle" size={20} style={{ color: 'var(--lp-icon-secondary)' }} /></div>
-              <div className="nc-menu-label">Explore reminders</div>
+              <div className="nc-menu-label">리마인더 알아보기</div>
             </div>
           </a>}
         </div>
@@ -299,7 +299,7 @@ function DateTextInput({ dateText, timeText, onDate, onTime, active, onFocus }: 
     <div className={`nc-date-input ${active ? 'active' : ''}`} onMouseDown={onFocus}>
       <input
         value={d}
-        placeholder="Date"
+        placeholder="날짜"
         onFocus={onFocus}
         onChange={(e) => setD(e.target.value)}
         onBlur={() => d !== dateText && onDate(d)}

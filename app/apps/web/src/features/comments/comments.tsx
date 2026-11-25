@@ -725,7 +725,7 @@ export function commentTime(ms: number): string {
   if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}d`;
-  return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(ms).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
 }
 
 function blockTypeLabel(blockId: string): string {
@@ -1088,7 +1088,7 @@ function dayLabel(ms: number): string {
   const diff = Math.round((day(now) - day(d)) / 86400000);
   if (diff === 0) return 'Today';
   if (diff === 1) return 'Yesterday';
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+  return d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
 }
 
 function notifyBell(pageId: string, anchor: HTMLElement) {

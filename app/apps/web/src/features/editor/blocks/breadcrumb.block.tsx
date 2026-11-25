@@ -18,12 +18,12 @@ function Breadcrumb({ block }: BlockProps) {
   const chain: BlockRecord[] = page ? [...ancestorsOf(page.id), page] : [];
   return (
     <div className="nc-bpad">
-      <div className="nc-breadcrumb-2" role="navigation" aria-label="Breadcrumb">
+      <div className="nc-breadcrumb-2" role="navigation" aria-label="이동 경로">
         {chain.map((p, i) => (
           <span key={p.id} style={{ display: 'inline-flex', alignItems: 'center' }}>
             <span role="button" tabIndex={0} className="nc-crumb" onMouseDown={(e) => e.preventDefault()} onClick={() => openPage(p.id)}>
               {p.format?.page_icon ? <PageIcon block={p} size={18} fallback={null} /> : null}
-              <span>{pageTitle(p) || (p.type === 'collection_view_page' ? 'Untitled' : 'New page')}</span>
+              <span>{pageTitle(p) || (p.type === 'collection_view_page' ? '제목 없음' : '새 페이지')}</span>
             </span>
             {i < chain.length - 1 && <span className="nc-crumb-sep">/</span>}
           </span>

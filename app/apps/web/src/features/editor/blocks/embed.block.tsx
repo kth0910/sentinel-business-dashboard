@@ -23,7 +23,7 @@ const SANDBOX = 'allow-scripts allow-popups allow-top-navigation-by-user-activat
 function placeholderFor(b: BlockRecord): { label: string; color?: string } {
   const p = providerByName(b.format?.embed_provider as string | undefined) ?? (b.type !== 'embed' ? providerForType(b.type) : undefined);
   if (p) return { label: p.placeholder, color: p.color };
-  return { label: 'Embed content (PDFs, maps, music, and more…)' };
+  return { label: '콘텐츠 삽입 (PDF, 지도, 음악 등…)' };
 }
 
 function EmbedBlock(props: BlockProps) {
@@ -55,18 +55,18 @@ function EmbedBlock(props: BlockProps) {
       bar={(
         <>
           <AlignButton block={block} />
-          <ActionButton icon="caption" tooltip="Caption" label="Add a caption" onClick={() => showCaption(block.id)} />
-          <ActionButton icon="openOriginal" tooltip="View original" label="View source media" onClick={() => viewOriginal(block)} />
-          <ActionButton icon="ellipsis" tooltip="More actions" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
+          <ActionButton icon="caption" tooltip="캡션" label="캡션 추가" onClick={() => showCaption(block.id)} />
+          <ActionButton icon="openOriginal" tooltip="원본 보기" label="원본 미디어 보기" onClick={() => viewOriginal(block)} />
+          <ActionButton icon="ellipsis" tooltip="추가 작업" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
         </>
       )}
     >
       {(live) => (
         <div className="nc-embed-frame" style={{ height: live?.h ?? height }}>
           {resolved.srcdoc ? (
-            <iframe srcDoc={resolved.srcdoc} title={resolved.provider?.name ?? 'Embed'} sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" />
+            <iframe srcDoc={resolved.srcdoc} title={resolved.provider?.name ?? '임베드'} sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" />
           ) : (
-            <iframe src={resolved.src} title={resolved.provider?.name ?? 'Embed'} sandbox={SANDBOX} allow="clipboard-write; fullscreen; encrypted-media; picture-in-picture" allowFullScreen loading="lazy" />
+            <iframe src={resolved.src} title={resolved.provider?.name ?? '임베드'} sandbox={SANDBOX} allow="clipboard-write; fullscreen; encrypted-media; picture-in-picture" allowFullScreen loading="lazy" />
           )}
         </div>
       )}
@@ -80,9 +80,9 @@ registerBlockMenu(['embed', 'external_object_instance', ...PROVIDER_BLOCK_TYPES]
   if (block.format?.embed_variant === 'html_artifact') return htmlMenuItems(block);
   const has = !!originalSourceOf(block);
   return [
-    ...(has ? [{ label: 'Replace', icon: 'replace', onSelect: () => replaceMedia(block) }] : []),
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
-    ...(has ? [{ label: 'View original', icon: 'openOriginal', onSelect: () => viewOriginal(block) }] : []),
+    ...(has ? [{ label: '바꾸기', icon: 'replace', onSelect: () => replaceMedia(block) }] : []),
+    { label: '캡션', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    ...(has ? [{ label: '원본 보기', icon: 'openOriginal', onSelect: () => viewOriginal(block) }] : []),
   ];
 });
 

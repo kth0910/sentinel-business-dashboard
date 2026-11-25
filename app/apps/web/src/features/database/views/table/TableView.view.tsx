@@ -249,17 +249,17 @@ function TableView({ block, view, collection, readOnly }: ViewProps) {
           {columns.length <= 1 && Object.keys(collection.schema).length <= 1 ? (!schemaRO && (
             <div role="button" className="nc-add-property-btn" data-testid="add-column-button" aria-haspopup="dialog" onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view })}>
               <Plus size={13} aria-hidden className="nc-add-property-plus" />
-              <span>Add property</span>
+              <span>속성 추가</span>
             </div>
           )) : (
             <>
               {/* while “+ Add property” is open, the new column occupies a 378px slot and pushes “•••” after it */}
               {schemaRO ? null : pendingAdd ? <div className="nc-th-pending" /> : (
-                <div role="button" className="nc-th-icon-btn" data-testid="add-column-button" aria-label="Add property" data-tooltip="Add property" onClick={(e) => { setPendingAdd(true); openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view, onClose: () => setPendingAdd(false) }); }}>
+                <div role="button" className="nc-th-icon-btn" data-testid="add-column-button" aria-label="속성 추가" data-tooltip="속성 추가" onClick={(e) => { setPendingAdd(true); openAddPropertyMenu(e.currentTarget, { collectionId: collection.id, view, onClose: () => setPendingAdd(false) }); }}>
                   <Icon name="plusSmall" size={16} />
                 </div>
               )}
-              <div role="button" className="nc-th-icon-btn lit-table-view-add-column" aria-label="Display or conceal fields" data-tooltip="Display or conceal fields" onClick={(e) => openPropertyVisibility(e.currentTarget, view, collection)}>
+              <div role="button" className="nc-th-icon-btn lit-table-view-add-column" aria-label="필드 표시 또는 숨기기" data-tooltip="필드 표시 또는 숨기기" onClick={(e) => openPropertyVisibility(e.currentTarget, view, collection)}>
                 <Icon name="ellipsisSmall" size={16} />
               </div>
             </>
@@ -325,7 +325,7 @@ function TableView({ block, view, collection, readOnly }: ViewProps) {
         {rows.length > shown.length && (
           <div role="button" className="nc-table-load-more" data-testid="collection-load-more" onClick={() => setLimit((l) => l + (Number.isFinite(firstLimit) ? firstLimit : 50))}>
             <Icon name="arrowDown" size={14} />
-            <span>Load more</span>
+            <span>더 불러오기</span>
           </div>
         )}
         {canAdd && <NewRowButton onClick={() => db?.addRow({ group: group ?? null, position: 'end', editTitle: true })} />}
@@ -386,7 +386,7 @@ function assignGroupInTx(tx: Tx, rowId: string, propId: string, collection: Coll
   tx.set('block', rowId, ['properties', propId], encodeAssignment(prop, a.kind, a.value, collection.space_id));
 }
 
-function NewRowButton({ onClick, label = 'New page' }: { onClick: () => void; label?: string }) {
+function NewRowButton({ onClick, label = '새 페이지' }: { onClick: () => void; label?: string }) {
   return (
     <div className="nc-table-add-row-wrap">
       <div role="button" className="lit-table-view-add-row" onClick={onClick}>
@@ -416,7 +416,7 @@ function EmptyPlaceholderRows({ count, columns, readOnly, onAdd }: { count: numb
                 {ci === 0 && i === hover && !readOnly && (
                   <div className="nc-empty-placeholder-new">
                     <Icon name="plusSmall" size={16} style={{ color: 'var(--lp-icon-tertiary)' }} />
-                    New page
+                    새 페이지
                   </div>
                 )}
               </div>
@@ -472,7 +472,7 @@ function TableRow({ row, columns, collection, view, readOnly, minWidth, vertical
             <div
               role="button"
               className="nc-row-drag"
-              aria-label="Drag to send, click to launch menu"
+              aria-label="드래그하여 이동, 클릭하여 메뉴 열기"
               draggable
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
@@ -485,9 +485,9 @@ function TableRow({ row, columns, collection, view, readOnly, minWidth, vertical
             <div
               role="button"
               className="nc-row-add"
-              aria-label="Add a row below (Option-click adds one above)"
-              data-tooltip="Click to add below"
-              data-tooltip-sub="Option-click to add a block above"
+              aria-label="아래에 행 추가 (Option 키를 누른 채 클릭하면 위에 추가)"
+              data-tooltip="클릭하여 아래에 추가"
+              data-tooltip-sub="Option 키를 누르고 클릭하면 위에 블록을 추가합니다"
               onMouseDown={(e) => e.preventDefault()}
               onClick={(e) => db?.addRow(e.altKey ? { before: row.id, editTitle: true } : { after: row.id, editTitle: true })}
             >
@@ -554,7 +554,7 @@ function TitleCell({ row, view, collection, readOnly, wrap, showIcon, editing, w
   }, [edit]);
   const title = (row.properties?.title as RichText | undefined) ?? [];
   const peekMode = db?.peekMode ?? 'side_peek';
-  const openLabel = peeking ? 'Close' : 'Open';
+  const openLabel = peeking ? '닫기' : '열기';
   return (
     <div className={`nc-title-cell ${wrap ? 'wrap' : 'nowrap'} ${edit && !readOnly ? 'editing' : ''} ${subitem ? 'nested' : ''}`} ref={ref} onClick={() => !readOnly && !edit && setEdit(true)}>
       {subitem && <SubitemToggle info={subitem} />}
@@ -595,7 +595,7 @@ function TitleCell({ row, view, collection, readOnly, wrap, showIcon, editing, w
             <div
               role="button"
               className="nc-open-button"
-              aria-label={peeking ? 'Close side preview' : peekMode === 'center_peek' ? 'Open in center preview' : peekMode === 'full_page' ? 'Open as entry' : 'Open in side preview'}
+              aria-label={peeking ? '사이드 미리보기 닫기' : peekMode === 'center_peek' ? '가운데 미리보기로 열기' : peekMode === 'full_page' ? '전체 페이지로 열기' : '측면 미리보기로 열기'}
               onClick={(e) => {
                 e.stopPropagation();
                 db?.openRow(row.id);
@@ -612,7 +612,7 @@ function TitleCell({ row, view, collection, readOnly, wrap, showIcon, editing, w
 }
 
 const CALC_SHORT: Record<string, string> = {
-  count: 'COUNT', count_values: 'VALUES', unique: 'UNIQUE', empty: 'EMPTY', not_empty: 'NOT EMPTY', percent_empty: 'EMPTY', percent_not_empty: 'NOT EMPTY',
+  count: 'COUNT', count_values: 'VALUES', unique: 'UNIQUE', empty: 'EMPTY', not_empty: '비어 있지 않음', percent_empty: 'EMPTY', percent_not_empty: '비어 있지 않음',
   sum: 'SUM', average: 'AVERAGE', median: 'MEDIAN', min: 'MIN', max: 'MAX', range: 'RANGE', earliest_date: 'EARLIEST', latest_date: 'LATEST', date_range: 'RANGE',
   checked: 'CHECKED', unchecked: 'UNCHECKED', percent_checked: 'CHECKED', percent_unchecked: 'UNCHECKED', count_per_group: 'COUNT', percent_per_group: 'PERCENT',
 };
@@ -650,7 +650,7 @@ export function CalcFooter({ columns, view, collection, rows, aggregations, read
                   <span className="nc-table-calc-value">{r.display}</span>
                 </>
               ) : (
-                <span className="nc-table-calc-placeholder">Calculate <Icon name="arrowChevronSingleDownSmall" size={12} /></span>
+                <span className="nc-table-calc-placeholder">계산 <Icon name="arrowChevronSingleDownSmall" size={12} /></span>
               )}
             </div>
           </div>

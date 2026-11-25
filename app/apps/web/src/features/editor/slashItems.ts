@@ -1,6 +1,7 @@
 // Slash menu catalog. Each item converts the empty current block or inserts a new block below.
 // Search keywords come from static fuzzy keyword parsing and catalog aliases such as /toc, /col2, /turnbullet, /moveto, and /grey.
 import { createElement, type ReactNode } from 'react';
+import { slashBadgeKo, slashLabelKo } from '../biz/slashKo.ts';
 import type { BlockType } from '@nc/shared/records.ts';
 import { COLOR_NAMES, COLOR_LABELS } from '@nc/shared/colors.ts';
 import { newId } from '@nc/shared/ids.ts';
@@ -196,7 +197,7 @@ export function presentFrom(blockId: string | undefined, pageId?: string) {
 export function slashCatalog(): SlashItem[] {
   const items: SlashItem[] = [
     t('ai-meeting-notes', 'AI meeting notes', 'Suggested', 'paperMicrophone', media('meeting_notes'), { keywords: kw('meeting notes ai meeting notes transcription dictation audio speech record voice aimn meet') }),
-    t('html-suggested', 'HTML', 'Suggested', 'aiBlock', media('html'), { hint: 'Embeds', badge: 'New', keywords: kw('html embed web page') }),
+    t('html-suggested', 'HTML', 'Suggested', 'aiBlock', media('html'), { hint: '임베드', badge: 'New', keywords: kw('html embed web page') }),
 
     t('text', 'Text', 'Basic blocks', 'textNormal', textType('text'), { keywords: ['plain', 'paragraph'] }),
     t('h1', 'Heading 1', 'Basic blocks', 'textH1', textType('header'), { hint: '#', keywords: ['h1', 'title', 'big', 'heading'] }),
@@ -297,7 +298,11 @@ export function slashCatalog(): SlashItem[] {
   ];
   // block modules (editor/blocks/*.block.tsx) replace how some items create their block (callout v2, tabs, embeds…);
   // other areas add items through registerSlashItems (AI image, skills …)
-  return applySlashOverrides([...items, ...extraSlashItems()]);
+  // 업무관리 시연판: 화면에는 한국어로, 영어 이름은 검색어로 남긴다
+  return applySlashOverrides([...items, ...extraSlashItems()]).map((it) => {
+    const label = slashLabelKo(it.label);
+    return label === it.label && !it.badge ? it : { ...it, label, badge: slashBadgeKo(it.badge), keywords: [...(it.keywords ?? []), it.label.toLowerCase()] };
+  });
 }
 
 /** Compact aliases of a Turn into target: "Bulleted list" → turnbullet, turnintobulletedlist … (…078). */

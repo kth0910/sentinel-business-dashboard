@@ -114,13 +114,13 @@ export function CardCover({ row, cover, view, collection, readOnly = true }: { r
         <div className="nc-card-preview-text">{preview.lines.map((l, i) => <div key={i} className="nc-card-preview-line"><RichTextView value={l} /></div>)}</div>
       ))}
       {canReposition && !rep.editing && (
-        <div role="button" className="nc-card-reposition" onClick={(e) => { e.stopPropagation(); rep.start(); }}>Reposition</div>
+        <div role="button" className="nc-card-reposition" onClick={(e) => { e.stopPropagation(); rep.start(); }}>위치 변경</div>
       )}
       {rep.editing && (
         <div className="nc-card-reposition-bar" onClick={(e) => e.stopPropagation()}>
-          <span className="nc-card-reposition-hint">Drag the image to move it</span>
-          <span role="button" className="nc-card-reposition-btn" onClick={rep.save}>Save position</span>
-          <span role="button" className="nc-card-reposition-btn" onClick={rep.cancel}>Cancel</span>
+          <span className="nc-card-reposition-hint">이미지를 드래그해 위치를 옮기세요</span>
+          <span role="button" className="nc-card-reposition-btn" onClick={rep.save}>위치 저장</span>
+          <span role="button" className="nc-card-reposition-btn" onClick={rep.cancel}>취소</span>
         </div>
       )}
     </div>
@@ -161,7 +161,7 @@ export function CardBody({ row, view, collection, props, showTitle, readOnly, ed
               property="title"
               value={title}
               className="nc-card-title editing"
-              placeholder="Type a name…"
+              placeholder="이름 입력…"
               placeholderAlways
               onChange={(next) => setValue(row.id, 'title', next, { coalesce: `title:${row.id}` })}
               onBlur={() => { setEdit(false); onDoneEditing(); }}
@@ -173,7 +173,7 @@ export function CardBody({ row, view, collection, props, showTitle, readOnly, ed
               }}
             />
           ) : (
-            <div className={`nc-card-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : 'Untitled'}</div>
+            <div className={`nc-card-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : '제목 없음'}</div>
           )}
         </div>
       )}

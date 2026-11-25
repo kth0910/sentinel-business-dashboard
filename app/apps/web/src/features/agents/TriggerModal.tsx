@@ -65,7 +65,7 @@ export function openTriggerModal(d: AgentDetail, anchor: HTMLElement, trigger: A
           },
         }],
       },
-      { title: t('lp.agents.litpage', 'Litpage'), items: items(NAV) },
+      { title: t('lp.agents.litpage', 'CoolNotion!'), items: items(NAV) },
     ],
   }, { placement: 'bottom-start' });
 }

@@ -75,16 +75,16 @@ function ColorMenu({ r, close }: { r: TextRange; close: () => void }) {
       <div className="lit-scroller vertical" role="menu">
         {recent.length > 0 && (
           <div className="nc-color-section">
-            <div className="nc-menu-section-title">Recently used</div>
+            <div className="nc-menu-section-title">최근 사용</div>
             {grid(recent, false)}
           </div>
         )}
         <div className="nc-color-section">
-          <div className="nc-menu-section-title">Text color</div>
+          <div className="nc-menu-section-title">텍스트 색상</div>
           {grid(textColors, true)}
         </div>
         <div className="nc-color-section">
-          <div className="nc-menu-section-title">Background color</div>
+          <div className="nc-menu-section-title">배경색</div>
           {grid(bgColors, true)}
         </div>
       </div>

@@ -34,7 +34,7 @@ function wordStats(page: BlockRecord): string {
     if (b.type !== 'page' || depth === 0) for (const c of b.content ?? []) visit(c, depth + 1);
   };
   visit(page.id, 0);
-  return `${words} word${words === 1 ? '' : 's'}, ${chars} character${chars === 1 ? '' : 's'}`;
+  return `${words}단어, ${chars}자`;
 }
 
 export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection: CollectionRecord; view?: CollectionViewRecord; onDone?: () => void }) {
@@ -49,10 +49,10 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   const editor = records.get<UserRecord>('lit_user', first.last_edited_by_id);
   const fav = isFavorite(first.id);
   const pageItems: MenuItemDef[] = [
-    ...(!multi ? [{ id: 'fav', label: fav ? 'Remove from favorites' : 'Add to favorites', icon: fav ? 'starFilled' : 'star', onSelect: () => toggleFavorite(first.id) }] : []),
-    { id: 'icon', label: 'Edit icon', icon: 'emojiFace', onSelect: () => { openIconPicker(anchor, { current: first.format?.page_icon as string | undefined, onPick: (v) => run('setRowIcons', (tx) => rows.forEach((r) => setFormat(tx, r.id, { page_icon: (v ?? null) as any }))) }); } },
+    ...(!multi ? [{ id: 'fav', label: fav ? '즐겨찾기에서 제거' : '즐겨찾기에 추가', icon: fav ? 'starFilled' : 'star', onSelect: () => toggleFavorite(first.id) }] : []),
+    { id: 'icon', label: '아이콘 편집', icon: 'emojiFace', onSelect: () => { openIconPicker(anchor, { current: first.format?.page_icon as string | undefined, onPick: (v) => run('setRowIcons', (tx) => rows.forEach((r) => setFormat(tx, r.id, { page_icon: (v ?? null) as any }))) }); } },
     {
-      id: 'edit', label: 'Edit property', icon: 'bulletedList',
+      id: 'edit', label: '속성 편집', icon: 'bulletedList',
       submenu: () => ({
         width: 220,
         search: true,
@@ -66,31 +66,31 @@ export function openRowMenu(anchor: Anchor, opts: { rowIds: string[]; collection
   ];
   const actions: MenuItemDef[] = [
     ...(!multi ? [
-      { id: 'open', label: 'Open in', icon: 'arrowDiagonalUpRight', submenu: () => ({ width: 220, sections: [{ items: [
-        { id: 'tab', label: 'New tab', icon: 'arrowDiagonalUpRight', shortcut: '⌘⇧↵', onSelect: () => window.open(pageUrl(first.id), '_blank') },
-        { id: 'peek', label: 'Side peek', icon: 'sidePeek', shortcut: '⌥Click', onSelect: () => openPeek(first.id, 'side_peek') },
-        { id: 'center', label: 'Center peek', icon: 'centerPeek', onSelect: () => openPeek(first.id, 'center_peek') },
-        { id: 'full', label: 'Full page', icon: 'fullPage', onSelect: () => openPage(first.id) },
+      { id: 'open', label: '열기 방식', icon: 'arrowDiagonalUpRight', submenu: () => ({ width: 220, sections: [{ items: [
+        { id: 'tab', label: '새 탭', icon: 'arrowDiagonalUpRight', shortcut: '⌘⇧↵', onSelect: () => window.open(pageUrl(first.id), '_blank') },
+        { id: 'peek', label: '사이드 보기', icon: 'sidePeek', shortcut: '⌥Click', onSelect: () => openPeek(first.id, 'side_peek') },
+        { id: 'center', label: '가운데 보기', icon: 'centerPeek', onSelect: () => openPeek(first.id, 'center_peek') },
+        { id: 'full', label: '전체 페이지', icon: 'fullPage', onSelect: () => openPage(first.id) },
       ] }] }) } as MenuItemDef,
-      ...(TRIM.comments ? [] : [{ id: 'comment', label: 'Comment', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => { openPeek(first.id, 'side_peek'); setTimeout(() => startPageComment(first.id), 150); } }]),
+      ...(TRIM.comments ? [] : [{ id: 'comment', label: '댓글', icon: 'commentFilled', shortcut: '⌘⇧M', onSelect: () => { openPeek(first.id, 'side_peek'); setTimeout(() => startPageComment(first.id), 150); } }]),
     ] : []),
   ];
   const manage: MenuItemDef[] = [
-    ...(!multi ? [{ id: 'link', label: 'Copy link', icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast('Link copied'); } }] : []),
-    { id: 'dup', label: 'Duplicate', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
-    { id: 'move', label: 'Move to', icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(rowIds, anchor) },
-    { id: 'trash', label: 'Send to trash', icon: 'trash', shortcut: 'Del', onSelect: () => { deleteRows(rowIds); opts.onDone?.(); } },
+    ...(!multi ? [{ id: 'link', label: '링크 복사', icon: 'link', onSelect: () => { void navigator.clipboard?.writeText(location.origin + pageUrl(first.id)); useUI.getState().toast('링크를 복사했습니다'); } }] : []),
+    { id: 'dup', label: '복제', icon: 'duplicate', shortcut: '⌘D', onSelect: () => { void duplicateRows(rowIds); opts.onDone?.(); } },
+    { id: 'move', label: '옮기기', icon: 'arrowTurnUpRight', shortcut: '⌘⇧P', onSelect: () => openMoveToDialog(rowIds, anchor) },
+    { id: 'trash', label: '휴지통으로 이동', icon: 'trash', shortcut: 'Del', onSelect: () => { deleteRows(rowIds); opts.onDone?.(); } },
   ];
   return openMenu(anchor, {
     width: 265,
-    search: 'Search actions…',
-    sections: [{ title: multi ? `${rows.length} pages` : 'Page', items: pageItems }, ...(actions.length ? [{ items: actions }] : []), { items: manage }],
+    search: '작업 검색…',
+    sections: [{ title: multi ? `페이지 ${rows.length}개` : '페이지', items: pageItems }, ...(actions.length ? [{ items: actions }] : []), { items: manage }],
     footer: !multi ? (
       <div className="nc-row-menu-footer">
-        <div className="nc-row-menu-footer-title">Last edited</div>
+        <div className="nc-row-menu-footer-title">마지막 편집</div>
         <div className="nc-row-menu-footer-user">
           <UserAvatar userId={first.last_edited_by_id} size={24} />
-          <span>{editor?.name || editor?.email || 'Unknown'}</span>
+          <span>{editor?.name || editor?.email || '알 수 없음'}</span>
         </div>
         <div className="nc-row-menu-footer-time">{formatDateTime(first.last_edited_time)}</div>
         <div className="nc-row-menu-footer-stats">{wordStats(first)}</div>

@@ -59,9 +59,9 @@ function ExportDialog({ pageId, close }: { pageId: string; close: () => void }) 
     try {
       const name = await exportPage(pageId, pdfSubpagesLocked ? { ...opts, includeSubpages: false } : opts);
       close();
-      if (opts.format !== 'pdf') useUI.getState().toast(name ? `Exported ${name}` : 'Export complete');
+      if (opts.format !== 'pdf') useUI.getState().toast(name ? `${name}을(를) 내보냈습니다` : '내보내기 완료');
     } catch (e: any) {
-      setErr(e?.message ?? 'Export failed');
+      setErr(e?.message ?? '내보내기에 실패했습니다');
       setBusy(false);
     }
   };

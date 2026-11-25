@@ -24,7 +24,7 @@ interface Row {
   wiki: boolean;
 }
 
-const fmt = (ms: number) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const fmt = (ms: number) => new Date(ms).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' });
 
 export function VerifiedPagesTable({ spaceId, onOpen, empty }: { spaceId: string; onOpen: (pageId: string) => void; empty: ReactNode }) {
   const [rows, setRows] = useState<Row[] | null>(null);

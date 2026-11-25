@@ -103,12 +103,12 @@ function Presentation({ pageId, close, fromBlockId }: { pageId: string; close: (
     };
   }, [total, close]);
   return (
-    <div className="nc-present" role="dialog" aria-label="Presentation">
+    <div className="nc-present" role="dialog" aria-label="프레젠테이션">
       <div className="nc-present-stage" ref={stageRef} style={{ transform: `translate(-50%, -50%) scale(${scale})` }}>
         {i === 0 ? (
           <div className="nc-present-title-slide">
             {page.format?.page_icon && <PageIcon block={page} size={96} />}
-            <h1>{toPlainText(page.properties?.title) || 'Untitled'}</h1>
+            <h1>{toPlainText(page.properties?.title) || '제목 없음'}</h1>
           </div>
         ) : (
           <div className="nc-present-slide lit-page-content">
@@ -117,10 +117,10 @@ function Presentation({ pageId, close, fromBlockId }: { pageId: string; close: (
         )}
       </div>
       <div className="nc-present-controls">
-        <div role="button" aria-label="Previous slide" className={`nc-icon-btn ${i === 0 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.max(0, x - 1))}><Icon name="chevronLeft" size={18} /></div>
+        <div role="button" aria-label="이전 슬라이드" className={`nc-icon-btn ${i === 0 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.max(0, x - 1))}><Icon name="chevronLeft" size={18} /></div>
         <span className="count">{i + 1} / {total}</span>
-        <div role="button" aria-label="Next slide" className={`nc-icon-btn ${i === total - 1 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.min(total - 1, x + 1))}><Icon name="chevronRight" size={18} /></div>
-        <div role="button" aria-label="Exit presentation" className="nc-icon-btn" onClick={close}><Icon name="close" size={18} /></div>
+        <div role="button" aria-label="다음 슬라이드" className={`nc-icon-btn ${i === total - 1 ? 'disabled' : ''}`} onClick={() => setI((x) => Math.min(total - 1, x + 1))}><Icon name="chevronRight" size={18} /></div>
+        <div role="button" aria-label="프레젠테이션 종료" className="nc-icon-btn" onClick={close}><Icon name="close" size={18} /></div>
       </div>
     </div>
   );

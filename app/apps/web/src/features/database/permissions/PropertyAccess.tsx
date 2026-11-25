@@ -75,17 +75,17 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
   const overrideName = (o: PropertyPermissionOverride): { name: string; sub?: string; icon: React.ReactNode } => {
     if (o.type === 'user_permission') {
       const u = records.get<UserRecord>('lit_user', o.user_id ?? '');
-      return { name: (u?.name || u?.email || 'Unknown person') + (o.user_id === me ? ' (You)' : ''), sub: u?.email, icon: <UserAvatar userId={o.user_id} size={24} /> };
+      return { name: (u?.name || u?.email || '알 수 없는 사용자') + (o.user_id === me ? ' (You)' : ''), sub: u?.email, icon: <UserAvatar userId={o.user_id} size={24} /> };
     }
     if (o.type === 'group_permission') {
       const g = groups.find((x) => x.id === o.group_id);
       const n = g?.member_ids?.length ?? 0;
-      return { name: g?.name ?? 'Group', sub: n ? `${n} ${n === 1 ? 'member' : 'members'}` : 'No members yet', icon: <span className="nc-pa-avatar"><Icon name="users" size={16} /></span> };
+      return { name: g?.name ?? '그룹', sub: n ? `${n}명` : '멤버 없음', icon: <span className="nc-pa-avatar"><Icon name="users" size={16} /></span> };
     }
     const info = o.property_info;
     if (info?.type === 'created_by') return { name: 'Page creator', icon: <span className="nc-pa-avatar"><Icon name="personCircle" size={16} /></span> };
     const p = info ? c.schema[info.property_id] : undefined;
-    return { name: p?.name ?? 'Person property', sub: 'From this table', icon: <span className="nc-pa-avatar">{p ? <PropertyIcon prop={p} size={16} /> : <Icon name="person" size={16} />}</span> };
+    return { name: p?.name ?? '사람 속성', sub: '이 테이블의 속성', icon: <span className="nc-pa-avatar">{p ? <PropertyIcon prop={p} size={16} /> : <Icon name="person" size={16} />}</span> };
   };
 
   const roleMenu = (anchor: HTMLElement, o: PropertyPermissionOverride) => {
@@ -94,7 +94,7 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
       width: 300,
       sections: [
         { items: options.map((r) => ({ id: r.id, label: r.label, description: r.description, checked: o.role === r.id, onSelect: () => setDraft({ ...draft, overrides: overrides.map((x) => (sameOverride(x, o) ? { ...x, role: r.id } : x)) }) })) },
-        { items: [{ id: 'remove', label: 'Remove exception', icon: 'trash', onSelect: () => setDraft({ ...draft, overrides: overrides.filter((x) => !sameOverride(x, o)) }) }] },
+        { items: [{ id: 'remove', label: '예외 제거', icon: 'trash', onSelect: () => setDraft({ ...draft, overrides: overrides.filter((x) => !sameOverride(x, o)) }) }] },
       ],
     }, { placement: 'bottom-end' });
   };
@@ -115,22 +115,22 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
       return { id: `p:${o.property_info?.property_id}`, label: p ? p.name : 'Page creator', icon: p ? <PropertyIcon prop={p} size={16} /> : 'personCircle', onSelect: () => add(o) };
     });
     const sections: MenuSectionDef[] = [];
-    if (userItems.length) sections.push({ title: 'People', items: userItems });
-    if (groupItems.length) sections.push({ title: 'Groups', items: groupItems });
-    if (dynItems.length) sections.push({ title: 'From this table', items: dynItems });
-    if (!sections.length) sections.push({ items: [{ id: 'none', label: 'No people, groups, or fields to create.', disabled: true }] });
-    openNestedMenu(anchor, { width: 300, search: 'Search people or groups', sections }, { placement: 'bottom-start' });
+    if (userItems.length) sections.push({ title: '사용자', items: userItems });
+    if (groupItems.length) sections.push({ title: '그룹', items: groupItems });
+    if (dynItems.length) sections.push({ title: '이 테이블의 속성', items: dynItems });
+    if (!sections.length) sections.push({ items: [{ id: 'none', label: '만들 수 있는 사람, 그룹, 속성이 없습니다.', disabled: true }] });
+    openNestedMenu(anchor, { width: 300, search: '사람 또는 그룹 검색', sections }, { placement: 'bottom-start' });
   };
 
   const save = () => {
     const keep = draft.default_access !== 'inherit' || overrides.length > 0;
     run('updatePropertyPermissions', (tx) => tx.update('collection', collectionId, ['schema', propId], { property_permissions: keep ? draft : null }));
-    useUI.getState().toast(`Access rule saved for ${prop.name}`);
+    useUI.getState().toast(`${prop.name} 접근 규칙을 저장했습니다`);
     close();
   };
   const cancel = async () => {
     if (dirty && canManage) {
-      const ok = await confirmDialog({ message: 'Discard changes?', description: 'You have unsaved changes to this field access rule. If you close now, they’ll be lost.', confirmLabel: 'Discard changes', cancelLabel: 'Keep editing', danger: true });
+      const ok = await confirmDialog({ message: '변경 사항을 취소할까요?', description: '이 필드 액세스 규칙에 저장하지 않은 변경 사항이 있습니다. 지금 닫으면 변경 사항이 사라집니다.', confirmLabel: '변경 사항 버리기', cancelLabel: '계속 편집', danger: true });
       if (!ok) return;
     }
     close();
@@ -145,34 +145,34 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
   })();
   const pickPreview = (anchor: HTMLElement) => openNestedMenu(anchor, {
     width: 280,
-    search: 'Search people',
-    sections: [{ items: people.length ? people.map((u) => ({ id: u.id, label: (u.name || u.email) + (u.id === me ? ' (You)' : ''), icon: <UserAvatar userId={u.id} size={20} />, checked: u.id === previewUser, onSelect: () => setPreviewUser(u.id) })) : [{ id: 'none', label: 'No people found', disabled: true }] }],
+    search: '사용자 검색',
+    sections: [{ items: people.length ? people.map((u) => ({ id: u.id, label: (u.name || u.email) + (u.id === me ? ' (You)' : ''), icon: <UserAvatar userId={u.id} size={20} />, checked: u.id === previewUser, onSelect: () => setPreviewUser(u.id) })) : [{ id: 'none', label: '사용자를 찾을 수 없습니다', disabled: true }] }],
   }, { placement: 'bottom-start' });
-  const previewName = (() => { const u = previewUser ? records.get<UserRecord>('lit_user', previewUser) : undefined; return previewUser === me ? 'You' : u?.name || u?.email || 'Someone'; })();
+  const previewName = (() => { const u = previewUser ? records.get<UserRecord>('lit_user', previewUser) : undefined; return previewUser === me ? '나' : u?.name || u?.email || '누군가'; })();
 
   const disabled = !canManage;
   return (
-    <div className="nc-pa" role="dialog" aria-label="Property access" data-menu-keys="ignore" data-testid="property-access" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); void cancel(); } }}>
-      <div className="nc-pa-title">Property access</div>
-      <div className="nc-pa-subtitle">Choose who may view or edit this column.</div>
-      <div className="nc-pa-prop">For <PropertyIcon prop={prop} size={14} /><b>{prop.name}</b></div>
-      {disabled && <div className="nc-pa-note">Only people with full access to this database can change property access.</div>}
+    <div className="nc-pa" role="dialog" aria-label="속성 액세스 권한" data-menu-keys="ignore" data-testid="property-access" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); void cancel(); } }}>
+      <div className="nc-pa-title">속성 액세스 권한</div>
+      <div className="nc-pa-subtitle">이 열을 보거나 편집할 수 있는 사람을 선택하세요.</div>
+      <div className="nc-pa-prop">대상: <PropertyIcon prop={prop} size={14} /><b>{prop.name}</b></div>
+      {disabled && <div className="nc-pa-note">이 데이터베이스에 대한 전체 액세스 권한이 있는 사람만 속성 액세스를 변경할 수 있습니다.</div>}
 
-      <div className="nc-pa-heading">Default access</div>
+      <div className="nc-pa-heading">기본 액세스 권한</div>
       <div className="nc-pa-row">
-        <div className="who"><span>Everyone</span><span className="sub">Covers every person, agent, and connection</span></div>
+        <div className="who"><span>모든 사용자</span><span className="sub">모든 사용자, 에이전트, 연결에 적용됩니다</span></div>
         <div role="button" data-testid="pa-default" className={`nc-pa-select ${disabled ? 'disabled' : ''}`} onClick={(e) => !disabled && setDefault(e.currentTarget)}>
           <span>{DEFAULT_ACCESS_OPTIONS.find((o) => o.id === draft.default_access)?.label}</span><Icon name="chevronDown" size={14} />
         </div>
       </div>
-      <div className="nc-pa-row" data-tooltip="Everyone with full access to this table always has full access to this field">
-        <div className="who"><span>Everyone with full access</span></div>
-        <div className="nc-pa-select disabled"><span>Full access</span></div>
+      <div className="nc-pa-row" data-tooltip="이 테이블에 대한 전체 액세스 권한이 있는 사람은 이 필드에도 항상 전체 액세스 권한을 갖습니다">
+        <div className="who"><span>전체 액세스 권한이 있는 모든 사람</span></div>
+        <div className="nc-pa-select disabled"><span>전체 권한</span></div>
       </div>
 
-      <div className="nc-pa-heading">Exceptions</div>
-      <div className="nc-pa-desc">Set different access for particular people</div>
-      {!overrides.length && <div className="nc-pa-empty">No exceptions yet.</div>}
+      <div className="nc-pa-heading">예외</div>
+      <div className="nc-pa-desc">특정 사람에게 다른 액세스 권한을 설정합니다</div>
+      {!overrides.length && <div className="nc-pa-empty">아직 예외가 없습니다.</div>}
       {overrides.map((o) => {
         const n = overrideName(o);
         return (
@@ -187,34 +187,34 @@ function PropertyAccess({ collectionId, propId, close }: { collectionId: string;
       })}
       {!disabled && (
         <div role="button" className="nc-pa-add" data-testid="pa-add-override" onClick={(e) => addMenu(e.currentTarget)}>
-          <Icon name="plus" size={16} /><span>Create a person, group, or person field</span>
+          <Icon name="plus" size={16} /><span>사람, 그룹 또는 사람 속성 만들기</span>
         </div>
       )}
       {overrides.some((o) => o.type === 'collection_property_permission') && <div className="nc-pa-note">* Person field exceptions apply only to people who may view this field</div>}
 
       <div role="button" className="nc-pa-add" data-testid="pa-preview-toggle" onClick={() => setPreview(!preview)}>
-        <Icon name={preview ? 'eyeOff' : 'eye'} size={16} /><span>{preview ? 'Hide preview' : 'Show preview'}</span>
+        <Icon name={preview ? 'eyeOff' : 'eye'} size={16} /><span>{preview ? '미리보기 숨기기' : '미리보기 표시'}</span>
       </div>
       {previewInfo && (
         <div className="nc-pa-preview" data-testid="pa-preview">
           <div className="nc-pa-row">
-            <div className="who"><span>Preview as</span></div>
+            <div className="who"><span>다음 사용자로 미리보기</span></div>
             <div role="button" className="nc-pa-select" onClick={(e) => pickPreview(e.currentTarget)}><UserAvatar userId={previewUser} size={18} /><span>{previewName}</span><Icon name="chevronDown" size={14} /></div>
           </div>
-          <div className="nc-pa-preview-result">{previewInfo.role === 'none' ? 'Can’t see field' : propertyRoleLabel(previewInfo.role)}</div>
+          <div className="nc-pa-preview-result">{previewInfo.role === 'none' ? '필드를 볼 수 없음' : propertyRoleLabel(previewInfo.role)}</div>
           <div>{previewInfo.via}</div>
           {previewInfo.conditional.map((x) => <div key={x.label}>{x.label}: {propertyRoleLabel(x.role)}</div>)}
-          {previewInfo.conditional.length > 0 && <div className="nc-pa-note">If more than one of these applies to the same entry, the highest access wins.</div>}
+          {previewInfo.conditional.length > 0 && <div className="nc-pa-note">같은 항목에 이 중 둘 이상이 적용되면 가장 높은 권한이 적용됩니다.</div>}
         </div>
       )}
-      {overLimit && <div className="nc-pa-note nc-pa-error">The property access rule limit has been reached</div>}
+      {overLimit && <div className="nc-pa-note nc-pa-error">속성 액세스 규칙 한도에 도달했습니다</div>}
 
       <div className="nc-pa-foot">
-        {HELP_URL && (<a className="nc-pa-learn" href={HELP_URL} target="_blank" rel="noreferrer">Learn more</a>)}
+        {HELP_URL && (<a className="nc-pa-learn" href={HELP_URL} target="_blank" rel="noreferrer">자세히 알아보기</a>)}
         <div className="spacer" />
-        {!disabled && <div role="button" className="nc-btn outline" data-testid="pa-clear" onClick={() => setDraft({ default_access: 'inherit', overrides: [] })}>Clear</div>}
-        <div role="button" className="nc-btn outline" onClick={() => void cancel()}>Cancel</div>
-        {!disabled && <div role="button" className={`nc-btn primary ${overLimit ? 'disabled' : ''}`} data-testid="pa-save" onClick={() => !overLimit && save()}>Save</div>}
+        {!disabled && <div role="button" className="nc-btn outline" data-testid="pa-clear" onClick={() => setDraft({ default_access: 'inherit', overrides: [] })}>지우기</div>}
+        <div role="button" className="nc-btn outline" onClick={() => void cancel()}>취소</div>
+        {!disabled && <div role="button" className={`nc-btn primary ${overLimit ? 'disabled' : ''}`} data-testid="pa-save" onClick={() => !overLimit && save()}>저장</div>}
       </div>
     </div>
   );

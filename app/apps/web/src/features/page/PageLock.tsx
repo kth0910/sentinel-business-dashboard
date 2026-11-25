@@ -43,8 +43,8 @@ export function PageLockIndicator({ pageId }: { pageId: string }) {
       role="button"
       className="nc-crumb nc-lock-indicator"
       aria-label={t('lp.page.locked', 'Locked')}
-      data-tooltip={`Locked by ${userName(locker)} to prevent accidental editing.`}
-      data-tooltip-sub={canUnlock ? 'Click to unlock' : undefined}
+      data-tooltip={`${userName(locker)}님이 실수로 편집되지 않도록 잠갔습니다.`}
+      data-tooltip-sub={canUnlock ? '클릭해서 잠금 해제' : undefined}
       onClick={(e) => canUnlock && openMenu(e.currentTarget, {
         width: 220,
         // a locked database is enforced by the server (views/properties), so there is no "Unlock for me" for it

@@ -29,7 +29,7 @@ const PAGE = new Set(['page', 'collection_view_page']);
 // ------------------------------------------------------------------ rich text
 
 function atomText(a: Annotation): string {
-  if (a[0] === 'p') return pageTitle(getBlock(a[1] as string)) || 'Untitled';
+  if (a[0] === 'p') return pageTitle(getBlock(a[1] as string)) || '제목 없음';
   if (a[0] === 'u') {
     const u = records.get<UserRecord>('lit_user', a[1] as string);
     return `@${u?.name || u?.email || 'Unknown'}`;
@@ -136,7 +136,7 @@ function blockMd(b: BlockRecord, depth: number, ctx: Ctx, num: number): string {
     case 'video': case 'audio': case 'file': case 'pdf': case 'embed': case 'bookmark':
       line = ctx.opts.includeContents === 'no_files' && b.type !== 'bookmark' && b.type !== 'embed' ? '' : `[${toPlainText(b.properties?.title) || src(b)}](${src(b)})`; break;
     case 'page': case 'collection_view_page': {
-      const title = pageTitle(b) || 'Untitled';
+      const title = pageTitle(b) || '제목 없음';
       if (ctx.opts.includeSubpages && !ctx.seen.has(b.id)) writePage(b, ctx);
       line = `[${title}](${encodeURI(ctx.opts.createFolders ? `${safe(pageTitle(getBlock(b.parent_id)) || 'Untitled')}/${safe(title)}.md` : `${safe(title)}.md`)})`;
       return pad + line;
@@ -144,7 +144,7 @@ function blockMd(b: BlockRecord, depth: number, ctx: Ctx, num: number): string {
     case 'collection_view': {
       line = `${pageTitle(b)}`;
       if (ctx.opts.includeSubpages || true) ctx.files.set(`${ctx.dir}${safe(pageTitle(b) || 'Untitled')}.csv`, collectionCsv(b, ctx.opts));
-      line = `[${pageTitle(b) || 'Untitled'}](${encodeURI(`${safe(pageTitle(b) || 'Untitled')}.csv`)})`;
+      line = `[${pageTitle(b) || 'Untitled'}](${encodeURI(`${safe(pageTitle(b) || '제목 없음')}.csv`)})`;
       break;
     }
     case 'table': {
@@ -212,7 +212,7 @@ export function collectionCsv(b: BlockRecord, opts: Pick<ExportOptions, 'databas
 
 function writePage(page: BlockRecord, ctx: Ctx) {
   ctx.seen.add(page.id);
-  const title = pageTitle(page) || 'Untitled';
+  const title = pageTitle(page) || '제목 없음';
   const parentDir = ctx.dir;
   const name = safe(title);
   if (page.type === 'collection_view_page') {
@@ -306,7 +306,7 @@ mark{background:transparent}.page-cover-image{width:100%;max-height:30vh;object-
 @media print{body{margin:0;max-width:none}}`;
 
 function htmlDoc(page: BlockRecord, body: string, opts: ExportOptions): string {
-  const title = pageTitle(page) || 'Untitled';
+  const title = pageTitle(page) || '제목 없음';
   const cover = page.format?.page_cover as string | undefined;
   const icon = typeof page.format?.page_icon === 'string' && !page.format.page_icon.startsWith('lit-icon') && !/^(https?:|\/)/.test(page.format.page_icon) ? page.format.page_icon : '';
   const font = page.format?.page_font === 'serif' ? 'font-family:Georgia,serif;' : page.format?.page_font === 'mono' ? 'font-family:Menlo,Courier,monospace;' : '';
@@ -423,7 +423,7 @@ export async function exportLocally(pageId: string, opts: ExportOptions): Promis
   else await loadPage(pageId);
   const page = getBlock(pageId);
   if (!page) throw new Error('Page could not be found');
-  const title = safe(pageTitle(page) || 'Untitled');
+  const title = safe(pageTitle(page) || '제목 없음');
   if (opts.format === 'pdf') {
     const w = window.open('', '_blank');
     if (!w) throw new Error('Allow pop-ups to export as PDF');
@@ -467,7 +467,7 @@ export function currentDatabaseViews(): Record<string, string> {
 function openPrintView(url: string) {
   const w = window.open(url, '_blank');
   if (w) w.opener = null;
-  else useUI.getState().toast('Allow pop-ups to export as PDF', { label: 'Open', run: () => { window.open(url, '_blank'); } });
+  else useUI.getState().toast('PDF로 내보내려면 팝업을 허용하세요', { label: '개방형', run: () => { window.open(url, '_blank'); } });
 }
 
 /** Export through the server (`startPageExport`) when available, else locally. */
@@ -491,7 +491,7 @@ export async function exportPage(pageId: string, opts: ExportOptions = { format:
     }
     // very large exports arrive in the Inbox
     if (res?.deferred) {
-      useUI.getState().toast(res.message ?? 'This export is still processing because of its size. We’ll email you a download link when it is ready.');
+      useUI.getState().toast(res.message ?? '내보내기 크기가 커서 아직 처리 중입니다. 완료되면 다운로드 링크를 이메일로 보내 드립니다.');
       return '';
     }
     const url = res?.exportURL ?? res?.url ?? res?.status?.exportURL;
@@ -514,7 +514,7 @@ export async function exportPage(pageId: string, opts: ExportOptions = { format:
           window.location.assign(u);
           return u.split('/').pop();
         }
-        if (task?.state === 'failure') throw new Error(task?.error ?? 'Export failed');
+        if (task?.state === 'failure') throw new Error(task?.error ?? '내보내기 실패');
       }
     }
     if (res?.content && res?.fileName) {

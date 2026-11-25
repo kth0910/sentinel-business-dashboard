@@ -19,16 +19,16 @@ import { newPropertyId } from '../actions.ts';
 import { openNestedMenu } from '../menus.ts';
 import './permissions.css';
 
-const RULE_ROLE_LABEL: Record<string, string> = { editor: 'Full access', read_and_write: 'Can edit', comment_only: 'Can comment', reader: 'Can view' };
-const RULE_ROLE_CAPTION: Record<string, string> = { editor: 'Edit, suggest, comment, and share with others', read_and_write: 'Edit, suggest, and comment', comment_only: 'Suggest and comment', reader: '' };
+const RULE_ROLE_LABEL: Record<string, string> = { editor: '전체 권한', read_and_write: '편집 가능', comment_only: '댓글 가능', reader: '보기 가능' };
+const RULE_ROLE_CAPTION: Record<string, string> = { editor: '편집, 제안, 댓글 작성, 다른 사람과 공유', read_and_write: '편집, 제안, 댓글 가능', comment_only: '제안 및 댓글', reader: '' };
 
 /** Roles of the Share menu role picker for a page: databases add "Can edit content" after "Can edit". */
 export function rolesForPage(page: BlockRecord | undefined): Role[] {
   return isDatabaseBlock(page) ? ['editor', 'read_and_write', 'content_only_editor', 'comment_only', 'reader'] : ['editor', 'read_and_write', 'comment_only', 'reader'];
 }
 
-export const CONTENT_EDITOR_LABEL = 'Can edit content';
-export const CONTENT_EDITOR_CAPTION = 'Can edit content, but can’t edit the table’s layouts or structure';
+export const CONTENT_EDITOR_LABEL = '내용 편집 가능';
+export const CONTENT_EDITOR_CAPTION = '콘텐츠는 편집할 수 있지만 테이블의 레이아웃과 구조는 편집할 수 없습니다';
 
 type Target = { type: 'user'; userId: string } | { type: 'space' };
 
@@ -45,9 +45,9 @@ export function dbRoleLabel(page: BlockRecord | undefined, t: Target): string | 
   if (!isDatabaseBlock(page)) return null;
   const p = permissionOf(page, t);
   if (!p?.can_create_pages_in_collection) return null;
-  if (p.role === 'none') return 'Can only create';
-  if (p.role === 'reader') return 'Can open and create';
-  if (p.role === 'comment_only') return 'Can comment and create';
+  if (p.role === 'none') return '만들기만 가능';
+  if (p.role === 'reader') return '열기 및 만들기 가능';
+  if (p.role === 'comment_only') return '댓글 및 생성 가능';
   return null;
 }
 
@@ -87,13 +87,13 @@ function openCreatorAccessModal(c: CollectionRecord, onDone: () => void) {
 function CreatorAccess({ c, close, onDone }: { c: CollectionRecord; close: () => void; onDone: () => void }) {
   const [role, setRole] = useState<Role>('read_and_write');
   const opts: { id: Role; title: string; sub: string }[] = [
-    { id: 'read_and_write', title: 'Can edit the entries they create', sub: 'Edit, suggest, and comment' },
-    { id: 'editor', title: 'Have full access to the entries they create', sub: 'Edit, suggest, comment, and share with others' },
+    { id: 'read_and_write', title: '본인이 만든 항목 편집 가능', sub: '편집, 제안, 댓글 가능' },
+    { id: 'editor', title: '자신이 만든 항목에 대한 전체 액세스 권한 보유', sub: '편집, 제안, 댓글 작성, 다른 사람과 공유' },
   ];
   return (
-    <div className="nc-perm-modal" role="dialog" aria-label="How much access should entry creators get?">
-      <div className="nc-perm-modal-title">How much access should entry creators get?</div>
-      <div className="nc-perm-modal-sub">This applies to all people with Can create access in this table</div>
+    <div className="nc-perm-modal" role="dialog" aria-label="항목을 만든 사람에게 어느 정도의 권한을 줄까요?">
+      <div className="nc-perm-modal-title">항목을 만든 사람에게 어느 정도의 권한을 줄까요?</div>
+      <div className="nc-perm-modal-sub">이 표에서 생성 권한이 있는 모든 사람에게 적용됩니다</div>
       {opts.map((o) => (
         <div key={o.id} role="radio" aria-checked={role === o.id} className={`nc-perm-choice ${role === o.id ? 'on' : ''}`} onClick={() => setRole(o.id)}>
           <Icon name={role === o.id ? 'radioOn' : 'radioOff'} size={16} />
@@ -101,8 +101,8 @@ function CreatorAccess({ c, close, onDone }: { c: CollectionRecord; close: () =>
         </div>
       ))}
       <div className="nc-perm-modal-foot">
-        <div role="button" className="nc-btn outline" onClick={close}>Cancel</div>
-        <div role="button" className="nc-btn primary" data-testid="create-creator-rule" onClick={() => { addPageAccessRule(c, ensureCreatedBy(records.get<CollectionRecord>('collection', c.id) ?? c), role); close(); onDone(); }}>Create an entry-level access rule</div>
+        <div role="button" className="nc-btn outline" onClick={close}>취소</div>
+        <div role="button" className="nc-btn primary" data-testid="create-creator-rule" onClick={() => { addPageAccessRule(c, ensureCreatedBy(records.get<CollectionRecord>('collection', c.id) ?? c), role); close(); onDone(); }}>항목 단위 액세스 규칙 만들기</div>
       </div>
     </div>
   );
@@ -121,7 +121,7 @@ export function dbRoleExtras(page: BlockRecord | undefined, t: Target): MenuSect
   const items: MenuItemDef[] = [];
   if (role === 'reader' || role === 'comment_only' || (role === 'none' && on)) {
     items.push({
-      id: 'create', label: 'Can also create entries', right: <Toggle on={on} decorative />,
+      id: 'create', label: '항목 생성도 가능', right: <Toggle on={on} decorative />,
       onSelect: () => {
         setPermission(page, t, { can_create_pages_in_collection: !on });
         if (!on) ensureRule();
@@ -129,7 +129,7 @@ export function dbRoleExtras(page: BlockRecord | undefined, t: Target): MenuSect
     });
   }
   items.push({
-    id: 'only-create', label: 'Can only create', checked: role === 'none' && on,
+    id: 'only-create', label: '생성만 가능', checked: role === 'none' && on,
     onSelect: () => {
       setPermission(page, t, { role: 'none', can_create_pages_in_collection: true });
       ensureRule();
@@ -148,18 +148,18 @@ export function DatabaseShareSection({ page, canManage }: { page: BlockRecord | 
     width: 260,
     sections: [
       { items: PAGE_RULE_ROLES.map((r) => ({ id: r, label: RULE_ROLE_LABEL[r], description: RULE_ROLE_CAPTION[r] || undefined, checked: rule.role === r, onSelect: () => updatePageAccessRule(c, rule.id, r) })) },
-      { items: [{ id: 'delete', label: 'Delete permission rule', icon: 'trash', onSelect: () => updatePageAccessRule(c, rule.id, null) }] },
+      { items: [{ id: 'delete', label: '권한 규칙 삭제', icon: 'trash', onSelect: () => updatePageAccessRule(c, rule.id, null) }] },
     ],
   }, { placement: 'bottom-end' });
   return (
     <div className="nc-share-general nc-perm-section" data-testid="entry-level-access">
-      <div className="nc-share-section-title">Entry-level access</div>
+      <div className="nc-share-section-title">항목별 액세스 권한</div>
       {rules.map((r) => {
         const prop = c.schema[r.property];
         return (
           <div key={r.id} className="nc-share-row nc-perm-rule" data-rule={r.id}>
             <div className="nc-share-ga-icon"><PropertyIcon prop={prop} size={18} /></div>
-            <div className="who"><div className="name nc-ellipsis">Anyone in {prop?.name ?? 'Untitled property'}</div></div>
+            <div className="who"><div className="name nc-ellipsis">Anyone in {prop?.name ?? '제목 없는 속성'}</div></div>
             <div role="button" className={`nc-share-role ${canManage ? '' : 'disabled'}`} onClick={(e) => canManage && roleMenu(e.currentTarget, r)}>
               <span>{RULE_ROLE_LABEL[r.role] ?? r.role}</span>
               <Icon name="chevronDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
@@ -171,8 +171,8 @@ export function DatabaseShareSection({ page, canManage }: { page: BlockRecord | 
         <div role="button" className="nc-share-row nc-perm-add" data-testid="add-page-rule" onClick={(e) => openRuleCreator(e.currentTarget, c, candidates)}>
           <div className="nc-share-ga-icon"><Icon name="plus" size={18} /></div>
           <div className="who">
-            <div className="name">Create new rule</div>
-            <div className="email">For example, people in Assignees get edit access</div>
+            <div className="name">새 규칙 만들기</div>
+            <div className="email">예: 담당자로 지정된 사람은 편집 권한을 받습니다</div>
           </div>
         </div>
       )}
@@ -185,14 +185,14 @@ function RuleCreator({ c, candidates, close }: { c: CollectionRecord; candidates
   const [role, setRole] = useState<Role>('read_and_write');
   return (
     <div className="nc-perm-creator" data-menu-keys="ignore">
-      <div className="nc-perm-creator-title">Choose person field</div>
-      {!candidates.length && <div className="nc-perm-empty">No available fields</div>}
+      <div className="nc-perm-creator-title">사람 필드 선택</div>
+      {!candidates.length && <div className="nc-perm-empty">사용 가능한 속성이 없습니다</div>}
       {candidates.map(([id, p]) => (
         <div key={id} role="option" aria-selected={prop === id} className={`nc-perm-option ${prop === id ? 'on' : ''}`} onClick={() => setProp(id)}>
           <PropertyIcon prop={p} size={16} /><span>{p.name}</span>{prop === id && <Icon name="checkmarkSmall" size={14} />}
         </div>
       ))}
-      <div className="nc-perm-creator-sub">Grant access to a particular entry for anyone selected in this field</div>
+      <div className="nc-perm-creator-sub">이 속성에서 선택된 사람에게 해당 항목에 대한 액세스 권한을 부여합니다</div>
       <div className="nc-perm-roles">
         {PAGE_RULE_ROLES.map((r) => (
           <div key={r} role="option" aria-selected={role === r} className={`nc-perm-option ${role === r ? 'on' : ''}`} onClick={() => setRole(r)}>
@@ -201,7 +201,7 @@ function RuleCreator({ c, candidates, close }: { c: CollectionRecord; candidates
         ))}
       </div>
       <div className="nc-perm-creator-foot">
-        <div role="button" className={`nc-btn primary ${prop ? '' : 'disabled'}`} data-testid="create-rule" onClick={() => { if (!prop) return; addPageAccessRule(c, prop, role); close(); }}>Create rule</div>
+        <div role="button" className={`nc-btn primary ${prop ? '' : 'disabled'}`} data-testid="create-rule" onClick={() => { if (!prop) return; addPageAccessRule(c, prop, role); close(); }}>규칙 만들기</div>
       </div>
     </div>
   );

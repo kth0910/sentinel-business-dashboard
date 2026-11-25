@@ -115,7 +115,7 @@ export function PostReactions({ row }: { row: BlockRecord }) {
   return (
     <>
       {canReact && (
-        <div role="button" className="nc-feed-react" aria-label="Add reaction" data-tooltip="Add reaction" aria-haspopup="dialog" data-testid="feed-add-reaction" onClick={(e) => pickPostReaction(e.currentTarget, row)}>
+        <div role="button" className="nc-feed-react" aria-label="반응 추가" data-tooltip="반응 추가" aria-haspopup="dialog" data-testid="feed-add-reaction" onClick={(e) => pickPostReaction(e.currentTarget, row)}>
           <Icon name="emojiFacePlus" size={18} />
         </div>
       )}
@@ -133,7 +133,7 @@ export function PostReactionPills({ row }: { row: BlockRecord }) {
   return (
     <div className="nc-reactions nc-page-reactions" data-testid="page-reactions">
       <Pills row={row} counts={counts} canReact={canReact} />
-      {canReact && <div role="button" className="nc-reaction add" aria-label="Add reaction" onClick={(e) => pickPostReaction(e.currentTarget, row)}><Icon name="emojiFacePlus" size={14} /></div>}
+      {canReact && <div role="button" className="nc-reaction add" aria-label="반응 추가" onClick={(e) => pickPostReaction(e.currentTarget, row)}><Icon name="emojiFacePlus" size={14} /></div>}
     </div>
   );
 }
@@ -162,7 +162,7 @@ export function useFeedViews(pageIds: string[]): Record<string, PostViewInfo> {
 function openViewers(anchor: HTMLElement, info: PostViewInfo) {
   openOverlay(() => (
     <PopoverSurface width={260} className="nc-feed-viewers" maxHeight={320}>
-      <div className="nc-feed-viewers-head">{info.count === 1 ? 'Viewed by 1 person' : `Viewed by ${info.count} people`}</div>
+      <div className="nc-feed-viewers-head">{info.count === 1 ? '1명이 조회함' : `${info.count}명이 조회함`}</div>
       {info.viewers.map((v) => (
         <div key={v.userId} className="nc-feed-viewer">
           <UserAvatar userId={v.userId} size={20} />
@@ -178,7 +178,7 @@ function openViewers(anchor: HTMLElement, info: PostViewInfo) {
 export function PostViews({ info }: { info: PostViewInfo | undefined }) {
   if (!info) return null;
   return (
-    <div role="button" className="nc-feed-views" aria-haspopup="dialog" data-testid="feed-views" data-tooltip="Views" onClick={(e) => info.count && openViewers(e.currentTarget, info)}>
+    <div role="button" className="nc-feed-views" aria-haspopup="dialog" data-testid="feed-views" data-tooltip="조회수" onClick={(e) => info.count && openViewers(e.currentTarget, info)}>
       <div className="nc-feed-facepile">
         {info.viewers.slice(0, 3).map((v) => <UserAvatar key={v.userId} userId={v.userId} size={18} />)}
       </div>
@@ -203,13 +203,13 @@ export function PostComments({ row, onOpen }: { row: BlockRecord; onOpen: () => 
   const hidden = threads.length - shown.length;
   return (
     <div className="nc-feed-comments" data-testid="feed-comments">
-      {hidden > 0 && <div role="button" className="nc-feed-more-comments" onClick={onOpen}>{hidden === 1 ? '1 more comment' : `${hidden} more comments`}</div>}
+      {hidden > 0 && <div role="button" className="nc-feed-more-comments" onClick={onOpen}>{hidden === 1 ? '댓글 1개 더' : `댓글 ${hidden}개 더 보기`}</div>}
       {shown.map((d) => (
         <DiscussionThread key={d.id} discussion={d} mode="page" active={active === d.id} onActivate={() => { if (active !== d.id) useComments.getState().set({ active: d.id }); }} />
       ))}
       {canComment && (
         <div className="nc-feed-composer">
-          <CommentComposer placeholder="Add a comment" submitAria="Send comment" onSubmit={(text) => { addComment(row.id, text, undefined, undefined, { type: 'page' }); }} />
+          <CommentComposer placeholder="댓글 추가" submitAria="댓글 보내기" onSubmit={(text) => { addComment(row.id, text, undefined, undefined, { type: 'page' }); }} />
         </div>
       )}
     </div>

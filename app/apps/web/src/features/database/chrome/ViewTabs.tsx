@@ -72,7 +72,7 @@ function AddViewGrid({ opts, close }: { opts: { block: BlockRecord; collection?:
     <PopoverSurface width={390} className="nc-add-view-menu">
       <div role="grid">
         <div className="nc-add-view-section">
-          <MenuSectionTitle>Create another layout</MenuSectionTitle>
+          <MenuSectionTitle>보기 추가</MenuSectionTitle>
           <div className="nc-add-view-grid">
             {types.map((v, i) => (
               <div
@@ -89,7 +89,7 @@ function AddViewGrid({ opts, close }: { opts: { block: BlockRecord; collection?:
         </div>
         <div className="nc-add-view-footer">
           <div role="gridcell" className={`nc-menu-item nc-add-view-source ${active === types.length ? 'active' : ''}`} onClick={() => { close(); newDataSource(); }}>
-            <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="squareOnSquarePlus" size={20} /></div><div className="nc-menu-label">Create a dataset</div></div>
+            <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="squareOnSquarePlus" size={20} /></div><div className="nc-menu-label">데이터 소스 만들기</div></div>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ function openRename(anchor: HTMLElement, view: CollectionViewRecord) {
     <PopoverSurface width={260} className="nc-rename-view">
       <div className="nc-rename-view-body" data-menu-keys="ignore">
         <div className="nc-input focused">
-          <input autoFocus defaultValue={view.name} placeholder="View name" onFocus={(e) => e.currentTarget.select()} onChange={(e) => (name = e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) close(); }} />
+          <input autoFocus defaultValue={view.name} placeholder="보기 이름" onFocus={(e) => e.currentTarget.select()} onChange={(e) => (name = e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) close(); }} />
         </div>
       </div>
     </PopoverSurface>
@@ -125,33 +125,33 @@ export function openViewMenu(anchor: HTMLElement, opts: { block: BlockRecord; vi
     width: 265,
     sections: [
       { items: [
-        { id: 'rename', label: 'Rename', icon: 'pencilLine', disabled: opts.readOnly, onSelect: () => { setTimeout(() => openRename(anchor, view), 0); } },
-        { id: 'display', label: 'Show as', icon: 'eye', submenu: () => ({ width: 220, footer: <div className="nc-menu-caption">Only applies to you</div>, sections: [{ items: [
-          { id: 'ti', label: 'Text and icon', checked: opts.display === 'text_and_icon', onSelect: () => opts.setDisplay('text_and_icon') },
-          { id: 't', label: 'Text only', checked: opts.display === 'text', onSelect: () => opts.setDisplay('text') },
-          { id: 'i', label: 'Icon only', checked: opts.display === 'icon', onSelect: () => opts.setDisplay('icon') },
+        { id: 'rename', label: '이름 바꾸기', icon: 'pencilLine', disabled: opts.readOnly, onSelect: () => { setTimeout(() => openRename(anchor, view), 0); } },
+        { id: 'display', label: '표시 방식', icon: 'eye', submenu: () => ({ width: 220, footer: <div className="nc-menu-caption">나에게만 적용됩니다</div>, sections: [{ items: [
+          { id: 'ti', label: '텍스트와 아이콘', checked: opts.display === 'text_and_icon', onSelect: () => opts.setDisplay('text_and_icon') },
+          { id: 't', label: '텍스트만', checked: opts.display === 'text', onSelect: () => opts.setDisplay('text') },
+          { id: 'i', label: '아이콘만', checked: opts.display === 'icon', onSelect: () => opts.setDisplay('icon') },
         ] }] }) },
-        { id: 'edit', label: 'Edit view', icon: 'sliders', onSelect: () => opts.onEdit() },
-        { id: 'source', label: 'Database', icon: 'pathRoundEnds', right: <span className="nc-menu-value">{toPlainText(opts.collection?.name as any) || 'Untitled'}</span>, disabled: true },
+        { id: 'edit', label: '보기 편집', icon: 'sliders', onSelect: () => opts.onEdit() },
+        { id: 'source', label: '데이터베이스', icon: 'pathRoundEnds', right: <span className="nc-menu-value">{toPlainText(opts.collection?.name as any) || '제목 없음'}</span>, disabled: true },
       ] },
       { items: [
-        { id: 'link', label: 'Copy link to layout', icon: 'dbLink', onSelect: () => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('Copied link to view'); } },
+        { id: 'link', label: '레이아웃 링크 복사', icon: 'dbLink', onSelect: () => { void navigator.clipboard?.writeText(viewLink(block, view.id)); useUI.getState().toast('보기 링크를 복사했습니다'); } },
 // a sidebar section listing this view’s rows; lazy import avoids a cycle
-        { id: 'sidebar', label: 'Add layout to sidebar', icon: 'sidebarLeft', onSelect: () => { void import('../../shell/sidebar/Customize.tsx').then((m) => m.addDatabaseViewToSidebar(block.id, view.id)); } },
-        { id: 'full', label: 'Launch as full entry', icon: 'arrowDiagonalUpRight', onSelect: () => openPage(block.id) },
-        { id: 'title', label: showTitle ? 'Conceal dataset title' : 'Display dataset title', icon: 'eye', disabled: opts.readOnly, onSelect: () => updateViewFormat(view.id, { hide_linked_collection_name: showTitle }) },
+        { id: 'sidebar', label: '사이드바에 보기 추가', icon: 'sidebarLeft', onSelect: () => { void import('../../shell/sidebar/Customize.tsx').then((m) => m.addDatabaseViewToSidebar(block.id, view.id)); } },
+        { id: 'full', label: '전체 페이지로 열기', icon: 'arrowDiagonalUpRight', onSelect: () => openPage(block.id) },
+        { id: 'title', label: showTitle ? '데이터 소스 제목 숨기기' : '데이터 소스 제목 표시', icon: 'eye', disabled: opts.readOnly, onSelect: () => updateViewFormat(view.id, { hide_linked_collection_name: showTitle }) },
       ] },
       ...(opts.readOnly ? [] : [{ items: [
-        { id: 'dup', label: 'Duplicate view', icon: 'duplicate', onSelect: () => { const id = duplicateView(block, view.id); if (id) opts.onSelect(id); } },
-        ...(views.length > 1 ? [{ id: 'del', label: 'Delete view', icon: 'trash', onSelect: async () => {
-          const ok = await confirmDialog({ message: `Delete the view “${view.name}”?`, confirmLabel: 'Delete' });
+        { id: 'dup', label: '보기 복제', icon: 'duplicate', onSelect: () => { const id = duplicateView(block, view.id); if (id) opts.onSelect(id); } },
+        ...(views.length > 1 ? [{ id: 'del', label: '보기 삭제', icon: 'trash', onSelect: async () => {
+          const ok = await confirmDialog({ message: `보기 “${view.name}”을(를) 삭제할까요?`, confirmLabel: '삭제' });
           if (!ok) return;
           const next = views.find((x) => x !== view.id);
           deleteView(block, view.id);
           if (next) opts.onSelect(next);
         } }] : []),
       ] }]),
-      { items: [{ id: 'calendar', label: 'Manage in Calendar', icon: 'viewCalendar', disabled: true }] },
+      { items: [{ id: 'calendar', label: '캘린더에서 관리', icon: 'viewCalendar', disabled: true }] },
     ],
   }, { placement: 'bottom-start' });
 }
@@ -228,7 +228,7 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             aria-haspopup="dialog"
             className={`lit-collection-view-tab ${active ? 'active' : ''}`}
             data-tooltip={measuring ? undefined : v.name}
-            data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${viewTypeMeta(v.type).label} view of ${toPlainText(collection?.name as any) || 'Untitled'}`}
+            data-tooltip-sub={measuring ? undefined : (v.format as any)?.description || `${toPlainText(collection?.name as any) || 'Untitled'}의 ${viewTypeMeta(v.type).label} 보기`}
             onClick={(e) => {
               if (measuring) return;
               if (active) openViewMenu(e.currentTarget, { block, view: v, collection, readOnly, onEdit: onEditView, onSelect, display, setDisplay });
@@ -255,22 +255,22 @@ export function ViewTabs({ block, views, activeId, collection, readOnly, onSelec
             className="nc-view-tabs-more"
             onClick={(e) => openMenu(e.currentTarget, {
               width: 290,
-              search: 'Find a layout...',
+              search: '레이아웃 찾기...',
               sections: [
                 { items: views.map((v) => ({ id: v.id, label: v.name, icon: viewIcon(v.type), checked: v.id === activeId, onSelect: () => onSelect(v.id) })) },
                 ...(readOnly ? [] : [{ items: [
-                  { id: 'new', label: 'New view', icon: 'plus', onSelect: () => { setTimeout(() => openAddViewMenu(e.currentTarget as HTMLElement, { block, collection, onCreated: (id) => onAdded(id) }), 0); } },
-                  { id: 'source', label: 'Create a dataset', icon: 'squareOnSquarePlus', onSelect: () => { const a = e.currentTarget as HTMLElement; setTimeout(() => void import('../sources/ManageSources.tsx').then((m) => m.openAddDataSource(a, block)), 0); } },
+                  { id: 'new', label: '새 보기', icon: 'plus', onSelect: () => { setTimeout(() => openAddViewMenu(e.currentTarget as HTMLElement, { block, collection, onCreated: (id) => onAdded(id) }), 0); } },
+                  { id: 'source', label: '데이터 소스 만들기', icon: 'squareOnSquarePlus', onSelect: () => { const a = e.currentTarget as HTMLElement; setTimeout(() => void import('../sources/ManageSources.tsx').then((m) => m.openAddDataSource(a, block)), 0); } },
                 ] }]),
               ],
             }, { placement: 'bottom-start' })}
           >
-            {hidden.length} more…
+            {hidden.length}개 더…
           </div>
         ) : (
           !readOnly && (
             <div className={`nc-view-add-wrap ${hovered ? 'visible' : ''}`}>
-              <div role="button" className="lit-collection-add-view nc-view-add" aria-label="Add view" aria-haspopup="dialog" data-tooltip="Create another layout" onClick={(e) => openAddViewMenu(e.currentTarget, { block, collection, onCreated: (id) => onAdded(id) })}>
+              <div role="button" className="lit-collection-add-view nc-view-add" aria-label="보기 추가" aria-haspopup="dialog" data-tooltip="보기 추가" onClick={(e) => openAddViewMenu(e.currentTarget, { block, collection, onCreated: (id) => onAdded(id) })}>
                 <Icon name="plusSmall" size={16} />
               </div>
             </div>

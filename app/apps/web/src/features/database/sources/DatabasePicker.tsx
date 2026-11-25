@@ -22,11 +22,11 @@ function Picker({ title, exclude, onPick, close }: { title: string; exclude: str
   return (
     <PopoverSurface width={320} className="nc-linked-picker" maxHeight="min(420px, 60vh)">
       <div className="nc-vs-header"><span className="nc-vs-title">{title}</span></div>
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Find a table…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="표 찾기…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-menu-scroll">
         <div className="nc-menu-section">
           {blocks.map((b) => {
-            const title = results.find((r) => r.blockId === b.id)?.name ?? 'Untitled';
+            const title = results.find((r) => r.blockId === b.id)?.name ?? '제목 없음';
             return (
               <div key={b.id} role="menuitem" className="nc-menu-item nc-link-source-row" onClick={() => { close(); onPick(b); }}>
                 <div className="nc-menu-item-inner">
@@ -36,7 +36,7 @@ function Picker({ title, exclude, onPick, close }: { title: string; exclude: str
               </div>
             );
           })}
-          {!blocks.length && <div className="nc-menu-empty">No results</div>}
+          {!blocks.length && <div className="nc-menu-empty">결과 없음</div>}
         </div>
       </div>
     </PopoverSurface>
@@ -65,7 +65,7 @@ export function choiceDialog<K extends string>(opts: { message: ReactNode; descr
           {opts.choices.map((c, i) => (
             <button key={c.key} autoFocus={i === 0} className={`nc-dialog-btn ${c.primary ? 'primary' : 'outline'}`} onClick={() => finish(c.key, close)}>{c.label}</button>
           ))}
-          <button className="nc-dialog-btn outline" onClick={() => finish(null, close)}>Cancel</button>
+          <button className="nc-dialog-btn outline" onClick={() => finish(null, close)}>취소</button>
         </div>
       </div>
     ), { placement: 'center', backdrop: 'dim', onClose: () => { if (!done) { done = true; resolve(null); } } });

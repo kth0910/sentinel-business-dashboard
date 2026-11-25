@@ -45,9 +45,9 @@ export function turnIntoTaskDatabase(c: CollectionRecord, choice: { status: Role
       void role;
       return pid;
     };
-    const status = choice.status === 'new' || !choice.status ? make('status', 'status', 'Status') : choice.status;
-    const assignee = choice.assignee === 'new' || !choice.assignee ? make('assignee', 'person', 'Assignee') : choice.assignee;
-    const due = choice.due === 'new' || !choice.due ? make('due', 'date', 'Due') : choice.due;
+    const status = choice.status === 'new' || !choice.status ? make('status', 'status', '상태') : choice.status;
+    const assignee = choice.assignee === 'new' || !choice.assignee ? make('assignee', 'person', '담당자') : choice.assignee;
+    const due = choice.due === 'new' || !choice.due ? make('due', 'date', '마감일') : choice.due;
     const map: Record<string, string> = { [TASK_ROLES.status]: status, [TASK_ROLES.assignee]: assignee, [TASK_ROLES.due]: due };
     const sub = subitemConfigOf(c);
     if (sub) Object.assign(map, { [TASK_ROLES.subTask]: sub.property, [TASK_ROLES.parentTask]: sub.inverse });
@@ -55,7 +55,7 @@ export function turnIntoTaskDatabase(c: CollectionRecord, choice: { status: Role
     if (dep) Object.assign(map, { [TASK_ROLES.blocking]: dep.blocking, ...(dep.blockedBy ? { [TASK_ROLES.blockedBy]: dep.blockedBy } : {}) });
     tx.update('collection', c.id, ['format'], { app_config_uri: TASKS_COLLECTION_URI, app_uri_map: { ...((c.format?.app_uri_map as Record<string, string>) ?? {}), ...map } });
   });
-  useUI.getState().toast('Turned into task database · Add to Home to see your assigned tasks in My Tasks');
+  useUI.getState().toast('제목 없음');
 }
 
 export function undoTaskDatabase(c: CollectionRecord) {

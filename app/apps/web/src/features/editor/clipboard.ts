@@ -300,7 +300,7 @@ function atomText(a: Annotation): string {
   switch (a[0]) {
     case 'p': {
       const b = records.get<BlockRecord>('block', a[1] as string);
-      return toPlainText(b?.properties?.title) || 'Untitled';
+      return toPlainText(b?.properties?.title) || '제목 없음';
     }
     case 'u': {
       const u = records.get<any>('lit_user', a[1] as string);
@@ -522,9 +522,9 @@ function offerPasteAndSync(srcIds: string[], pastedIds: string[]) {
       const close = openMenu(new DOMRect(r.left, r.bottom, 0, 0), {
         width: 240,
  initialActive: -1, // nothing highlighted: Enter / typing go on as usual until an action is picked
-        sections: [{ title: 'Suggested actions', items: [
-          { label: 'Paste and mirror', icon: 'blockSync', onSelect: () => pasteAndSync(srcIds, pastedIds) },
-          { label: 'Dismiss', icon: 'close', onSelect: () => undefined },
+        sections: [{ title: '추천 작업', items: [
+          { label: '붙여넣고 동기화', icon: 'blockSync', onSelect: () => pasteAndSync(srcIds, pastedIds) },
+          { label: '닫기', icon: 'close', onSelect: () => undefined },
         ] }],
       }, { placement: 'bottom-start', offset: 4, backdrop: 'none', onClose: () => off() });
       const onDown = (e: Event) => { if (!(e.target as HTMLElement | null)?.closest?.('.lit-overlay-container')) close(); };
@@ -592,7 +592,7 @@ export async function insertFiles(files: File[], afterId: string | null, parent:
     try {
       res = await uploadFile(f, f.name || `${kind}.${(f.type.split('/')[1] ?? 'bin').replace('jpeg', 'jpg')}`, spaceId, parent.table === 'block' ? parent.id : undefined);
     } catch (err) {
-      useUI.getState().toast(`Upload failed: ${(err as Error).message}`);
+      useUI.getState().toast(`업로드 실패: ${(err as Error).message}`);
       continue;
     }
     const props: Record<string, any> = { source: [[res.url]], ...(kind === 'file' || kind === 'pdf' ? { title: [[f.name || res.name]] } : {}) };

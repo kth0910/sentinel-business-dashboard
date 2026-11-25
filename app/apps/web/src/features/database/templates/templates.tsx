@@ -25,15 +25,15 @@ import { openRecurrenceEditor } from '../automations/recurrence.tsx';
 import { userTimeZone } from '../advanced/context.ts';
 import './templates.css';
 
-const nameOf = (b: BlockRecord | undefined) => toPlainText(b?.properties?.title) || 'Untitled';
-const collectionName = (c: CollectionRecord | undefined) => toPlainText(c?.name as any) || 'Untitled';
+const nameOf = (b: BlockRecord | undefined) => toPlainText(b?.properties?.title) || '제목 없음';
+const collectionName = (c: CollectionRecord | undefined) => toPlainText(c?.name as any) || '제목 없음';
 
 async function setRepeat(templateId: string, rec: Recurrence | null) {
   try {
     await setTemplateRecurrence(templateId, rec);
     if (rec) useUI.getState().toast(`${duplicateCaption(rec)} · ${recurrenceLabel(rec)}`);
   } catch (e) {
-    useUI.getState().toast((e as Error)?.message || 'This template cannot repeat.');
+    useUI.getState().toast((e as Error)?.message || '이 템플릿은 반복할 수 없습니다.');
   }
 }
 
@@ -46,11 +46,11 @@ export function repeatItems(templateId: string, anchor: () => HTMLElement | null
     id: p.id, label: p.label, checked: !!cur && preset === p.id,
     onSelect: () => void setRepeat(templateId, presetRecurrence(p.id as RecurrencePreset, Date.now(), userTimeZone(), rec?.time ?? '09:00')),
   }));
-  items.push({ id: 'custom', label: 'Custom…', checked: !!cur && !preset, onSelect: () => {
+  items.push({ id: 'custom', label: '사용자 지정…', checked: !!cur && !preset, onSelect: () => {
     const a = anchor();
-    if (a) setTimeout(() => openRecurrenceEditor(a, { value: rec, onSave: (r) => void setRepeat(templateId, r), onDelete: cur ? () => void setRepeat(templateId, null) : undefined, deleteLabel: 'Cancel recurrence' }), 0);
+    if (a) setTimeout(() => openRecurrenceEditor(a, { value: rec, onSave: (r) => void setRepeat(templateId, r), onDelete: cur ? () => void setRepeat(templateId, null) : undefined, deleteLabel: '반복 취소' }), 0);
   } });
-  if (cur) items.push({ id: 'off', label: 'Off', icon: 'xMarkSmall', onSelect: () => void setRepeat(templateId, null) });
+  if (cur) items.push({ id: 'off', label: '표시 안 함', icon: 'xMarkSmall', onSelect: () => void setRepeat(templateId, null) });
   return items;
 }
 
@@ -66,8 +66,8 @@ export function openSetDefaultDialog(t: BlockRecord, collection: CollectionRecor
           if (view && (view.format as any)?.collection_view_default_template) setDefaultTemplate(view, collection.id, null);
           close();
         }}>For all views in “{collectionName(collection)}”</button>
-        {view && <button className="nc-dialog-btn outline" onClick={() => { setDefaultTemplate(view, collection.id, t.id); close(); }}>Only on “{view.name || 'Untitled'}” view</button>}
-        <button className="nc-dialog-btn outline" onClick={close}>Cancel</button>
+        {view && <button className="nc-dialog-btn outline" onClick={() => { setDefaultTemplate(view, collection.id, t.id); close(); }}>Only on “{view.name || '제목 없음'}” view</button>}
+        <button className="nc-dialog-btn outline" onClick={close}>취소</button>
       </div>
     </div>
   ), { placement: 'center', backdrop: 'dim' });
@@ -80,11 +80,11 @@ export function openTemplateItemMenu(anchor: HTMLElement, opts: { t: BlockRecord
     width: 240,
     sections: [{ items: [
       // the dialog opens after the menu closed (a menu choice closes every overlay)
-      { id: 'default', label: 'Set as default', icon: 'checkmarkSquare', checked: opts.isDefault, onSelect: () => (opts.isDefault ? setDefaultTemplate(view, collection.id, null) : void setTimeout(() => openSetDefaultDialog(t, collection, view), 0)) },
-      { id: 'edit', label: 'Edit', icon: 'pencilLine', onSelect: () => openPeek(t.id, 'center_peek') },
-      { id: 'repeat', label: 'Duplicate every…', icon: 'arrowSquareLeftRight', submenu: () => ({ width: 200, sections: [{ items: repeatItems(t.id, () => anchor) }] }) },
-      { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => void duplicateTemplate(collection.id, t.id) },
-      { id: 'del', label: 'Delete', icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: 'Remove this template?', confirmLabel: 'Delete' })) { if (templateRepeat(t.id)) await setRepeat(t.id, null); deleteTemplate(collection.id, t.id); } } },
+      { id: 'default', label: '기본값으로 설정', icon: 'checkmarkSquare', checked: opts.isDefault, onSelect: () => (opts.isDefault ? setDefaultTemplate(view, collection.id, null) : void setTimeout(() => openSetDefaultDialog(t, collection, view), 0)) },
+      { id: 'edit', label: '편집', icon: 'pencilLine', onSelect: () => openPeek(t.id, 'center_peek') },
+      { id: 'repeat', label: '반복 복제…', icon: 'arrowSquareLeftRight', submenu: () => ({ width: 200, sections: [{ items: repeatItems(t.id, () => anchor) }] }) },
+      { id: 'dup', label: '복제', icon: 'duplicate', onSelect: () => void duplicateTemplate(collection.id, t.id) },
+      { id: 'del', label: '삭제', icon: 'trash', onSelect: async () => { if (await confirmDialog({ message: '이 템플릿을 삭제할까요?', confirmLabel: '삭제' })) { if (templateRepeat(t.id)) await setRepeat(t.id, null); deleteTemplate(collection.id, t.id); } } },
     ] }],
   }, { placement: 'right-start', backdrop: 'transparent', parent: overlayIdOf(anchor) });
 }
@@ -106,12 +106,12 @@ export function TemplateBanner({ page, collection, readOnly }: { page: BlockReco
   return (
     <div className="nc-tpl-banner" role="note">
       <div className="nc-tpl-banner-text">
-        <span>{readOnly ? 'You’re viewing a template in' : 'You’re editing a template in'}</span>
+        <span>{readOnly ? '다음 위치의 템플릿을 보고 있습니다' : '템플릿 편집 중:'}</span>
         <a role="link" className="nc-tpl-banner-db" href={host ? `/${host.id.replace(/-/g, '')}` : undefined} onClick={(e) => { e.preventDefault(); if (host) openPeek(host.id, 'side_peek'); }}>
           <PageIcon block={host} size={20} fallback="collection" />
           <span>{collectionName(collection)}</span>
         </a>
-        {HELP_URL && (<span role="button" className="nc-tpl-banner-help" aria-label="Learn more" data-tooltip="Learn about database templates" onClick={() => window.open(HELP_URL!, '_blank', 'noopener')}><Icon name="questionMarkCircle" size={16} /></span>)}
+        {HELP_URL && (<span role="button" className="nc-tpl-banner-help" aria-label="자세히 알아보기" data-tooltip="데이터베이스 템플릿 알아보기" onClick={() => window.open(HELP_URL!, '_blank', 'noopener')}><Icon name="questionMarkCircle" size={16} /></span>)}
       </div>
       {!readOnly && (
         <span
@@ -126,7 +126,7 @@ export function TemplateBanner({ page, collection, readOnly }: { page: BlockReco
             openMenu(el, { width: 180, sections: [{ items: repeatItems(page.id, () => el) }] }, { placement: 'bottom-start', backdrop: 'transparent', onClose: () => setOpen(false) });
           }}
         >
-          {rec ? duplicateCaption(rec) : 'Duplicate every…'}
+          {rec ? duplicateCaption(rec) : '복제 주기…'}
           <Icon name="arrowChevronSingleDownSmall" size={14} />
         </span>
       )}
@@ -142,7 +142,7 @@ export function EmptyRowTemplates({ page }: { page: BlockRecord }) {
   const templates = collectionTemplates(collection);
   if (!templates.length) return null;
   return (
-    <div className="nc-empty-row-templates" role="listbox" aria-label="Templates">
+    <div className="nc-empty-row-templates" role="listbox" aria-label="템플릿">
       {templates.map((t) => (
         <div key={t.id} role="option" className="nc-empty-row-template-item" onMouseDown={(e) => e.preventDefault()} onClick={() => void applyTemplate(page.id, t.id)}>
           <PageIcon block={t} size={20} />

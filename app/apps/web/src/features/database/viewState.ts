@@ -286,7 +286,7 @@ export function saveForEveryone(viewId: string, scope: SaveScope = 'all') {
     if (touched) tx.set('collection_view', viewId, ['query2'], q);
   });
   resetPersonal(viewId, scope);
-  useUI.getState().toast('Everyone can now see the saved changes.');
+  useUI.getState().toast('이제 모든 사람이 저장된 변경 사항을 볼 수 있습니다.');
 }
 
 /** "Save as new view": a copy of the view with the personal filters / sorts; the original view is reset. */

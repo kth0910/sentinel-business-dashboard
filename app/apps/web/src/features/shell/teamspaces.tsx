@@ -379,7 +379,7 @@ async function copyTeamInviteLink(teamId: string) {
     await navigator.clipboard?.writeText(`${location.origin}${r.path}`).catch(() => undefined);
     useUI.getState().toast(t('lp.shell.the_link_is_on_your_clipboard', 'The link is on your clipboard'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message || 'Couldn’t copy the invite link');
+    useUI.getState().toast(e?.message || '초대 링크를 복사하지 못했습니다.');
   }
 }
 

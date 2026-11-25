@@ -167,7 +167,7 @@ function Resizer({ onPointerDown, width }: { onPointerDown: (e: React.PointerEve
       {tip && (
         <div className="nc-sb-resize-tip" style={{ left: width + 10, top: tip.y - 22 }}>
           <div>{tParts('lp.shell.close_use_or_click', 'Close <invertedcolor>Use {keyboardShortcut} or click</invertedcolor>', { keyboardShortcut: '⌘\\' }).map((p, i) => p.tag ? <span key={i}>{p.text}</span> : <b key={i}>{p.text}</b>)}</div>
-          <div>{tParts('lp.shell.resize_drag_to_adjust', 'Resize <invertedcolor>Drag to adjust</invertedcolor>').map((p, i) => p.tag ? <span key={i}>{p.text}</span> : <b key={i}>{p.text}</b>)}</div>
+          <div>{tParts('lp.shell.resize_drag_to_adjust', 'Resize <invertedcolor>드래그하여 조정</invertedcolor>').map((p, i) => p.tag ? <span key={i}>{p.text}</span> : <b key={i}>{p.text}</b>)}</div>
         </div>
       )}
     </div>
@@ -507,7 +507,7 @@ function SidebarFooter() {
               <WorkspaceIcon space={space} size={22} />
             </div>
             <div className="nc-sb-switcher-name notranslate">
-              <span className="nc-ellipsis">{space?.name ?? 'Workspace'}</span>
+              <span className="nc-ellipsis">{space?.name ?? '워크스페이스'}</span>
               <Icon name="arrowChevronSingleDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
             </div>
           </div>

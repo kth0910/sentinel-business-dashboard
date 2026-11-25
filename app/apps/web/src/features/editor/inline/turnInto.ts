@@ -70,16 +70,16 @@ function convertToColumns(ids: string[], n: number) {
 
 export function turnIntoItems(opts?: { includeSynced?: boolean }): TurnIntoItem[] {
   const items: TurnIntoItem[] = [
-    simple('Text', 'textNormal', 'text'),
-    simple('Heading 1', 'textH1', 'header'),
-    simple('Heading 2', 'textH2', 'sub_header'),
-    simple('Heading 3', 'textH3', 'sub_sub_header'),
-    simple('Heading 4', 'textH4', 'header_4'),
-    { label: 'Page', icon: 'page', type: 'page', apply: (ids) => ids.forEach(convertToPage) },
+    simple('텍스트', 'textNormal', 'text'),
+    simple('제목 1', 'textH1', 'header'),
+    simple('제목 2', 'textH2', 'sub_header'),
+    simple('제목 3', 'textH3', 'sub_sub_header'),
+    simple('제목 4', 'textH4', 'header_4'),
+    { label: '페이지', icon: 'page', type: 'page', apply: (ids) => ids.forEach(convertToPage) },
     {
-      label: 'Page in', icon: 'docSend', type: 'page', pickParent: true,
+      label: '페이지 위치', icon: 'docSend', type: 'page', pickParent: true,
       apply: (ids, anchor) => openPagePicker(anchor ?? new DOMRect(window.innerWidth / 2 - 160, 120, 0, 0), {
-        placeholder: 'Turn into page in…',
+        placeholder: '위치를 선택해 페이지로 전환…',
         exclude: ids,
         onPick: (parentId) => {
           for (const id of ids) convertToPage(id);
@@ -90,20 +90,20 @@ export function turnIntoItems(opts?: { includeSynced?: boolean }): TurnIntoItem[
         },
       }),
     },
-    simple('Bulleted list', 'listBullet', 'bulleted_list'),
-    simple('Numbered list', 'listNumber', 'numbered_list'),
-    simple('Task list', 'checklist', 'to_do'),
-    simple('Toggle list', 'listToggle', 'toggle'),
-    simple('Code', 'code', 'code'),
-    simple('Quote', 'quote', 'quote'),
-    simple('Callout', 'calloutBlock', 'callout', { page_icon: '💡', block_color: 'gray_background' }),
-    simple('Block equation', 'sumSquare', 'equation'),
-    ...(opts?.includeSynced ? [simple('Synced block', 'blockSync', 'transclusion_container')] : []),
-    simple('Toggle heading 1', 'textH1Toggle', 'header', { toggleable: true }),
-    simple('Toggle heading 2', 'textH2Toggle', 'sub_header', { toggleable: true }),
-    simple('Toggle heading 3', 'textH3Toggle', 'sub_sub_header', { toggleable: true }),
-    simple('Toggle heading 4', 'textH4Toggle', 'header_4', { toggleable: true }),
-    ...[2, 3, 4, 5].map((n): TurnIntoItem => ({ label: `${n} columns`, icon: `rectangleSplit${n}`, type: 'column_list', columns: n, apply: (ids) => convertToColumns(ids, n) })),
+    simple('글머리 기호 목록', 'listBullet', 'bulleted_list'),
+    simple('번호 매기기 목록', 'listNumber', 'numbered_list'),
+    simple('할 일 목록', 'checklist', 'to_do'),
+    simple('토글 목록', 'listToggle', 'toggle'),
+    simple('코드', 'code', 'code'),
+    simple('인용', 'quote', 'quote'),
+    simple('콜아웃', 'calloutBlock', 'callout', { page_icon: '💡', block_color: 'gray_background' }),
+    simple('블록 수식', 'sumSquare', 'equation'),
+    ...(opts?.includeSynced ? [simple('동기화 블록', 'blockSync', 'transclusion_container')] : []),
+    simple('토글 제목 1', 'textH1Toggle', 'header', { toggleable: true }),
+    simple('토글 제목 2', 'textH2Toggle', 'sub_header', { toggleable: true }),
+    simple('토글 제목 3', 'textH3Toggle', 'sub_sub_header', { toggleable: true }),
+    simple('토글 제목 4', 'textH4Toggle', 'header_4', { toggleable: true }),
+    ...[2, 3, 4, 5].map((n): TurnIntoItem => ({ label: `${n}개 열`, icon: `rectangleSplit${n}`, type: 'column_list', columns: n, apply: (ids) => convertToColumns(ids, n) })),
   ];
   return items;
 }
@@ -112,5 +112,5 @@ export function turnIntoItems(opts?: { includeSynced?: boolean }): TurnIntoItem[
 export function blockTypeLabel(type: BlockType, toggleable: boolean): string {
   if (type === 'text') return 'Normal Text';
   const it = turnIntoItems().find((x) => x.type === type && !!x.format?.toggleable === toggleable && !x.columns && !x.pickParent);
-  return it?.label ?? 'Turn into';
+  return it?.label ?? '전환';
 }

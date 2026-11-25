@@ -105,14 +105,14 @@ function MenuFooter({ pageId }: { pageId: string }) {
     <div className="nc-menu-section nc-block-menu-footer nc-page-menu-footer">
       <div className="nc-block-menu-footer-row">
         <div className="nc-block-menu-footer-col">
-          <div className="title">Last edited</div>
+          <div className="title">마지막 편집</div>
           <div className="who">
             <UserAvatar userId={page.last_edited_by_id} size={24} />
             <span className="name nc-ellipsis">{userName(editor)}</span>
           </div>
           <div className="when">{versionTimestamp(page.last_edited_time)}</div>
         </div>
-        <div className="count">{words === 1 ? '1 word' : `${words.toLocaleString('en-US')} words`}</div>
+        <div className="count">{words === 1 ? '1단어' : `${words.toLocaleString('ko-KR')}단어`}</div>
       </div>
     </div>
   );
@@ -137,11 +137,11 @@ function setNotify(pageId: string, level: NotifyLevel) {
   useUI.getState().toast(notifyLevelToast(level));
 }
 
-const LANGUAGES = ['English', 'Korean', 'Japanese', 'Chinese (Simplified)', 'Chinese (Traditional)', 'Spanish', 'French', 'German', 'Portuguese', 'Italian', 'Vietnamese', 'Indonesian', 'Thai', 'Russian'];
+const LANGUAGES = ['English', '한국어', 'Japanese', 'Chinese (Simplified)', 'Chinese (Traditional)', '스페인어', 'French', 'German', 'Portuguese', '이탈리아어', 'Vietnamese', 'Indonesian', 'Thai', '러시아어'];
 
 export function translatePage(pageId: string, language: string) {
   window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId, skill: 'Translate', language, prompt: `Translate this page to ${language}` } }));
-  useUI.getState().toast(`Translating to ${language}…`);
+  useUI.getState().toast(`${language}(으)로 번역 중…`);
 }
 
 export function openPageMenu(pageId: string, anchor: HTMLElement) {
@@ -175,7 +175,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     initialActive: -1,
     header: <FontCards pageId={pageId} />,
     sections: [{
-      title: 'Appearance',
+      title: '테마',
       items: [
         item(t('lp.page.small_text', 'Small text'), 'textSmall', { right: <Switch pageId={pageId} k="page_small_text" />, onSelect: keep(() => togglePageSetting(pageId, 'page_small_text')), disabled: !canEdit }),
         // a wiki's home has no Full width / Contents list
@@ -196,8 +196,8 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
               run('setInlineComments', (tx) => setFormat(tx, pageId, { page_section_visibility: { ...sv, margin_comments: v } } as any));
             };
             return { width: 220, sections: [{ items: [
-              { label: t('lp.page.default', 'Default'), description: 'Show comments to the right of the page', checked: cur === 'inline', onSelect: () => set('inline') },
-              { label: t('lp.page.minimal', 'Minimal'), description: 'Show an icon and comment count', checked: cur === 'minimal', onSelect: () => set('minimal') },
+              { label: t('lp.page.default', 'Default'), description: '페이지 오른쪽에 댓글을 표시합니다', checked: cur === 'inline', onSelect: () => set('inline') },
+              { label: t('lp.page.minimal', 'Minimal'), description: '아이콘과 댓글 수를 표시합니다', checked: cur === 'minimal', onSelect: () => set('minimal') },
             ] }] };
           },
         }),
@@ -214,10 +214,10 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     className: 'nc-page-submenu',
     sections: [{ items: [
       // registers the page as a skill (features/ai handles nc:ask-ai action 'use-as-skill' and reports the result)
-      item('Use as an AI skill', 'aiFace', { onSelect: () => { window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId, action: 'use-as-skill' } })); } }),
-      item('Use as agent guidance', 'page', { onSelect: () => aiAction(pageId, 'use-as-agent-instructions', 'Set as Litpage Agent instructions') }),
+      item('AI 스킬로 사용', 'aiFace', { onSelect: () => { window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId, action: 'use-as-skill' } })); } }),
+      item('에이전트 지침으로 사용', 'page', { onSelect: () => aiAction(pageId, 'use-as-agent-instructions', 'Set as CoolNotion! Agent instructions') }),
       // marks the page as AI meeting instructions + adds it to the person's Instructions menu (features/meetings)
-      item('Use for AI meeting guidance', 'paperMicrophone', { onSelect: () => void markAsMeetingInstructions(pageId) }),
+      item('AI 회의 안내에 사용', 'paperMicrophone', { onSelect: () => void markAsMeetingInstructions(pageId) }),
     ] }],
   });
 
@@ -237,8 +237,8 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     className: 'nc-page-submenu',
     sections: [
       { items: [
-        item(t('lp.page.present', 'Present'), 'present', { badge: 'Beta', shortcut: '⌘⌥P', description: undefined, onSelect: () => startPresentation(pageId) }),
-        item(t('lp.page.translate', 'Translate'), 'translate', { submenu: () => ({ width: 240, search: 'Search languages…', sections: [{ items: LANGUAGES.map((l) => ({ label: l, onSelect: () => translatePage(pageId, l) })) }] }) }),
+        item(t('lp.page.present', 'Present'), 'present', { badge: '베타', shortcut: '⌘⌥P', description: undefined, onSelect: () => startPresentation(pageId) }),
+        item(t('lp.page.translate', 'Translate'), 'translate', { submenu: () => ({ width: 240, search: '언어 검색…', sections: [{ items: LANGUAGES.map((l) => ({ label: l, onSelect: () => translatePage(pageId, l) })) }] }) }),
         item(t('lp.page.undo', 'Undo'), 'undo', { shortcut: '⌘Z', disabled: !transactions.canUndo(), onSelect: () => { transactions.undo(); } }),
         // imports land inside this page; databases also take rows from a CSV
         item(t('lp.page.import', 'Import'), 'import', { onSelect: () => openImport({ pageId }), disabled: !canEdit }),
@@ -254,7 +254,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
         // connections that reach this page, add / disconnect one (features/developer/PageConnections.tsx)
         connectionsMenuItem(pageId, item),
       ] },
-      { items: [item(t('lp.page.switch_to_the_mac_app', 'Switch to the Mac app'), 'litLogo', { onSelect: () => useUI.getState().toast('The desktop app isn’t installed') })] },
+      { items: [item(t('lp.page.switch_to_the_mac_app', 'Switch to the Mac app'), 'litLogo', { onSelect: () => useUI.getState().toast('데스크톱 앱이 설치되어 있지 않습니다') })] },
     ],
   });
 
@@ -267,7 +267,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     sections: [
       { items: [
         item(t('lp.page.copy_link', 'Copy link'), 'link', { shortcut: '⌘⌥L', onSelect: () => copyPageLink(pageId) }),
-        item(t('lp.page.copy_the_page_content', 'Copy the page content'), 'clipboard', { onSelect: () => { void navigator.clipboard?.writeText(pageToMarkdown(pageId)); useUI.getState().toast('Page contents copied'); } }),
+        item(t('lp.page.copy_the_page_content', 'Copy the page content'), 'clipboard', { onSelect: () => { void navigator.clipboard?.writeText(pageToMarkdown(pageId)); useUI.getState().toast('페이지 콘텐츠를 복사했습니다'); } }),
         // databases: Duplicate with content / without content (schema and views only)
         isDb
           ? item(t('lp.page.duplicate', 'Duplicate'), 'duplicate', { shortcut: '⌘D', submenu: () => ({ width: 240, role: 'menu', className: 'nc-page-submenu', sections: [{ items: [
@@ -334,9 +334,9 @@ async function duplicateDatabase(pageId: string, withContent: boolean) {
   try {
     const res = await api<{ blockId: string; recordMap: any }>('duplicateDatabase', { blockId: pageId, withContent });
     records.mergeRecordMap(res.recordMap);
-    useUI.getState().toast('Duplicated');
+    useUI.getState().toast('복제했습니다');
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not duplicate');
+    useUI.getState().toast(e?.message ?? '복제하지 못했습니다');
   }
 }
 

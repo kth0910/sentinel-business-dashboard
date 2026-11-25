@@ -167,7 +167,7 @@ export function addProperty(collectionId: string, type: PropertyType, opts: { na
   if (!c) return '';
   if (Object.keys(c.schema).length >= 500) {
     
-    useUI.getState().toast('This database has reached its property limit. Delete one before adding another.');
+    useUI.getState().toast('이 데이터베이스의 속성 한도에 도달했습니다. 속성을 삭제한 뒤 추가하세요.');
     return '';
   }
   const pid = newPropertyId(c.schema);
@@ -214,7 +214,7 @@ export function deleteProperty(collectionId: string, propId: string) {
     tx.set('collection', collectionId, ['deleted_schema', propId], { ...c.schema[propId], deleted_time: Date.now() });
     tx.set('collection', collectionId, ['schema', propId], undefined);
   });
-  useUI.getState().toast('Property deleted', { label: 'Undo', run: () => restoreProperty(collectionId, propId) });
+  useUI.getState().toast('속성을 삭제했습니다', { label: '실행 취소', run: () => restoreProperty(collectionId, propId) });
 }
 
 export function restoreProperty(collectionId: string, propId: string) {
@@ -233,7 +233,7 @@ export function deleteIdProperty(collectionId: string, propId: string) {
   const c = col(collectionId);
   if (!c || !c.schema[propId]) return;
   run('deleteProperty', (tx) => tx.set('collection', collectionId, ['schema', propId], undefined));
-  useUI.getState().toast('Property deleted');
+  useUI.getState().toast('속성을 삭제했습니다');
 }
 
 export function permanentlyDeleteProperty(collectionId: string, propId: string) {
@@ -573,16 +573,16 @@ export async function deleteRows(ids: string[]) {
       // menus close every overlay after onSelect: open the dialog on the next tick
       await new Promise((r) => setTimeout(r, 0));
       const ok = await confirmDialog({
-        message: one ? 'Are you sure you want to move this item to Trash?' : 'Are you sure you want to move these items to Trash?',
-        description: `This will also move ${extra.length} ${extra.length === 1 ? 'sub-item' : 'sub-items'} to Trash`,
-        confirmLabel: 'Delete',
+        message: one ? 'Are you sure you want to move this item to Trash?' : '이 항목들을 휴지통으로 이동할까요?',
+        description: `업로드에 실패했습니다`,
+        confirmLabel: '삭제',
       });
       if (!ok) return;
       all = [...ids, ...extra];
     }
   }
   run('deleteRows', (tx) => deleteBlocksIn(tx, all));
-  useUI.getState().toast(all.length === 1 ? 'Sent to trash' : `${all.length} entries sent to trash`);
+  useUI.getState().toast(all.length === 1 ? '휴지통으로 이동했습니다' : `${all.length}개 항목을 휴지통으로 이동했습니다`);
 }
 
 
@@ -594,7 +594,7 @@ export async function duplicateRows(ids: string[]): Promise<string[]> {
     return res.rowIds;
   } catch (e) {
     console.error(e);
-    useUI.getState().toast((e as Error).message || 'Couldn’t duplicate');
+    useUI.getState().toast((e as Error).message || '복제하지 못했습니다');
     return [];
   }
 }
@@ -756,8 +756,8 @@ export function defaultViewFormat(type: ViewType, schema: Record<string, Propert
 }
 
 export const VIEW_DEFAULT_NAMES: Record<string, string> = {
-  table: 'Table', board: 'Board', gallery: 'Gallery', list: 'List', calendar: 'Calendar', timeline: 'Timeline', feed: 'Feed', map: 'Map',
-  chart: 'Chart', dashboard: 'Dashboard', form: 'Form',
+  table: 'Table', board: '보드', gallery: '갤러리', list: '목록', calendar: '테이블', timeline: '타임라인', feed: '피드', map: '지도',
+  chart: '캘린더', dashboard: '대시보드', form: '폼',
 };
 
 
@@ -769,7 +769,7 @@ export function createViewIn(tx: Tx, blockId: string, type: ViewType, collection
   if (d.schemaPatch) for (const [pid, p] of Object.entries(d.schemaPatch)) tx.set('collection', collectionId, ['schema', pid], p);
   const format = { ...d.format, ...(opts.extraFormat ?? {}), ...(opts.linkedCollection ? { collection_pointer: { id: collectionId, table: 'collection', spaceId: tx.spaceId } } : {}) };
   tx.set('collection_view', id, [], {
-    id, type, name: opts.name ?? VIEW_DEFAULT_NAMES[type] ?? 'View', format, query2: { ...d.query2, ...(opts.extraQuery ?? {}) },
+    id, type, name: opts.name ?? VIEW_DEFAULT_NAMES[type] ?? '보기', format, query2: { ...d.query2, ...(opts.extraQuery ?? {}) },
     parent_id: blockId, parent_table: 'block', alive: true, space_id: tx.spaceId, page_sort: opts.pageSort ? [...opts.pageSort] : [],
   });
   return id;

@@ -20,8 +20,8 @@ function deletedText(st: MeetingStateValue): string {
   const d = st.transcript_deleted;
   if (!d) return '';
   const when = new Date(d.time);
-  const date = when.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const time = when.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const date = when.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' });
+  const time = when.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
   return d.by === 'policy'
     ? t('lp.meetings.your_workspace_s_automatic_transcript_de', 'Your workspace’s automatic transcript deletion policy removed this transcript on {deletionDate} at {deletionTime}', { deletionDate: date, deletionTime: time })
     : t('lp.meetings.transcript_removed_at', 'Transcript removed {deletionDate} at {deletionTime}', { deletionDate: date, deletionTime: time });

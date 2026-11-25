@@ -3,6 +3,7 @@
 // The typed "<trigger><query>" stays in the block (decorated by inline/TriggerDecor with the ghost completion);
 // picking an item replaces it. Menus anchor at the trigger's first character (bottom-start, flipping above).
 import { useEffect, useMemo } from 'react';
+import { BIZ_SECTION, slashSectionKo } from '../biz/slashKo.ts';
 import { create } from 'zustand';
 import { deleteRange, insertRich, length, MENTION_CHAR, toPlainText } from '@nc/shared/richtext.ts';
 import { openOverlay, useOverlays, type Placement } from '../../components/overlay.tsx';
@@ -51,7 +52,7 @@ export function openSlashMenu(blockId: string, property: string, start: number, 
   const p = TRIGGER_PLACEMENT[trigger] ?? TRIGGER_PLACEMENT['/'];
   useEditor.setState({ slash: { blockId, property, start, trigger, query: '' } });
   useQuery.setState({ q: '', full: !!opts?.full });
-  useTriggerUI.setState({ ghost: trigger === '/' ? 'Search by typing' : '' });
+  useTriggerUI.setState({ ghost: trigger === '/' ? '입력해서 검색' : '' });
  // inline menus lock the page scroller while keeping the gutter visible
   document.body.classList.add('nc-scroll-locked');
   const close = openOverlay(() => <TriggerMenu />, {
@@ -85,7 +86,7 @@ export function updateSlashQuery(q: string) {
   }
   useEditor.setState({ slash: { ...s, query: q } });
   useQuery.setState({ q });
-  if (s.trigger === '/') useTriggerUI.setState({ ghost: q ? '' : 'Search by typing' });
+  if (s.trigger === '/') useTriggerUI.setState({ ghost: q ? '' : '입력해서 검색' });
 }
 
 export function closeSlashMenu() {
@@ -211,7 +212,7 @@ function SlashCommandMenu({ q }: { q: string }) {
     const toItem = (it: SlashItem, filtered = false): MenuItemDef => {
       const turnIntoItem = it.section === 'Turn into';
  // “Label · hint New” is inline with tertiary hint and dot; filtered Turn into rows read “Label · Turn into”
-      const hint = filtered && turnIntoItem ? 'Turn into' : it.section === 'Suggested' ? it.hint : undefined;
+      const hint = filtered && turnIntoItem ? slashSectionKo('Turn into') : it.section === 'Suggested' ? it.hint : undefined;
       return {
         id: it.id,
         label: (
@@ -239,11 +240,13 @@ function SlashCommandMenu({ q }: { q: string }) {
     if (!q) {
       const sections: string[] = [];
       for (const it of catalog) if (!sections.includes(it.section) && !it.searchOnly) sections.push(it.section);
+      // 업무관리 시연판: '업무' 묶음을 맨 위에
+      if (sections.includes(BIZ_SECTION)) sections.splice(0, sections.length, BIZ_SECTION, ...sections.filter((x) => x !== BIZ_SECTION));
       const frequent = suggestedIds(catalog);
       return {
         ...base,
         sections: sections.map((s) => ({
-          title: s,
+          title: slashSectionKo(s),
           items: s === 'Suggested' && frequent
             ? frequent.map((id) => catalog.find((c) => c.id === id)!).map((it) => toItem({ ...it, section: 'Suggested', hint: undefined }))
             : catalog.filter((i) => i.section === s && !i.searchOnly).map((it) => toItem(it)),
@@ -267,7 +270,7 @@ function SlashCommandMenu({ q }: { q: string }) {
     }
     const items = list.map((x) => toItem(x.it, true));
  // filtered rows are a plain 32px-pitch list (no 1px row gap;)
-    return { ...base, className: 'nc-slash-menu filtered', sections: items.length ? [{ title: 'Filtered results', items }] : [], emptyText: 'No results' };
+    return { ...base, className: 'nc-slash-menu filtered', sections: items.length ? [{ title: '필터링된 결과', items }] : [], emptyText: '결과 없음' };
   }, [catalog, q]);
   useEffect(() => {
  // Close the menu after several characters with no results
@@ -287,7 +290,7 @@ function MenuFooter() {
       <div className="nc-slash-footer-rule"><div role="separator" /></div>
       <div className="nc-slash-footer-section">
         <div className="nc-slash-footer-row" role="button" onMouseDown={(e) => { e.preventDefault(); closeSlashMenu(); }}>
-          <span>Close menu</span>
+          <span>메뉴 닫기</span>
           <span className="nc-menu-shortcut">esc</span>
         </div>
       </div>

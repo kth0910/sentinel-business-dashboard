@@ -120,7 +120,7 @@ function EquationBlock({ block, readOnly }: BlockProps) {
   if (!expr.trim() && !editing) {
     return (
       <div className="nc-bpad">
-        <BlockPlaceholder block={block} readOnly={readOnly} icon="texTintable" label="Insert a TeX formula" onOpen={(el) => openEquationEditor(block.id, el)} />
+        <BlockPlaceholder block={block} readOnly={readOnly} icon="texTintable" label="TeX 수식 추가" onOpen={(el) => openEquationEditor(block.id, el)} />
       </div>
     );
   }
@@ -150,5 +150,5 @@ registerBlock(['equation'], EquationBlock);
 
 registerBlockMenu(['equation'], ({ block, turnInto }) => [
   turnInto,
-  { label: 'Edit equation', icon: 'texTintable', onSelect: () => { const el = blockElement(block.id)?.querySelector('.nc-equation-2, .nc-blk-placeholder') as HTMLElement | null; if (el) setTimeout(() => openEquationEditor(block.id, el), 0); } },
+  { label: '수학 공식 편집', icon: 'texTintable', onSelect: () => { const el = blockElement(block.id)?.querySelector('.nc-equation-2, .nc-blk-placeholder') as HTMLElement | null; if (el) setTimeout(() => openEquationEditor(block.id, el), 0); } },
 ]);

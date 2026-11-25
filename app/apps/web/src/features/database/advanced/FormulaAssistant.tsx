@@ -113,10 +113,10 @@ function FeedbackForm({ rating, payload, close }: { rating: 'positive' | 'negati
   const [busy, setBusy] = useState(false);
   return (
     <PopoverSurface width={320}>
-      <div className="nc-fx-ai-feedback" role="dialog" aria-label="Feedback">
-        <div className="nc-fx-ai-feedback-title">{rating === 'positive' ? 'What worked well here?' : 'What should we improve here?'}</div>
-        <textarea autoFocus placeholder="Send feedback" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
-        <div className="nc-fx-ai-feedback-desc">Your notes help Litpage AI improve. We’ll share your prompt, formula, relevant table details, and comments.</div>
+      <div className="nc-fx-ai-feedback" role="dialog" aria-label="피드백">
+        <div className="nc-fx-ai-feedback-title">{rating === 'positive' ? '어떤 점이 좋았나요?' : '할 일 데이터베이스로 전환했습니다 · 홈에 추가하면 내 할 일에서 배정된 할 일을 볼 수 있습니다'}</div>
+        <textarea autoFocus placeholder="피드백 보내기" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
+        <div className="nc-fx-ai-feedback-desc">작성하신 의견은 CoolNotion! AI를 개선하는 데 사용됩니다. 입력한 프롬프트, 수식, 관련 표 정보, 댓글이 함께 전달됩니다.</div>
         <button
           className="nc-btn primary"
           disabled={busy}
@@ -124,15 +124,15 @@ function FeedbackForm({ rating, payload, close }: { rating: 'positive' | 'negati
             setBusy(true);
             try {
               await api('aiFormulaFeedback', { rating, comment, ...payload });
-              useUI.getState().toast('Thanks, your feedback is recorded.');
+              useUI.getState().toast('의견을 보내 주셔서 감사합니다.');
               close();
             } catch {
               setBusy(false);
-              useUI.getState().toast('No response was generated. Try again.');
+              useUI.getState().toast('응답이 생성되지 않았습니다. 다시 시도하세요.');
             }
           }}
         >
-          Send feedback
+          피드백 보내기
         </button>
       </div>
     </PopoverSurface>
@@ -145,14 +145,14 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
   useEffect(() => ensureAiStatus(), []);
   const [text, setText] = useState('');
   const [phase, setPhase] = useState<'idle' | 'running'>('idle');
-  const [label, setLabel] = useState('Thinking');
+  const [label, setLabel] = useState('생각 중');
   const [failure, setFailure] = useState<string | null>(null);
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [showTypes, setShowTypes] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const timers = useRef<number[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const unavailable = configured === false ? NO_KEY_MESSAGE : !enabled ? 'Litpage AI is turned off in this workspace.' : null;
+  const unavailable = configured === false ? NO_KEY_MESSAGE : !enabled ? '이 워크스페이스에서는 CoolNotion! AI가 꺼져 있습니다.' : null;
 
   useEffect(() => () => {
     abortRef.current?.abort();
@@ -180,8 +180,8 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
     const fixing = !!error && FIX_RE.test(prompt);
     setFailure(null);
     setPhase('running');
-    setLabel(fixing ? 'Reading errors' : 'Thinking');
-    timers.current.push(window.setTimeout(() => setLabel(fixing ? 'Fixing' : 'Writing'), 1200));
+    setLabel(fixing ? '무엇을 개선하면 좋을까요?' : '생각하는 중');
+    timers.current.push(window.setTimeout(() => setLabel(fixing ? '수정 중' : '작성 중'), 1200));
     const ac = new AbortController();
     abortRef.current = ac;
     const plain = formulaToPlain(src, collectionId, context);
@@ -194,7 +194,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
       const changes = !!res.formula && normalize(res.formula) !== normalize(plain) && !(EXPLAIN_RE.test(prompt) && !FIX_RE.test(prompt));
       const next = changes ? plainToFormula(res.formula, collectionId, context) : null;
       if (next !== null) onApply(next);
-      setAnswer({ prompt, explanation: res.explanation || (next !== null ? '' : 'No changes needed.'), previous: next !== null ? src : null, applied: next });
+      setAnswer({ prompt, explanation: res.explanation || (next !== null ? '' : '오류 확인 중'), previous: next !== null ? src : null, applied: next });
       setText('');
       requestAnimationFrame(autosize);
     } catch (e) {
@@ -202,7 +202,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
       if (isNoKeyError(e)) {
         useAiStatus.getState().markUnconfigured();
         setFailure(NO_KEY_MESSAGE);
-      } else setFailure((e as Error)?.message && (e as any).status !== 500 && (e as any).status !== 502 ? (e as Error).message : 'No response was generated. Try again.');
+      } else setFailure((e as Error)?.message && (e as any).status !== 500 && (e as any).status !== 502 ? (e as Error).message : '응답이 생성되지 않았습니다. 다시 시도하세요.');
     } finally {
       if (abortRef.current === ac) abortRef.current = null;
       timers.current.forEach((t) => clearTimeout(t));
@@ -230,7 +230,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
         <div className={`nc-fx-ai-banner ${failure && !unavailable ? 'error' : ''}`} role="status">
           <Icon name={unavailable ? 'info' : 'warning'} size={14} />
           <span>{unavailable ?? failure}</span>
-          {unavailable === NO_KEY_MESSAGE && <span role="button" className="nc-fx-ai-link" onClick={(e) => openKeyHelp(e.currentTarget)}>Learn how</span>}
+          {unavailable === NO_KEY_MESSAGE && <span role="button" className="nc-fx-ai-link" onClick={(e) => openKeyHelp(e.currentTarget)}>방법 알아보기</span>}
         </div>
       )}
       <div className={`nc-fx-ai-input ${phase === 'running' ? 'running' : ''} ${unavailable ? 'disabled' : ''}`}>
@@ -239,7 +239,7 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
           <div className="nc-fx-ai-progress" role="status" aria-live="polite">
             <span className="nc-fx-ai-shimmer">{label}</span>
             <span style={{ flex: 1 }} />
-            <span role="button" className="nc-fx-ai-cancel" onClick={stop}>Cancel</span>
+            <span role="button" className="nc-fx-ai-cancel" onClick={stop}>취소</span>
             <span className="nc-fx-ai-esc">esc</span>
           </div>
         ) : (
@@ -249,8 +249,8 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
             rows={1}
             value={text}
             disabled={!!unavailable}
-            placeholder="Describe a formula, or ask about this one…"
-            aria-label="Describe a formula, or ask about this one…"
+            placeholder="원하는 수식을 설명하거나 이 수식에 대해 물어보세요…"
+            aria-label="원하는 수식을 설명하거나 이 수식에 대해 물어보세요…"
             onChange={(e) => {
               setText(e.target.value);
               autosize();
@@ -269,17 +269,17 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
           />
         )}
         {phase !== 'running' && (
-          <div role="button" aria-label="Ask Litpage AI" aria-disabled={!text.trim() || !!unavailable} className={`nc-fx-ai-send ${text.trim() && !unavailable ? 'ready' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => void submit()}>
+          <div role="button" aria-label="CoolNotion! AI에게 질문" aria-disabled={!text.trim() || !!unavailable} className={`nc-fx-ai-send ${text.trim() && !unavailable ? 'ready' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => void submit()}>
             <Icon name="arrowUp" size={14} strokeWidth={2.4} />
           </div>
         )}
       </div>
       {phase === 'running' && <EscToCancel onEsc={stop} />}
       {answer && phase !== 'running' && (
-        <div className="nc-fx-ai-answer" role="region" aria-label="Formula assistant answer">
+        <div className="nc-fx-ai-answer" role="region" aria-label="수식 도우미 답변">
           {answer.explanation && <div className="nc-fx-ai-explanation">{answer.explanation}</div>}
           <div className="nc-fx-ai-output">
-            <span className="nc-fx-ai-output-label">Output</span>
+            <span className="nc-fx-ai-output-label">결과</span>
             <span className="nc-fx-ai-output-value">{preview}</span>
             {showTypes && <span className="nc-fx-ai-type">{typeLabel}</span>}
           </div>
@@ -291,17 +291,17 @@ export function FormulaAssistant({ collectionId, blockId, schema, src, error, co
           <div className="nc-fx-ai-actions">
             <label className="nc-fx-ai-showtypes">
               <span className={`nc-adv-toggle ${showTypes ? 'on' : ''}`}><span /></span>
-              <input type="checkbox" role="switch" aria-label="Show types" checked={showTypes} onChange={(e) => setShowTypes(e.target.checked)} />
-              <span>Show types</span>
+              <input type="checkbox" role="switch" aria-label="유형 표시" checked={showTypes} onChange={(e) => setShowTypes(e.target.checked)} />
+              <span>유형 표시</span>
             </label>
             <span style={{ flex: 1 }} />
             {answer.previous !== null && (
               <span role="button" className="nc-fx-ai-btn" onClick={() => { onApply(answer.previous!); setAnswer(null); }}>
-                <Icon name="undo" size={14} />Undo
+                <Icon name="undo" size={14} />실행 취소
               </span>
             )}
-            <span role="button" aria-label="Good response" className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'positive', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsUp" size={14} /></span>
-            <span role="button" aria-label="Bad response" className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'negative', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsDown" size={14} /></span>
+            <span role="button" aria-label="좋은 응답" className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'positive', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsUp" size={14} /></span>
+            <span role="button" aria-label="좋지 않은 답변" className="nc-fx-ai-icon-btn" onClick={(e) => openFeedback(e.currentTarget, 'negative', { prompt: answer.prompt, formula: formulaToPlain(src, collectionId, context) })}><Icon name="thumbsDown" size={14} /></span>
           </div>
         </div>
       )}

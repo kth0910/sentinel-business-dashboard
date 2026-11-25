@@ -180,7 +180,7 @@ function CategoryChart({ data: all, cfg, width, height, hasOptionColors, stackHa
   };
 
   return (
-    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="Chart">
+    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="차트">
       <defs>
         {(isLine ? (stacked ? data.series : [{ key: 'main' }]) : []).map((s, i) => (
           <linearGradient key={s.key} id={`nc-chart-fill-${i}`} x1="0" x2="0" y1="0" y2="1">
@@ -286,7 +286,7 @@ function withoutSeries(data: ChartData, off: Set<string>): ChartData {
       if (!p.parts) return p;
       const parts = p.parts.map((s) => (off.has(s.key) ? { ...s, value: 0, display: '0', rows: [] } : s));
       const value = parts.reduce((a, s) => a + s.value, 0);
-      return { ...p, parts, value, display: data.integer ? value.toLocaleString('en-US') : p.display };
+      return { ...p, parts, value, display: data.integer ? value.toLocaleString('ko-KR') : p.display };
     }),
   };
 }
@@ -330,7 +330,7 @@ function BarChart({ data: all, cfg, width, height, hasOptionColors, onTip, onPic
     onTip({ x: e.clientX - box.left, y: e.clientY - box.top, title: p.label, lines: stacked ? (p.parts ?? []).filter((s) => s.value).map((s) => ({ label: s.label, value: s.display })) : [{ label: data.yName, value: p.display }] });
   };
   return (
-    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="Chart">
+    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="차트">
       {(grid === 'horizontal' || grid === 'both') && Array.from({ length: n + 1 }, (_, i) => <line key={`g${i}`} x1={left} x2={left + plotW} y1={top + slot * i} y2={top + slot * i} className="nc-chart-grid" />)}
       {(grid === 'vertical' || grid === 'both') && ticks.map((t, i) => <line key={`v${i}`} x1={x(t)} x2={x(t)} y1={top} y2={top + plotH} className="nc-chart-grid" />)}
       <line x1={x0} x2={x0} y1={top} y2={top + plotH} className="nc-chart-axis" />
@@ -403,7 +403,7 @@ function DonutChart({ data, cfg, width, height, hasOptionColors, onTip, onPick, 
   const pctText = (f: number) => `${Math.round(f * 1000) / 10}%`;
   const label = (p: ChartPoint, f: number) => (labelsMode === 'name' ? p.label : labelsMode === 'name_and_value' ? `${p.label}: ${p.display} (${pctText(f)})` : `${p.display} (${pctText(f)})`);
   return (
-    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="Chart">
+    <svg ref={svgRef} className="nc-chart-svg" width={width} height={height} role="img" aria-label="차트">
       {arcs.map(({ p, i, a0: s, a1: e, frac }) => {
         const mid = (s + e) / 2;
         const lx1 = cx + (outer + 6) * Math.cos(mid);
@@ -428,7 +428,7 @@ function DonutChart({ data, cfg, width, height, hasOptionColors, onTip, onPick, 
       })}
       {!fmt.donutHideValue && (
         <g className="nc-chart-donut-center">
-          <text x={cx} y={cy - 6} textAnchor="middle" dy="0.35em" className="nc-chart-donut-value" style={{ fontSize: Math.max(20, Math.min(64, inner * 0.62)) }}>{centerValue.toLocaleString('en-US')}</text>
+          <text x={cx} y={cy - 6} textAnchor="middle" dy="0.35em" className="nc-chart-donut-value" style={{ fontSize: Math.max(20, Math.min(64, inner * 0.62)) }}>{centerValue.toLocaleString('ko-KR')}</text>
           <text x={cx} y={cy + Math.min(64, inner * 0.62) * 0.55 + 6} textAnchor="middle" dy="0.35em" className="nc-chart-donut-caption">{data.caption}</text>
         </g>
       )}
@@ -451,7 +451,7 @@ function NumberChart({ data, cfg, height }: { data: ChartData; cfg: ChartConfig;
   return (
     <div className="nc-chart-number" style={{ height }}>
       {!fmt.hideTitle && <div className="nc-chart-number-title">{title}</div>}
-      <div className="nc-chart-number-value" style={{ fontSize: size, color: fmt.numberColor ? NUMBER_COLOR[fmt.numberColor] : undefined }}>{num?.value === null || !num ? 'No data' : num.display}</div>
+      <div className="nc-chart-number-value" style={{ fontSize: size, color: fmt.numberColor ? NUMBER_COLOR[fmt.numberColor] : undefined }}>{num?.value === null || !num ? '데이터 없음' : num.display}</div>
       {fmt.showCaption && fmt.caption && <div className="nc-chart-number-caption">{fmt.caption}</div>}
     </div>
   );
@@ -508,7 +508,7 @@ function ChartView(props: ViewProps) {
   let body: ReactNode;
   if (data.kind === 'error') body = <div className="nc-chart-error" style={{ height }}>{data.error}</div>;
   else if (cfg.type === 'number') body = <NumberChart data={data} cfg={cfg} height={height} />;
-  else if (!kit.rows.length || !data.points.length) body = <div className="nc-chart-error" style={{ height }}>No data</div>;
+  else if (!kit.rows.length || !data.points.length) body = <div className="nc-chart-error" style={{ height }}>데이터 없음</div>;
   else {
     const p: ChartProps = { data, cfg, width, height, hasOptionColors, stackHasOptionColors, onTip: setTip, onPick, svgRef, legendOff, onLegend };
     body = cfg.type === 'bar' ? <BarChart {...p} /> : cfg.type === 'donut' ? <DonutChart {...p} /> : <CategoryChart {...p} />;
@@ -528,7 +528,7 @@ function ChartView(props: ViewProps) {
                 <span className="val">{l.value}</span>
               </div>
             ))}
-            <div className="nc-chart-tip-hint">Click to inspect data</div>
+            <div className="nc-chart-tip-hint">클릭하여 데이터 확인</div>
           </div>
         )}
       </div>

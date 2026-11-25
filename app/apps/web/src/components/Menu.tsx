@@ -104,7 +104,7 @@ export function MenuRow({ item, active, onHover, onLeave, onClick, role = 'optio
               
               <div className="nc-menu-label-row">
                 <div className="nc-ellipsis">{item.label}</div>
-                <span className={`nc-menu-badge${item.badge === 'New' ? ' blue' : ''}`}>{item.badge}</span>
+                <span className={`nc-menu-badge${item.badge === 'New' || item.badge === '새 기능' ? ' blue' : ''}`}>{item.badge}</span>
               </div>
             ) : (
               <div className="nc-ellipsis">{item.label}</div>
@@ -285,7 +285,7 @@ export function Menu({ def, close, overlayId, externalQuery, keyTarget, focusLis
             <input
               ref={searchRef}
               autoFocus
-              placeholder={typeof def.search === 'string' ? def.search : 'Search…'}
+              placeholder={typeof def.search === 'string' ? def.search : '검색…'}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               role="combobox"
@@ -295,7 +295,7 @@ export function Menu({ def, close, overlayId, externalQuery, keyTarget, focusLis
       )}
       <div className={`lit-scroller vertical nc-menu-scroll${fade ? ' nc-menu-fade' : ''}`} ref={listRef} tabIndex={focusList ? 0 : undefined}>
         <div className="nc-menu-list" role={def.role ?? 'listbox'}>
-        {sections.length === 0 && <div className="nc-menu-empty">{def.emptyText ?? 'No results'}</div>}
+        {sections.length === 0 && <div className="nc-menu-empty">{def.emptyText ?? '결과 없음'}</div>}
         {sections.map((s, si) => {
           if (shown >= limit) return null;
           const rows = limit === Infinity ? s.items : s.items.slice(0, limit - shown);

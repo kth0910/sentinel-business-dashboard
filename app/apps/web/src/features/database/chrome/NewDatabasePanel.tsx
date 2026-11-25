@@ -40,9 +40,9 @@ export function templateSchema(t: Template): { name: string; schema: Record<stri
         [ids.status]: { name: 'Status', type: 'status', options: st.options, groups: st.groups, defaultOption: st.defaultOption },
         [ids.assignee]: { name: 'Assignee', type: 'person' },
         [ids.due]: { name: 'Due date', type: 'date' },
-        [ids.priority]: { name: 'Priority', type: 'select', options: [option('Low', 'green'), option('Medium', 'yellow'), option('High', 'red')] },
+        [ids.priority]: { name: 'Priority', type: 'select', options: [option('낮음', 'green'), option('보통', 'yellow'), option('높음', 'red')] },
         [ids.type]: { name: 'Task type', type: 'multi_select', options: [option('🐞 Bug', 'red'), option('💬 Feature request', 'blue'), option('💅 Polish', 'purple')] },
-        [ids.effort]: { name: 'Effort level', type: 'select', options: [option('Small', 'green'), option('Medium', 'yellow'), option('Large', 'red')] },
+        [ids.effort]: { name: 'Effort level', type: 'select', options: [option('작음', 'green'), option('보통', 'yellow'), option('큼', 'red')] },
         [ids.desc]: { name: 'Description', type: 'text' },
       },
       views: [{ type: 'table', name: 'All tasks' }, { type: 'board', name: 'By status', groupBy: ids.status }],
@@ -52,7 +52,7 @@ export function templateSchema(t: Template): { name: string; schema: Record<stri
     const ids = { status: newPropertyId(), owner: newPropertyId(), dates: newPropertyId(), priority: newPropertyId(), summary: newPropertyId() };
     const pst = defaultStatusSchema();
     pst.options[0].value = 'Planning';
-    pst.defaultOption = 'Planning';
+    pst.defaultOption = '기획';
     return {
       name: 'Projects',
       schema: {
@@ -60,7 +60,7 @@ export function templateSchema(t: Template): { name: string; schema: Record<stri
         [ids.status]: { name: 'Status', type: 'status', options: pst.options, groups: pst.groups, defaultOption: pst.defaultOption },
         [ids.owner]: { name: 'Owner', type: 'person' },
         [ids.dates]: { name: 'Dates', type: 'date' },
-        [ids.priority]: { name: 'Priority', type: 'select', options: [option('Low', 'green'), option('Medium', 'yellow'), option('High', 'red')] },
+        [ids.priority]: { name: 'Priority', type: 'select', options: [option('낮음', 'green'), option('보통', 'yellow'), option('높음', 'red')] },
         [ids.summary]: { name: 'Summary', type: 'text' },
       },
       views: [{ type: 'table', name: 'All projects' }, { type: 'board', name: 'By status', groupBy: ids.status }],
@@ -72,7 +72,7 @@ export function templateSchema(t: Template): { name: string; schema: Record<stri
     schema: {
       title: { name: 'Name', type: 'title' },
       [ids.desc]: { name: 'Description', type: 'text' },
-      [ids.cat]: { name: 'Category', type: 'select', options: [option('Writing', 'blue'), option('Research', 'purple'), option('Planning', 'orange')] },
+      [ids.cat]: { name: 'Category', type: 'select', options: [option('작성', 'blue'), option('리서치', 'purple'), option('기획', 'orange')] },
     },
     views: [{ type: 'list', name: 'All skills' }],
   };
@@ -106,10 +106,10 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
   void view;
   if (page === 'link') return <LinkExisting block={block} collection={collection} onBack={() => setPage('main')} onClose={onClose} />;
   return (
-    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="New database">
+    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="새 데이터베이스">
       <div className="nc-vs-header">
-        <span className="nc-vs-title">New database</span>
-        <span role="button" className="nc-panel-close" aria-label="Close" data-testid="collection-settings-menu-close-button" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
+        <span className="nc-vs-title">새 데이터베이스</span>
+        <span role="button" className="nc-panel-close" aria-label="닫기" data-testid="collection-settings-menu-close-button" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
       </div>
       <div className="lit-scroller vertical nc-new-db-scroll">
         <div className="nc-new-db-ai">
@@ -125,17 +125,17 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
             }}
           >
             <span className="nc-new-db-ai-avatar"><Icon name="aiFace" size={14} /></span>
-            <input name="prompt" className="nc-new-db-ai-text" placeholder="Describe what to build" aria-label="Describe what to build" autoComplete="off" style={{ border: 'none', outline: 'none', background: 'transparent', font: 'inherit', color: 'inherit', flex: 1, minWidth: 0 }} />
-            <button type="submit" className="nc-new-db-ai-submit" aria-label="Send prompt to Litpage AI" style={{ border: 'none', cursor: 'pointer' }}><Icon name="arrowUp" size={14} /></button>
+            <input name="prompt" className="nc-new-db-ai-text" placeholder="만들 내용을 설명하세요" aria-label="만들 내용을 설명하세요" autoComplete="off" style={{ border: 'none', outline: 'none', background: 'transparent', font: 'inherit', color: 'inherit', flex: 1, minWidth: 0 }} />
+            <button type="submit" className="nc-new-db-ai-submit" aria-label="CoolNotion! AI에 프롬프트 보내기" style={{ border: 'none', cursor: 'pointer' }}><Icon name="arrowUp" size={14} /></button>
           </form>
         </div>
         <div className="nc-menu-section">
           <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { onClose(); setTimeout(() => document.querySelector<HTMLElement>('.nc-db-page-title')?.focus(), 30); }}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">New blank dataset</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">새 빈 데이터 소스</div></div>
           </div>
           {/*: Import CSV goes through the column mapping of Merge with CSV (features/import, /006) */}
           <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { onClose(); void import('../../import/MergeCsv.tsx').then((m) => m.openMergeCsv(block.id)); }}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="download" size={20} /></span><div className="nc-menu-label">Import CSV</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="download" size={20} /></span><div className="nc-menu-label">CSV 가져오기</div></div>
           </div>
           <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={async (e) => {
             const f = e.target.files?.[0];
@@ -143,19 +143,19 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
             const csv = await f.text();
             try {
               const res = await api<{ rows: number }>('importCsvToCollection', { collectionId: collection.id, csv });
-              useUI.getState().toast(`Imported ${res.rows} rows`);
+              useUI.getState().toast(`${res.rows}개 행을 가져왔습니다`);
               onClose();
             } catch (err) {
-              useUI.getState().toast(err instanceof Error ? err.message : 'Import failed');
+              useUI.getState().toast(err instanceof Error ? err.message : '가져오지 못했습니다');
             }
           }} />
         </div>
         <div className="nc-menu-section no-divider">
-          <div className="nc-menu-section-title">Suggested</div>
+          <div className="nc-menu-section-title">추천</div>
           {([
-            { id: 'tasks', label: 'Tasks Tracker', icon: 'checkmarkSquare', tile: 'green' },
-            { id: 'projects', label: 'Projects', icon: 'refresh', tile: 'blue' },
-            { id: 'skills', label: 'Skills', icon: 'magicWand', tile: 'gray' },
+            { id: 'tasks', label: '작업 트래커', icon: 'checkmarkSquare', tile: 'green' },
+            { id: 'projects', label: '프로젝트', icon: 'refresh', tile: 'blue' },
+            { id: 'skills', label: '스킬', icon: 'magicWand', tile: 'gray' },
           ] as const).map((t) => (
             <div key={t.id} role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => { applyTemplate(block, collection, t.id); onClose(); }}>
               <div className="nc-menu-item-inner"><span className={`nc-new-db-tile tile-${t.tile}`}><Icon name={t.icon} size={16} /></span><div className="nc-menu-label">{t.label}</div></div>
@@ -163,12 +163,12 @@ export function NewDatabasePanel({ block, collection, view, onClose }: { block: 
           ))}
           {/*: gallery templates with a database */}
           <div role="menuitem" className="nc-menu-item nc-new-db-row" data-testid="new-db-more-templates" onClick={(e) => void openDatabaseTemplates(e.currentTarget, block.id, onClose)}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">More templates</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">템플릿 더 보기</div></div>
           </div>
         </div>
         <div className="nc-menu-section with-divider">
           <div role="menuitem" className="nc-menu-item nc-new-db-row" onClick={() => setPage('link')}>
-            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="arrowDiagonalUpRight" size={16} /></span><div className="nc-menu-label">Link an existing dataset</div></div>
+            <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="arrowDiagonalUpRight" size={16} /></span><div className="nc-menu-label">기존 데이터 소스 연결</div></div>
           </div>
         </div>
       </div>
@@ -211,7 +211,7 @@ function LinkExisting({ block, collection, onBack, onClose }: { block: BlockReco
   }, [q, collection.id]);
   if (picked) {
     return (
-      <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="New view">
+      <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="새 보기">
         <ViewStep source={picked} onBack={() => setPicked(null)} close={onClose} onChoose={(choice) => {
           if (choice.copyViewId) {
             const views = block.view_ids ?? [];
@@ -224,16 +224,16 @@ function LinkExisting({ block, collection, onBack, onClose }: { block: BlockReco
     );
   }
   return (
-    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="Link an existing dataset">
+    <div className="nc-new-db-panel lit-view-settings-sidebar" role="dialog" aria-label="기존 데이터 소스 연결">
       <div className="nc-vs-header link">
-        <span role="button" className="nc-vs-back" aria-label="Back" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>
-        <span className="nc-vs-title">Link an existing dataset</span>
-        <span role="button" className="nc-panel-close" aria-label="Close" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
+        <span role="button" className="nc-vs-back" aria-label="뒤로" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>
+        <span className="nc-vs-title">기존 데이터 소스 연결</span>
+        <span role="button" className="nc-panel-close" aria-label="닫기" onClick={onClose}><Icon name="xMarkSmall" size={14} /></span>
       </div>
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Link…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="링크…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-new-db-scroll">
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">Available datasets</div>
+          <div className="nc-menu-section-title">사용 가능한 데이터 소스</div>
           {results.slice(0, q ? 100 : limit).map((r) => {
             const host = records.get<BlockRecord>('block', r.blockId);
             const target = records.get<CollectionRecord>('collection', r.collectionId);
@@ -251,10 +251,10 @@ function LinkExisting({ block, collection, onBack, onClose }: { block: BlockReco
           })}
           {!q && results.length > limit && (
             <div role="menuitem" className="nc-menu-item nc-new-db-row muted" onClick={() => setLimit(100)}>
-              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">Show {results.length - limit} more</div></div>
+              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">{results.length - limit}개 더 보기</div></div>
             </div>
           )}
-          {!results.length && <div className="nc-menu-empty">No data sources</div>}
+          {!results.length && <div className="nc-menu-empty">데이터 소스 없음</div>}
         </div>
       </div>
     </div>

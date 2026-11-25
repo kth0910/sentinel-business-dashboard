@@ -310,7 +310,7 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
       if (noteIds.length) return <BlockList parentId={notes!.id} ids={notes!.content} depth={depth + 1} readOnly={!canEdit} />;
       return (
         <div className={`nc-mtg-empty ${canEdit && notes ? 'clickable' : ''}`} onMouseDown={(e) => { if (!canEdit || !notes) return; e.preventDefault(); addFirstBlock(notes.id); }}>
-          {startedBefore ? t('lp.meetings.litpage_ai_turns_your_notes_and', 'Litpage AI turns your notes and the transcript into a summary') : t('lp.meetings.here_s_the_flow_1_press', 'Here’s the flow:\n1. Press “Start transcribing” to begin.\n2. Jot notes here whenever you like, and AI will use them for a better summary.\n3. Once you’re finished, press “Stop”. AI then writes up a summary and action items.')}
+          {startedBefore ? t('lp.meetings.litpage_ai_turns_your_notes_and', 'CoolNotion! AI turns your notes and the transcript into a summary') : t('lp.meetings.here_s_the_flow_1_press', 'Here’s the flow:\n1. Press “Start transcribing” to begin.\n2. Jot notes here whenever you like, and AI will use them for a better summary.\n3. Once you’re finished, press “Stop”. AI then writes up a summary and action items.')}
         </div>
       );
     }
@@ -340,14 +340,14 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               }}
             />
             <div className="nc-mtg-sub">
-              <span>{created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {created.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+              <span>{created.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' })} · {created.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })}</span>
               {someoneElse && <span dangerouslySetInnerHTML={{ __html: t('lp.meetings.this_meeting_is_being_transcribed_by_f64d', 'This meeting is being transcribed by <bold>{transcriberName}</bold>', { transcriberName: escapeHtml(transcriber?.name || 'Someone') }).replace(/<bold>/g, '<b>').replace(/<\/bold>/g, '</b>') }} />}
               {recordingHere && <span dangerouslySetInnerHTML={{ __html: t('lp.meetings.this_meeting_is_being_transcribed_by_a2ca', 'This meeting is being transcribed by <bold>you</bold>').replace(/<bold>/g, '<b>').replace(/<\/bold>/g, '</b>') }} />}
             </div>
           </div>
           <div className="nc-mtg-actions">
             {!enabled ? null : (
-              <span className="nc-mtg-iconbtn" role="button" aria-label={t('lp.meetings.browser_limitation', 'Browser limitation')} data-tooltip={t('lp.meetings.the_browser_records_only_your_microphone', 'The browser records only your microphone. To summarize video calls fully, use the Litpage app, which captures both microphone and system audio.')}>
+              <span className="nc-mtg-iconbtn" role="button" aria-label={t('lp.meetings.browser_limitation', 'Browser limitation')} data-tooltip={t('lp.meetings.the_browser_records_only_your_microphone', 'The browser records only your microphone. To summarize video calls fully, use the CoolNotion! app, which captures both microphone and system audio.')}>
                 <Icon name="info" size={16} />
               </span>
             )}

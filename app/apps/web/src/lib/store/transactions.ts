@@ -204,7 +204,7 @@ class TransactionManager {
       if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 408 && e.status !== 429) {
         records.rejectTransactions(ids);
         this.lastError = e.message;
-        this.onError?.(e.status === 403 ? "You don't have permission to edit this." : e.message);
+        this.onError?.(e.status === 403 ? "편집 권한이 없습니다." : e.message);
       } else {
         // network/server failure: retry later, keeping order
         this.outbox.unshift(...batch);

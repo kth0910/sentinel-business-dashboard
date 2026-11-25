@@ -1,6 +1,7 @@
 // Select / multi-select / status cell editor: chips + "Find an option…" input, option list with drag
 // handles and "…" option menus, "Create" row; status options grouped by To-do / In progress / Complete.
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { STATUS_GROUP_LABELS } from '@nc/shared/database/schema.ts';
 import type { CollectionRecord, PropertySchema, SelectOption } from '@nc/shared/records.ts';
 import { encodeSelect, getPropertyValue, nextOptionColor, type StatusGroup } from '@nc/shared/database/index.ts';
 import { COLOR_LABELS } from '@nc/shared/colors.ts';
@@ -53,9 +54,9 @@ export function openOptionMenu(anchor: HTMLElement, collectionId: string, propId
       </div>
     ),
     sections: [
-      { items: [{ id: 'delete', label: 'Delete', icon: 'trash', onSelect: () => { deleteOption(collectionId, propId, option.id); opts?.onDeleted?.(); } }] },
+      { items: [{ id: 'delete', label: '삭제', icon: 'trash', onSelect: () => { deleteOption(collectionId, propId, option.id); opts?.onDeleted?.(); } }] },
       {
-        title: 'Colors',
+        title: '색상',
         items: (['default', 'gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'] as const).map((c) => ({
           id: c, label: COLOR_LABELS[c], icon: <ColorSwatch color={c} />, checked: (option.color ?? 'default') === c,
           onSelect: () => { updateOption(collectionId, propId, option.id, { color: c }); return false; },
@@ -180,7 +181,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
         <input
           ref={inputRef}
           value={query}
-          placeholder={selected.length ? '' : 'Find an option…'}
+          placeholder={selected.length ? '' : '옵션 찾기…'}
           onChange={(e) => {
             setQuery(e.target.value);
             setActive(0);
@@ -190,7 +191,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll" ref={listRef} role="listbox">
-        {!isStatus && <div className="nc-select-editor-hint">{schemaEditable ? 'Choose an option or create one' : 'Choose an option'}</div>}
+        {!isStatus && <div className="nc-select-editor-hint">{schemaEditable ? '옵션을 선택하거나 새로 만드세요' : '옵션 선택'}</div>}
         {ordered.map(({ group, option }) => {
           idx++;
           const myIdx = idx;
@@ -199,7 +200,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
           return (
             <div key={option.id}>
               {header && myIdx > 0 && <div className="nc-select-editor-divider group" />}
-              {header && <div className="nc-select-editor-group">{header.name}</div>}
+              {header && <div className="nc-select-editor-group">{STATUS_GROUP_LABELS[header.name] ?? header.name}</div>}
               {dropIdx === myIdx && dragId && <div className="nc-drop-line" />}
               <div
                 role="option"
@@ -229,7 +230,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
                 {!isStatus && schemaEditable && <span
                   role="button"
                   className="nc-select-option-more"
-                  aria-label="Edit option"
+                  aria-label="옵션 편집"
                   onClick={(e) => {
                     e.stopPropagation();
                     openOptionMenu(e.currentTarget as HTMLElement, opts.collectionId, opts.propId, option, { onDeleted: () => setSelected((s) => s.filter((n) => n !== option.value)) });
@@ -251,11 +252,11 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
             onMouseDown={(e) => e.preventDefault()}
             onClick={create}
           >
-            <span className="nc-select-create-label">Create</span>
+            <span className="nc-select-create-label">만들기</span>
             {isStatus ? <StatusPill option={{ value: query.trim(), color: 'default' }} /> : <OptionPill option={{ value: query.trim(), color: nextOptionColor(options, () => 0) }} />}
           </div>
         )}
-        {!ordered.length && !canCreate && isStatus && <div className="nc-select-editor-empty">No options</div>}
+        {!ordered.length && !canCreate && isStatus && <div className="nc-select-editor-empty">옵션 없음</div>}
         {isStatus && schemaEditable && (
           <>
             <div className="nc-select-editor-divider" />
@@ -271,7 +272,7 @@ function SelectEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
               }}
             >
               <Icon name="slidersTwo" size={20} style={{ color: 'var(--lp-icon-primary)' }} />
-              <span className="nc-select-edit-property-label">Edit property</span>
+              <span className="nc-select-edit-property-label">속성 편집</span>
             </div>
           </>
         )}

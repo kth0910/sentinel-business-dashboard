@@ -217,13 +217,13 @@ function EmojiPanel({ onPick, callout, quick, autoFocus }: { onPick: (v: string)
         )}
       </div>
       <div className="nc-picker-categories">
-        <div role="button" className="nc-cat-btn" aria-label="Jump to category: recent" onClick={() => jump(quick ? 'quick' : 'recent')}><Icon name="clock" size={20} /></div>
+        <div role="button" className="nc-cat-btn" aria-label="카테고리로 이동: 최근 사용" onClick={() => jump(quick ? 'quick' : 'recent')}><Icon name="clock" size={20} /></div>
         {SECTIONS.map((s) => (
           <div key={s.id} role="button" className="nc-cat-btn" aria-label={t('lp.page.go_to_category', 'Go to category: {category}', { category: s.title })} onClick={() => jump(s.id)}>
             <Icon name={s.icon} size={20} />
           </div>
         ))}
-        <div role="button" className="nc-cat-btn" aria-label="Jump to category: custom" onClick={(e) => (customs.length ? jump('custom') : openCustomEmojiUpload(e.currentTarget))}><Icon name="emojiCustom" size={20} /></div>
+        <div role="button" className="nc-cat-btn" aria-label="카테고리로 이동: 사용자 지정" onClick={(e) => (customs.length ? jump('custom') : openCustomEmojiUpload(e.currentTarget))}><Icon name="emojiCustom" size={20} /></div>
         <div role="button" className="nc-cat-btn" aria-label={t('lp.page.add_emoji', 'Add emoji')} data-tooltip={t('lp.page.add_emoji', 'Add emoji')} onClick={(e) => openCustomEmojiUpload(e.currentTarget)}><Icon name="plusCircleFill" size={20} /></div>
       </div>
     </>
@@ -298,9 +298,9 @@ async function addToEmojiLibrary(url: string, fileName: string, spaceId: string 
   try {
     const res = await api<{ recordMap: any }>('addCustomEmoji', { spaceId, name, url });
     records.mergeRecordMap(res.recordMap);
-    useUI.getState().toast(`Added :${name}: to the workspace emoji library`);
+    useUI.getState().toast(`워크스페이스 이모지 라이브러리에 :${name}: 이모지를 추가했습니다`);
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not add the emoji');
+    useUI.getState().toast(e?.message ?? '이모지를 추가하지 못했습니다');
   }
 }
 
@@ -314,18 +314,18 @@ function UploadPanel({ onPick }: { onPick: (v: string) => void }) {
   useEffect(() => setErr(''), [url]);
   return (
     <div className="nc-upload-panel">
-      <div role="button" className="nc-dialog-btn outline nc-upload-btn" onClick={() => fileRef.current?.click()}>{busy ? 'Uploading…' : t('lp.page.upload_file', 'Upload file')}</div>
+      <div role="button" className="nc-dialog-btn outline nc-upload-btn" onClick={() => fileRef.current?.click()}>{busy ? '업로드 중…' : t('lp.page.upload_file', 'Upload file')}</div>
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={async (e) => {
         const f = e.target.files?.[0];
         if (!f) return;
-        if (f.size > 5 * 1024 * 1024) { setErr('The maximum size per file is 5 MB.'); return; }
+        if (f.size > 5 * 1024 * 1024) { setErr('파일당 최대 크기는 5MB입니다.'); return; }
         setBusy(true);
         try {
           const res = await uploadFile(f, f.name, spaceId);
           if (toLibrary) void addToEmojiLibrary(res.url, f.name, spaceId);
           onPick(res.url);
         } catch (er: any) {
-          setErr(er?.message ?? 'Upload failed');
+          setErr(er?.message ?? '업로드 실패');
         } finally {
           setBusy(false);
         }
@@ -336,10 +336,10 @@ function UploadPanel({ onPick }: { onPick: (v: string) => void }) {
         <span>{t('lp.page.save_as_a_custom_emoji_for', 'Save as a custom emoji for the workspace')}</span>
       </label>
       <div className="nc-picker-filter" style={{ marginTop: 16 }}>
-        <input placeholder="Paste link to an image…" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && /^https?:\/\//.test(url.trim())) onPick(url.trim()); }} />
+        <input placeholder="이미지 링크를 붙여 넣으세요…" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && /^https?:\/\//.test(url.trim())) onPick(url.trim()); }} />
       </div>
       <div role="button" className={`nc-dialog-btn primary nc-upload-btn ${/^https?:\/\//.test(url.trim()) ? '' : 'disabled'}`} style={{ marginTop: 8 }}
-        onClick={() => { if (/^https?:\/\//.test(url.trim())) onPick(url.trim()); else setErr('Enter a valid image URL.'); }}>
+        onClick={() => { if (/^https?:\/\//.test(url.trim())) onPick(url.trim()); else setErr('올바른 이미지 URL을 입력하세요.'); }}>
         {t('lp.page.submit', 'Submit')}
       </div>
       {err && <div className="nc-picker-hint" style={{ color: 'var(--lp-red-text-primary)' }}>{err}</div>}

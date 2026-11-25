@@ -76,7 +76,7 @@ function syncPointers(tx: Tx, blockId: string) {
 export function addDataSource(block: BlockRecord, opts: { name?: string; schema?: Record<string, PropertySchema>; views?: { type: ViewType; name?: string; groupBy?: string }[] } = {}): { collectionId: string; viewId: string } | null {
   const { owned } = blockSources(block);
   if (owned.length >= MAX_DATA_SOURCES) {
-    useUI.getState().toast('You are at the maximum number of datasets for this table.');
+    useUI.getState().toast('이 테이블에 추가할 수 있는 데이터 소스 수가 최대입니다.');
     return null;
   }
   const collectionId = newId();
@@ -162,7 +162,7 @@ export function trashDataSource(block: BlockRecord, collectionId: string): boole
     }
     syncPointers(tx, block.id);
   });
-  useUI.getState().toast(`Sent ${sourceName(c) || 'Untitled'} to trash`);
+  useUI.getState().toast(`${sourceName(c) || 'Untitled'}을(를) 휴지통으로 이동했습니다`);
   return true;
 }
 
@@ -193,7 +193,7 @@ export function moveDataSource(from: BlockRecord, collectionId: string, to: Bloc
   const list = views.get(collectionId) ?? [];
   if (withViews && owned.length + linked.length <= 1) return false; // a database keeps at least one source
   if (blockSources(to).owned.length >= MAX_DATA_SOURCES) {
-    useUI.getState().toast(`Maximum number of datasets (${MAX_DATA_SOURCES}) reached`);
+    useUI.getState().toast(`데이터 소스는 최대 ${MAX_DATA_SOURCES}개까지 만들 수 있습니다`);
     return false;
   }
   run('dataSourceMoveToMenu.moveDataSource', (tx) => {
@@ -217,13 +217,13 @@ export function moveDataSource(from: BlockRecord, collectionId: string, to: Bloc
     syncPointers(tx, from.id);
     syncPointers(tx, to.id);
   });
-  useUI.getState().toast(`Moved ${sourceName(c) || 'Untitled'}`);
+  useUI.getState().toast(`${sourceName(c) || 'Untitled'}을(를) 이동했습니다`);
   return true;
 }
 
 /** Name of a copied view ("Table" → "Table (1)"), used when copying a source's view into a linked database. */
 export function linkedViewName(v: CollectionViewRecord): string {
-  return copyName(v.name || VIEW_DEFAULT_NAMES[v.type] || 'View');
+  return copyName(v.name || VIEW_DEFAULT_NAMES[v.type] || '보기');
 }
 
 /** Point a view at another data source; its properties, filters, sorts, and layout settings are rebuilt for the new source. */

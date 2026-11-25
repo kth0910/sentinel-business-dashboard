@@ -19,7 +19,7 @@ export function bootstrapOwner() {
     userId = newId();
     const user = createUser(userId, email, process.env.NC_BOOTSTRAP_NAME?.trim() || email.split('@')[0]);
     putRecord('lit_user', { ...user, onboarding_completed: true });
-    const created = createWorkspace(userId, process.env.NC_BOOTSTRAP_WORKSPACE?.trim() || 'Workspace');
+    const created = createWorkspace(userId, process.env.NC_BOOTSTRAP_WORKSPACE?.trim() || '워크스페이스');
     if (isDemoMode()) seedDemoContent(created.space.id, userId);
     console.log('[server] bootstrap: created the first account');
   } else if (getRecord<UserRecord>('lit_user', userId)?.onboarding_completed === false) {

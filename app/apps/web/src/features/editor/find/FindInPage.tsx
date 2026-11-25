@@ -351,7 +351,7 @@ function editable(m: FindMatch, suggesting: boolean): boolean {
 
 /** "Replaced N matches" once the server kept the change (a refused write shows its own error). */
 function toastWhenSaved(n: number) {
-  const say = () => useUI.getState().toast(n ? `Replaced ${n} ${n === 1 ? 'match' : 'matches'}` : 'No matches changed');
+  const say = () => useUI.getState().toast(n ? `${n}건을 바꿨습니다` : '바뀐 항목 없음');
   if (!n || transactions.pendingCount() === 0) {
     say();
     return;
@@ -382,7 +382,7 @@ export function replaceCurrent() {
   if (!b) return;
   const suggesting = suggestingOn(st.pageId);
   if (!editable(m, suggesting)) {
-    useUI.getState().toast(suggesting ? 'Suggestions can only be made in text, to-do, heading and list blocks' : "You don't have permission to edit this.");
+    useUI.getState().toast(suggesting ? '텍스트, 할 일, 제목, 목록 블록에서만 제안할 수 있습니다' : "편집 권한이 없습니다.");
     return;
   }
   const cur = ((b.properties as Record<string, RichText> | undefined)?.[m.property]) ?? [];
@@ -545,7 +545,7 @@ export function FindBar() {
     <div
       className="nc-find-bar"
       role="dialog"
-      aria-label="Find in page"
+      aria-label="페이지에서 찾기"
       onMouseDown={(e) => {
         e.stopPropagation();
         // buttons keep the keyboard focus in the inputs (Enter / Esc keep working)
@@ -564,7 +564,7 @@ export function FindBar() {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Find or replace text…"
+            placeholder="텍스트 찾기 또는 바꾸기…"
             value={st.query}
             spellCheck={false}
             onChange={(e) => {
@@ -587,29 +587,29 @@ export function FindBar() {
         </div>
         {st.query && (
           <div className="nc-find-count" aria-live="polite">
-            {total ? <div className="nc-find-count-inner"><span>{st.current + 1}</span>of<span>{total}</span></div> : <span>Not found</span>}
+            {total ? <div className="nc-find-count-inner"><span>{st.current + 1}</span>of<span>{total}</span></div> : <span>찾을 수 없음</span>}
           </div>
         )}
         <div className="nc-find-buttons">
-          <div role="button" tabIndex={0} aria-label="Previous match" data-tooltip="Previous match" data-tooltip-sub="⇧↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(-1)}>
+          <div role="button" tabIndex={0} aria-label="이전 찾기" data-tooltip="이전 찾기" data-tooltip-sub="⇧↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(-1)}>
             <Icon name="arrowUp" size={16} />
           </div>
-          <div role="button" tabIndex={0} aria-label="Next match" data-tooltip="Next match" data-tooltip-sub="↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(1)}>
+          <div role="button" tabIndex={0} aria-label="다음 찾기" data-tooltip="다음 찾기" data-tooltip-sub="↵" className={`nc-find-btn ${total ? '' : 'disabled'}`} onClick={() => findStep(1)}>
             <Icon name="arrowDown" size={16} />
           </div>
           <div
             role="button"
             tabIndex={0}
-            aria-label="Replace"
+            aria-label="바꾸기"
             aria-pressed={st.replace}
-            data-tooltip={locked ? 'This page is locked' : 'Replace'}
+            data-tooltip={locked ? '이 페이지는 잠겨 있습니다' : '바꾸기'}
             className={`nc-find-btn ${st.replace ? 'pressed' : ''} ${editable ? '' : 'disabled'}`}
             onClick={() => { if (editable) useFind.setState({ replace: !st.replace }); }}
           >
             <Icon name="arrowLoop" size={16} />
           </div>
         </div>
-        <div role="button" tabIndex={0} aria-label="Close" data-tooltip="Close" data-tooltip-sub="esc" className="nc-find-btn" onClick={() => closeFind()}>
+        <div role="button" tabIndex={0} aria-label="닫기" data-tooltip="닫기" data-tooltip-sub="esc" className="nc-find-btn" onClick={() => closeFind()}>
           <Icon name="close" size={16} />
         </div>
       </div>
@@ -620,7 +620,7 @@ export function FindBar() {
             <div className="nc-find-input">
               <input
                 type="text"
-                placeholder="Replace with…"
+                placeholder="바꿀 내용…"
                 value={st.replacement}
                 spellCheck={false}
                 onChange={(e) => useFind.setState({ replacement: e.target.value })}
@@ -639,9 +639,9 @@ export function FindBar() {
               />
             </div>
             <div className="nc-find-replace-actions">
-              <div role="button" tabIndex={0} className={`nc-find-text-btn ${total ? '' : 'disabled'}`} onClick={() => replaceAll()}>Replace all</div>
+              <div role="button" tabIndex={0} className={`nc-find-text-btn ${total ? '' : 'disabled'}`} onClick={() => replaceAll()}>모두 바꾸기</div>
               <div role="button" tabIndex={0} className={`nc-find-primary-btn ${total ? '' : 'disabled'}`} onClick={() => replaceCurrent()}>
-                <div className="inner">Replace<Icon name="arrowTurnDownLeft" size={16} /></div>
+                <div className="inner">바꾸기<Icon name="arrowTurnDownLeft" size={16} /></div>
               </div>
             </div>
           </div>

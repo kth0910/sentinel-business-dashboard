@@ -94,7 +94,7 @@ function PlainCellEditor({ rowIds, prop, propId, close, minWidth, minHeight }: {
         className="nc-cell-editor-input"
         value={text}
         inputMode={prop.type === 'number' ? 'decimal' : prop.type === 'phone_number' ? 'tel' : undefined}
-        placeholder={prop.type === 'url' ? 'Type or paste in a link…' : prop.type === 'email' ? 'Enter an email…' : prop.type === 'phone_number' ? 'Type a phone number…' : prop.type === 'number' ? '' : ''}
+        placeholder={prop.type === 'url' ? '링크를 입력하거나 붙여넣으세요…' : prop.type === 'email' ? '이메일 입력…' : prop.type === 'phone_number' ? '전화번호 입력…' : prop.type === 'number' ? '' : ''}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.nativeEvent.isComposing) return;
@@ -105,7 +105,7 @@ function PlainCellEditor({ rowIds, prop, propId, close, minWidth, minHeight }: {
         }}
       />
       {isLink && text.trim() && (
-        <a className="nc-cell-editor-open" href={href} target="_blank" rel="noreferrer" data-tooltip={prop.type === 'email' ? 'Send email' : prop.type === 'phone_number' ? 'Call' : 'Open link'}>
+        <a className="nc-cell-editor-open" href={href} target="_blank" rel="noreferrer" data-tooltip={prop.type === 'email' ? '이메일 보내기' : prop.type === 'phone_number' ? '전화' : '링크 열기'}>
           <Icon name={prop.type === 'email' ? 'mail' : prop.type === 'phone_number' ? 'phone' : 'arrowDiagonalUpRightSmall'} size={14} />
         </a>
       )}

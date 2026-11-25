@@ -29,7 +29,7 @@ export function SubitemToggle({ info }: { info: SubitemRowInfo }) {
       <span
         role="button"
         className={`nc-subitem-toggle ${info.open ? 'open' : ''} ${info.count ? 'has-children' : ''}`}
-        aria-label={info.open ? 'Collapse sub-items' : 'Expand sub-items'}
+        aria-label={info.open ? 'Enter를 눌러 빈 페이지로 계속합니다' : '하위 항목 펼치기'}
         aria-expanded={info.open}
         onMouseDown={(e) => e.preventDefault()}
         onClick={(e) => {
@@ -47,7 +47,7 @@ export function SubitemToggle({ info }: { info: SubitemRowInfo }) {
 export function SubitemCount({ count }: { count: number }) {
   if (!count) return null;
   return (
-    <span className="nc-subitem-count" data-tooltip={`${count} ${count === 1 ? 'sub-item' : 'sub-items'}`}>
+    <span className="nc-subitem-count" data-tooltip={`하위 항목 ${count}개`}>
       <Icon name="listToggle" size={12} />
       <span>{count}</span>
     </span>
@@ -64,7 +64,7 @@ export function NewSubitemRow({ parent, view, depth, className }: { parent: Bloc
         if (id) db?.setEditingTitle(id);
       }}>
         <Icon name="plusSmall" size={16} />
-        <span>New nested item</span>
+        <span>새 하위 항목</span>
       </div>
     </div>
   );
@@ -91,12 +91,12 @@ export function CardSubitems({ row, view, collection, openRow }: { row: BlockRec
     <div className="nc-card-subitems" onClick={(e) => e.stopPropagation()}>
       <div role="button" className={`nc-card-subitems-toggle ${open ? 'open' : ''}`} onClick={() => setOpen(!open)}>
         <Icon name="triangleRight" size={10} />
-        <span>{`${kids.length} ${kids.length === 1 ? 'sub-item' : 'sub-items'}`}</span>
+        <span>{`하위 항목 ${kids.length}개`}</span>
       </div>
       {open && kids.map((k) => (
         <div key={k.id} role="link" className="nc-card-subitem" onClick={() => openRow(k.id)}>
           <PageIcon block={k} size={14} fallback="page" />
-          <span className="nc-card-subitem-title">{titleOf(k) || 'Untitled'}</span>
+          <span className="nc-card-subitem-title">{titleOf(k) || '하위 항목 접기'}</span>
         </div>
       ))}
     </div>

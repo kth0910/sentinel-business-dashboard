@@ -52,7 +52,7 @@ export function unarchivePage(pageId: string, opts: { toast?: boolean } = {}) {
 }
 
 function archivedDate(ms: number): string {
-  return new Date(ms).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date(ms).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 /** Yellow banner on archived pages: direct archive with Unarchive, or the
@@ -68,7 +68,7 @@ export function ArchivedBanner({ page }: { page: BlockRecord }) {
     return (
       <div className="nc-archived-banner" role="status">
         <Icon name="archive" size={16} />
-        <span>{t('lp.page.the_team_is_archived_so_this', 'The team {teamspaceName} is archived, so this page is archived too', { teamspaceName: state.team.name || 'Untitled' })}</span>
+        <span>{t('lp.page.the_team_is_archived_so_this', 'The team {teamspaceName} is archived, so this page is archived too', { teamspaceName: state.team.name || '제목 없음' })}</span>
       </div>
     );
   }
@@ -79,7 +79,7 @@ export function ArchivedBanner({ page }: { page: BlockRecord }) {
         <Icon name="archive" size={16} />
         <span>
           {t('lp.page.this_page_sits_inside_so_it', 'This page sits inside {pageLink}, so it’s archived too', { pageLink: '\u0000' }).split('\u0000').map((part, i) => (
-            i === 0 ? <span key={i}>{part}</span> : <span key={i}><a role="link" className="nc-archived-banner-link" onClick={() => openPage(root.id)}>{pageTitle(root) || 'Untitled'}</a>{part}</span>
+            i === 0 ? <span key={i}>{part}</span> : <span key={i}><a role="link" className="nc-archived-banner-link" onClick={() => openPage(root.id)}>{pageTitle(root) || '제목 없음'}</a>{part}</span>
           ))}
         </span>
       </div>

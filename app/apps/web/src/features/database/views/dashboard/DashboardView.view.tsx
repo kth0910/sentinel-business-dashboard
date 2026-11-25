@@ -52,7 +52,7 @@ export function addWidget(dashboard: CollectionViewRecord, blockId: string, coll
   const layout = layoutOf(dashboard);
   const total = layout.rows.reduce((a, r) => a + r.widgets.length, 0);
   if (total >= MAX_WIDGETS) {
-    useUI.getState().toast('Dashboard full — delete a view to add a new one');
+    useUI.getState().toast('대시보드가 가득 찼습니다. 보기를 삭제한 뒤 추가하세요.');
     return '';
   }
   let vid = '';
@@ -73,7 +73,7 @@ export function addWidget(dashboard: CollectionViewRecord, blockId: string, coll
 function addWidgetMenu(anchor: HTMLElement, dashboard: CollectionViewRecord, blockId: string, collectionId: string, place?: { rowIndex?: number; newRowAt?: number }, after?: (id: string) => void) {
   openMenu(anchor, {
     width: 240,
-    header: <div className="nc-dash-menu-head">Add charts, tables, or lists</div>,
+    header: <div className="nc-dash-menu-head">차트, 표, 목록 추가</div>,
     sections: [{ items: WIDGET_TYPES.map((t) => ({ id: t, label: viewTypeMeta(t).label, icon: viewIcon(t), onSelect: () => { const id = addWidget(dashboard, blockId, collectionId, t, place); if (id) after?.(id); } })) }],
   }, { placement: 'bottom-start' });
 }
@@ -113,7 +113,7 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
   const ctxValue = useMemo(() => (db ? { ...db, view: shown, bleed: { left: 0, right: 0, width: null } } : null), [db, shown]);
   const menu = (e: React.MouseEvent<HTMLElement>) => {
     const items: MenuItemDef[] = [
-      { id: 'edit', label: 'Edit view', icon: 'slidersTwo', onSelect: () => openViewSettings(e.currentTarget as HTMLElement, { block: props.block, view: wv, collection: props.collection, readOnly: props.readOnly, inline: true, onSelectView: () => undefined }) },
+      { id: 'edit', label: '보기 편집', icon: 'slidersTwo', onSelect: () => openViewSettings(e.currentTarget as HTMLElement, { block: props.block, view: wv, collection: props.collection, readOnly: props.readOnly, inline: true, onSelectView: () => undefined }) },
     ];
     // View mode: the widget's view settings only (its filters / sorts stay yours until saved)
     if (!editing) {
@@ -121,19 +121,19 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
       return;
     }
     items.push(
-      { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => onDuplicate(false) },
-      { id: 'dupRow', label: 'Copy into a new row', icon: 'duplicate', onSelect: () => onDuplicate(true) },
+      { id: 'dup', label: '복제', icon: 'duplicate', onSelect: () => onDuplicate(false) },
+      { id: 'dupRow', label: '새 행으로 복사', icon: 'duplicate', onSelect: () => onDuplicate(true) },
     );
     const moves: MenuItemDef[] = [];
-    if (index > 0) moves.push({ id: 'left', label: 'Move left', icon: 'arrowLeft', onSelect: () => onMove('left') });
-    if (index < rowCount - 1) moves.push({ id: 'right', label: 'Move right', icon: 'arrowRight', onSelect: () => onMove('right') });
-    if (rowIndex > 0) moves.push({ id: 'up', label: 'Send to the row above', icon: 'arrowUp', onSelect: () => onMove('up') });
-    if (rowIndex < rowsTotal - 1) moves.push({ id: 'down', label: 'Send to the row below', icon: 'arrowDown', onSelect: () => onMove('down') });
+    if (index > 0) moves.push({ id: 'left', label: '왼쪽으로 이동', icon: 'arrowLeft', onSelect: () => onMove('left') });
+    if (index < rowCount - 1) moves.push({ id: 'right', label: '오른쪽으로 이동', icon: 'arrowRight', onSelect: () => onMove('right') });
+    if (rowIndex > 0) moves.push({ id: 'up', label: '위쪽 행으로 보내기', icon: 'arrowUp', onSelect: () => onMove('up') });
+    if (rowIndex < rowsTotal - 1) moves.push({ id: 'down', label: '아래 행으로 보내기', icon: 'arrowDown', onSelect: () => onMove('down') });
     if (rowCount > 1) {
-      moves.push({ id: 'newAbove', label: 'Insert a row above', icon: 'rows', onSelect: () => onMove('newAbove') });
-      moves.push({ id: 'newBelow', label: 'Insert a row below', icon: 'rows', onSelect: () => onMove('newBelow') });
+      moves.push({ id: 'newAbove', label: '위에 행 삽입', icon: 'rows', onSelect: () => onMove('newAbove') });
+      moves.push({ id: 'newBelow', label: '아래에 행 삽입', icon: 'rows', onSelect: () => onMove('newBelow') });
     }
-    openMenu(e.currentTarget, { width: 240, sections: [{ items }, ...(moves.length ? [{ items: moves }] : []), { items: [{ id: 'delete', label: 'Delete', icon: 'trash', danger: true, onSelect: onDelete }] }] }, { placement: 'bottom-end' });
+    openMenu(e.currentTarget, { width: 240, sections: [{ items }, ...(moves.length ? [{ items: moves }] : []), { items: [{ id: 'delete', label: '삭제', icon: 'trash', danger: true, onSelect: onDelete }] }] }, { placement: 'bottom-end' });
   };
   return (
     <div
@@ -154,18 +154,18 @@ function Widget({ widget, wv, rowIndex, index, rowCount, rowsTotal, props, editi
         draggable={editing}
         onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', widget.id); onDragStart(); }}
         onDragEnd={onDragEnd}
-        data-tooltip={editing ? 'Drag to reposition' : undefined}
+        data-tooltip={editing ? '드래그해서 이동' : undefined}
       >
         <Icon name={viewIcon(wv.type)} size={16} color="var(--lp-icon-secondary)" />
         <span className="nc-dash-widget-title">{wv.name || viewTypeMeta(wv.type).label}</span>
-        {!props.readOnly && <div role="button" className="nc-dash-widget-more" aria-label="Widget options" data-tooltip="Widget options" onClick={menu}><Icon name="ellipsis" size={16} /></div>}
+        {!props.readOnly && <div role="button" className="nc-dash-widget-more" aria-label="위젯 옵션" data-tooltip="위젯 옵션" onClick={menu}><Icon name="ellipsis" size={16} /></div>}
       </div>
       <div className="nc-dash-widget-body lit-scroller vertical">
         {Comp && ctxValue ? (
           <DatabaseContext.Provider value={ctxValue}>
             <Comp block={props.block} view={shown} collection={source} readOnly={props.readOnly} />
           </DatabaseContext.Provider>
-        ) : <div className="nc-dash-empty-sub">This view type can’t be shown in a dashboard.</div>}
+        ) : <div className="nc-dash-empty-sub">이 보기 유형은 대시보드에 표시할 수 없습니다.</div>}
       </div>
     </div>
   );
@@ -209,7 +209,7 @@ function DashboardView(props: ViewProps) {
     const w = rows[from].widgets.find((x) => x.id === widgetId)!;
     if (target.kind === 'widget') {
       const dest = rows[target.ri];
-      if (!dest || (target.ri !== from && dest.widgets.length >= MAX_PER_ROW)) return useUI.getState().toast('A row holds up to 4 views');
+      if (!dest || (target.ri !== from && dest.widgets.length >= MAX_PER_ROW)) return useUI.getState().toast('한 행에는 보기를 최대 4개까지 둘 수 있습니다');
       if (dest.widgets[target.wi]?.id === widgetId) return;
     }
     mutate((rs) => {
@@ -282,7 +282,7 @@ function DashboardView(props: ViewProps) {
   const duplicate = (ri: number, wi: number, newRow: boolean) => {
     const src = byId.get(rows[ri].widgets[wi].view_id);
     if (!src) return;
-    if (ids.length >= MAX_WIDGETS) return useUI.getState().toast('Dashboard full — delete a view to duplicate');
+    if (ids.length >= MAX_WIDGETS) return useUI.getState().toast('대시보드가 가득 찼습니다. 보기를 삭제한 뒤 복제하세요.');
     run('DashboardWidgetMoreMenu.duplicateView', (tx) => {
       const nid = newId();
       const { version: _v, ...rest } = src as CollectionViewRecord & { version?: number };
@@ -334,14 +334,14 @@ function DashboardView(props: ViewProps) {
     return (
       <div className="nc-dash lit-dashboard-view" style={{ paddingInlineStart: bleed.left, paddingInlineEnd: bleed.right }}>
         <div className="nc-dash-empty" data-testid="dashboard-empty">
-          <div className="nc-dash-empty-title">Start using your dashboard</div>
-          <div className="nc-dash-empty-sub">Combine charts, tables, and lists of this data source in one place.</div>
+          <div className="nc-dash-empty-title">대시보드를 시작해 보세요</div>
+          <div className="nc-dash-empty-sub">이 데이터 소스의 차트, 표, 목록을 한곳에 모아 보세요.</div>
           <div className="nc-dash-cards">
-            <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast('Litpage AI is not available in this workspace')}><div>Ask Litpage AI to build<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
-            <div role="button" className="nc-dash-card" onClick={(e) => !readOnly && addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><div>Add charts, tables, or lists to<br />your dashboard</div><div className="nc-dash-card-art"><span><Icon name="plus" size={16} /></span><span><Icon name="donutChart" size={16} /></span><span><Icon name="chartBarXAxis" size={16} /></span></div></div>
-            <div className="nc-dash-card disabled"><div>Learn about filters across<br />multiple data sources</div><Icon name="filter" size={24} color="var(--lp-icon-tertiary)" /></div>
+            <div className="nc-dash-card disabled" onClick={() => useUI.getState().toast('이 워크스페이스에서는 CoolNotion! AI를 사용할 수 없습니다')}><div>CoolNotion! AI에게 만들어 달라고 하기<br />your dashboard</div><Icon name="aiFace" size={28} color="var(--lp-icon-tertiary)" /></div>
+            <div role="button" className="nc-dash-card" onClick={(e) => !readOnly && addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><div>차트, 표, 목록을 추가해<br />your dashboard</div><div className="nc-dash-card-art"><span><Icon name="plus" size={16} /></span><span><Icon name="donutChart" size={16} /></span><span><Icon name="chartBarXAxis" size={16} /></span></div></div>
+            <div className="nc-dash-card disabled"><div>여러 데이터 소스에 걸친<br />필터 알아보기</div><Icon name="filter" size={24} color="var(--lp-icon-tertiary)" /></div>
           </div>
-          {!readOnly && <div role="button" className="nc-dash-add-btn" data-testid="dashboard-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={16} />New view</div>}
+          {!readOnly && <div role="button" className="nc-dash-add-btn" data-testid="dashboard-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={16} />새 보기</div>}
         </div>
       </div>
     );
@@ -378,19 +378,19 @@ function DashboardView(props: ViewProps) {
                 onDropWidget={doDrop}
               />,
               editing && wi < r.widgets.length - 1 ? (
-                <div key={`${w.id}-w`} className="nc-dash-col-resize" role="separator" aria-label="Drag to resize" data-tooltip="Drag to resize" onPointerDown={(e) => startWidthDrag(e, ri, wi)} />
+                <div key={`${w.id}-w`} className="nc-dash-col-resize" role="separator" aria-label="끌어서 크기 조정" data-tooltip="끌어서 크기 조정" onPointerDown={(e) => startWidthDrag(e, ri, wi)} />
               ) : null,
             ])}
             {editing && r.widgets.length < MAX_PER_ROW && (
-              <div role="button" className="nc-dash-row-add" aria-label="Place in row" data-tooltip="Place in row" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { rowIndex: ri })}><Icon name="plus" size={16} /></div>
+              <div role="button" className="nc-dash-row-add" aria-label="행에 배치" data-tooltip="행에 배치" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { rowIndex: ri })}><Icon name="plus" size={16} /></div>
             )}
-            {editing && <div className="nc-dash-row-resize" data-tooltip="Drag to resize" onPointerDown={(e) => startResize(e, ri)} />}
+            {editing && <div className="nc-dash-row-resize" data-tooltip="끌어서 크기 조정" onPointerDown={(e) => startResize(e, ri)} />}
           </div>,
           gap(ri + 1),
         ];
       })}
       {editing && (
-        <div role="button" className="nc-dash-newrow" aria-label="Place in a new row" data-tooltip="Place in a new row" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { newRowAt: rows.length })}><Icon name="plus" size={16} /><span>New view</span></div>
+        <div role="button" className="nc-dash-newrow" aria-label="새 행에 배치" data-tooltip="새 행에 배치" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id, { newRowAt: rows.length })}><Icon name="plus" size={16} /><span>새 보기</span></div>
       )}
     </div>
   );
@@ -405,14 +405,14 @@ function DashboardToolbar({ block, view, collection, readOnly }: ToolbarExtraPro
   if (!editing) {
     return (
       <div className="nc-db-new-wrap">
-        <div role="button" className="nc-dash-tb-add" data-testid="dashboard-edit" onClick={() => setDashboardMode(view.id, 'edit')}><Icon name="pencil" size={14} />Edit dashboard</div>
+        <div role="button" className="nc-dash-tb-add" data-testid="dashboard-edit" onClick={() => setDashboardMode(view.id, 'edit')}><Icon name="pencil" size={14} />대시보드 편집</div>
       </div>
     );
   }
   return (
     <div className="nc-db-new-wrap">
-      <div role="button" className="nc-dash-tb-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={14} />New view</div>
-      <div role="button" className="nc-dash-tb-done" data-testid="dashboard-done" onClick={() => setDashboardMode(view.id, 'view')}>Done</div>
+      <div role="button" className="nc-dash-tb-add" onClick={(e) => addWidgetMenu(e.currentTarget, view, block.id, collection.id)}><Icon name="plus" size={14} />새 보기</div>
+      <div role="button" className="nc-dash-tb-done" data-testid="dashboard-done" onClick={() => setDashboardMode(view.id, 'view')}>완료</div>
     </div>
   );
 }

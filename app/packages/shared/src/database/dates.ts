@@ -6,6 +6,8 @@ import type { DateRange } from './types.ts';
 export const DAY_MS = 86_400_000;
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const MONTHS_SHORT = MONTHS.map((m) => m.slice(0, 3));
+/** 화면 표시용(업무관리 시연판: 한국어). 영어 MONTHS는 날짜 입력 해석(parseDateInput)에만 쓴다. */
+const KO_DAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function pad2(n: number): string {
@@ -149,10 +151,9 @@ export function formatTime(ms: number, timeFormat?: string): string {
   const h = d.getHours();
   const m = d.getMinutes();
   if (timeFormat === 'H:mm') return `${h}:${pad2(m)}`;
-  const ampm = h < 12 ? 'AM' : 'PM';
+  const ampm = h < 12 ? '오전' : '오후';
   const h12 = h % 12 === 0 ? 12 : h % 12;
-  if (timeFormat === 'A h:mm') return `${ampm} ${h12}:${pad2(m)}`;
-  return `${h12}:${pad2(m)} ${ampm}`;
+  return `${ampm} ${h12}:${pad2(m)}`;
 }
 
 export function formatDay(ms: number, dateFormat?: string, now: number = Date.now()): string {
@@ -162,7 +163,7 @@ export function formatDay(ms: number, dateFormat?: string, now: number = Date.no
   const day = d.getDate();
   switch (dateFormat) {
     case 'MMM d':
-      return `${MONTHS_SHORT[mo]} ${day}`;
+      return `${mo + 1}월 ${day}일`;
     case 'MM/DD/YYYY':
       return `${pad2(mo + 1)}/${pad2(day)}/${y}`;
     case 'DD/MM/YYYY':
@@ -170,18 +171,18 @@ export function formatDay(ms: number, dateFormat?: string, now: number = Date.no
     case 'YYYY/MM/DD':
       return `${y}/${pad2(mo + 1)}/${pad2(day)}`;
     case 'MMM DD, YYYY':
-      return `${MONTHS_SHORT[mo]} ${pad2(day)}, ${y}`;
+      return `${y}년 ${mo + 1}월 ${pad2(day)}일`;
     case 'relative': {
       const diff = dayDiff(ms, now);
-      if (diff === 0) return 'Today';
-      if (diff === 1) return 'Tomorrow';
-      if (diff === -1) return 'Yesterday';
-      if (diff < 0 && diff >= -6) return `Last ${WEEKDAYS[d.getDay()]}`;
-      if (diff > 0 && diff <= 6) return `Next ${WEEKDAYS[d.getDay()]}`;
-      return `${MONTHS[mo]} ${day}, ${y}`;
+      if (diff === 0) return '오늘';
+      if (diff === 1) return '내일';
+      if (diff === -1) return '어제';
+      if (diff < 0 && diff >= -6) return `지난 ${KO_DAYS[d.getDay()]}`;
+      if (diff > 0 && diff <= 6) return `다음 ${KO_DAYS[d.getDay()]}`;
+      return `${y}년 ${mo + 1}월 ${day}일`;
     }
     default:
-      return `${MONTHS[mo]} ${day}, ${y}`;
+      return `${y}년 ${mo + 1}월 ${day}일`;
   }
 }
 
@@ -208,31 +209,31 @@ export function formatTimestamp(ms: number, opts?: { dateFormat?: string; timeFo
 
 export function monthLabel(ms: number, short = false): string {
   const d = new Date(ms);
-  return `${(short ? MONTHS_SHORT : MONTHS)[d.getMonth()]} ${d.getFullYear()}`;
+  void short;
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
 }
 
 export function monthShort(i: number): string {
-  return MONTHS_SHORT[i];
+  return `${i + 1}월`;
 }
 
 export function monthName(i: number): string {
-  return MONTHS[i];
+  return `${i + 1}월`;
 }
 
 export function weekdayName(i: number): string {
-  return WEEKDAYS[i];
+  return KO_DAYS[i];
 }
 
 /** Human duration for date_range calculations. */
 export function formatDuration(ms: number): string {
   const abs = Math.abs(ms);
-  const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
   const days = Math.round(abs / DAY_MS);
-  if (abs < 3_600_000) return plural(Math.round(abs / 60_000), 'minute');
-  if (abs < DAY_MS) return plural(Math.round(abs / 3_600_000), 'hour');
-  if (days < 31) return plural(days, 'day');
-  if (days < 365) return plural(Math.round(days / 30.4375), 'month');
-  return plural(Math.round(days / 365.25), 'year');
+  if (abs < 3_600_000) return `${Math.round(abs / 60_000)}분`;
+  if (abs < DAY_MS) return `${Math.round(abs / 3_600_000)}시간`;
+  if (days < 31) return `${days}일`;
+  if (days < 365) return `${Math.round(days / 30.4375)}개월`;
+  return `${Math.round(days / 365.25)}년`;
 }
 
 // ---------- relative filter values ---------
@@ -303,8 +304,8 @@ export function relativeBucket(ms: number, now: number): { type: string; range?:
 }
 
 export const RELATIVE_BUCKET_LABELS: Record<string, string> = {
-  today: 'Today', tomorrow: 'Tomorrow', yesterday: 'Yesterday', next_7_days: 'Next 7 days', last_7_days: 'Last 7 days',
-  next_30_days: 'Next 30 days', last_30_days: 'Last 30 days',
+  today: '오늘', tomorrow: '내일', yesterday: '어제', next_7_days: '다음 7일', last_7_days: '지난 7일',
+  next_30_days: '다음 30일', last_30_days: '지난 30일',
 };
 
 /** Sort rank of relative buckets in ascending time. */
@@ -322,9 +323,9 @@ export function weekLabel(startMs: number): string {
   const end = addDays(startMs, 6);
   const s = new Date(startMs);
   const e = new Date(end);
-  if (s.getFullYear() !== e.getFullYear()) return `${MONTHS_SHORT[s.getMonth()]} ${s.getDate()} ${s.getFullYear()} – ${MONTHS_SHORT[e.getMonth()]} ${e.getDate()} ${e.getFullYear()}`;
-  if (s.getMonth() !== e.getMonth()) return `${MONTHS_SHORT[s.getMonth()]} ${s.getDate()} – ${MONTHS_SHORT[e.getMonth()]} ${e.getDate()} ${s.getFullYear()}`;
-  return `${MONTHS_SHORT[s.getMonth()]} ${s.getDate()} – ${e.getDate()} ${s.getFullYear()}`;
+  if (s.getFullYear() !== e.getFullYear()) return `${s.getFullYear()}년 ${s.getMonth() + 1}월 ${s.getDate()}일 – ${e.getFullYear()}년 ${e.getMonth() + 1}월 ${e.getDate()}일`;
+  if (s.getMonth() !== e.getMonth()) return `${s.getFullYear()}년 ${s.getMonth() + 1}월 ${s.getDate()}일 – ${e.getMonth() + 1}월 ${e.getDate()}일`;
+  return `${s.getFullYear()}년 ${s.getMonth() + 1}월 ${s.getDate()}일 – ${e.getDate()}일`;
 }
 
 const KO_RELATIVE: Record<string, number> = { 오늘: 0, 내일: 1, 모레: 2, 글피: 3, 어제: -1, 그제: -2, 그저께: -2 };

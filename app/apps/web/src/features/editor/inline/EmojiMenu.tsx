@@ -40,14 +40,14 @@ export const EMOJIS: EmojiEntry[] = (emojiData as any[])
 
 /** Picker categories; People merges Smileys & Emotion with People & Body. */
 export const CATEGORIES: { key: string; title: string; icon: string; groups: number[]; jump: string }[] = [
-  { key: 'people', title: 'People', icon: 'emojiFace', groups: [0, 1], jump: 'People & Body' },
-  { key: 'nature', title: 'Nature and animals', icon: 'emojiNature', groups: [3], jump: 'Animals & Nature' },
-  { key: 'food', title: 'Food and beverages', icon: 'emojiFood', groups: [4], jump: 'Food & Drink' },
-  { key: 'activity', title: 'Activity', icon: 'emojiActivity', groups: [6], jump: 'Activities' },
-  { key: 'travel', title: 'Travel and locations', icon: 'emojiTravel', groups: [5], jump: 'Travel & Places' },
-  { key: 'objects', title: 'Objects', icon: 'emojiObjects', groups: [7], jump: 'Objects' },
-  { key: 'symbols', title: 'Symbols', icon: 'emojiSymbols', groups: [8], jump: 'Symbols' },
-  { key: 'flags', title: 'Flags', icon: 'emojiFlags', groups: [9], jump: 'Flags' },
+  { key: 'people', title: '사용자', icon: 'emojiFace', groups: [0, 1], jump: 'People & Body' },
+  { key: 'nature', title: '자연 및 동물', icon: 'emojiNature', groups: [3], jump: 'Animals & Nature' },
+  { key: 'food', title: '음식 및 음료', icon: 'emojiFood', groups: [4], jump: 'Food & Drink' },
+  { key: 'activity', title: '활동', icon: 'emojiActivity', groups: [6], jump: 'Activities' },
+  { key: 'travel', title: '여행 및 장소', icon: 'emojiTravel', groups: [5], jump: 'Travel & Places' },
+  { key: 'objects', title: '사물', icon: 'emojiObjects', groups: [7], jump: 'Objects' },
+  { key: 'symbols', title: '기호', icon: 'emojiSymbols', groups: [8], jump: 'Symbols' },
+  { key: 'flags', title: '깃발', icon: 'emojiFlags', groups: [9], jump: 'Flags' },
 ];
 
 const RECENT_KEY = 'nc:recentEmojis';
@@ -170,7 +170,7 @@ export function EmojiAutocomplete({ query, onPick, onClose, onAdd }: { query: st
   ));
   cells.push(
     // The trailing “+” is an unlabelled gridcell for “Add a custom emoji”
-    <div key="+" role="gridcell" className="nc-em-add" aria-label="Add a custom emoji" data-tooltip="Add a custom emoji" onMouseDown={(ev) => ev.preventDefault()} onClick={(ev) => (onAdd ? onAdd(ev.currentTarget) : openCustomEmojiUpload(ev.currentTarget))}>
+    <div key="+" role="gridcell" className="nc-em-add" aria-label="사용자 지정 이모지 추가" data-tooltip="사용자 지정 이모지 추가" onMouseDown={(ev) => ev.preventDefault()} onClick={(ev) => (onAdd ? onAdd(ev.currentTarget) : openCustomEmojiUpload(ev.currentTarget))}>
       <Icon name="plus" size={16} />
     </div>,
   );
@@ -229,7 +229,7 @@ export function EmojiPicker({ query, onPick, withSearch, onClose }: { query?: st
       {withSearch && (
         <div className="nc-em-search">
           <div className="nc-input focused">
-            <input autoFocus placeholder="Filter…" value={filter} onChange={(e) => setFilter(e.target.value)} />
+            <input autoFocus placeholder="필터…" value={filter} onChange={(e) => setFilter(e.target.value)} />
           </div>
         </div>
       )}
@@ -248,7 +248,7 @@ export function EmojiPicker({ query, onPick, withSearch, onClose }: { query?: st
       >
         {filtered ? (
           <div className="nc-em-section">
-            <div className="nc-em-section-title">{filtered.length || customHits.length ? 'Results' : 'No results'}</div>
+            <div className="nc-em-section-title">{filtered.length || customHits.length ? '결과' : '결과 없음'}</div>
             <div className="nc-em-grid">
               {customHits.map((e) => <CustomCell key={`c:${e.id}`} e={e} active={false} onHover={() => {}} onPick={() => onPick(e.url, e)} />)}
               {filtered.map((e) => <Cell key={e.u} e={e.u} active={false} onHover={() => {}} onPick={() => onPick(e.u)} />)}
@@ -258,7 +258,7 @@ export function EmojiPicker({ query, onPick, withSearch, onClose }: { query?: st
           <>
             {recent.length > 0 && (
               <div className="nc-em-section" ref={(el) => { sectionRefs.current.recent = el; }}>
-                <div className="nc-em-section-title">Recent</div>
+                <div className="nc-em-section-title">최근</div>
                 <div className="nc-em-grid">
                   {recent.map((u) => <Cell key={u} e={u} active={false} onHover={() => {}} onPick={() => onPick(u)} />)}
                 </div>
@@ -274,7 +274,7 @@ export function EmojiPicker({ query, onPick, withSearch, onClose }: { query?: st
             ))}
             {customs.length > 0 && (
               <div className="nc-em-section" ref={(el) => { sectionRefs.current.custom = el; }}>
-                <div className="nc-em-section-title">Custom</div>
+                <div className="nc-em-section-title">사용자 지정</div>
                 <div className="nc-em-grid">
                   {customs.map((e) => <CustomCell key={e.id} e={e} active={false} onHover={() => {}} onPick={() => onPick(e.url, e)} />)}
                 </div>
@@ -285,14 +285,14 @@ export function EmojiPicker({ query, onPick, withSearch, onClose }: { query?: st
       </div>
       <div className="nc-em-bar">
         {[{ key: 'recent', icon: 'clock', jump: 'recent' }, ...CATEGORIES].map((c) => (
-          <div key={c.key} role="button" aria-label={`Go to emoji group: ${c.jump}`} className={`nc-em-bar-btn ${activeCat === c.key ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => jump(c.key)}>
+          <div key={c.key} role="button" aria-label={`이모지 그룹으로 이동: ${c.jump}`} className={`nc-em-bar-btn ${activeCat === c.key ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={() => jump(c.key)}>
             <Icon name={c.icon} size={18} />
           </div>
         ))}
-        <div role="button" aria-label="Jump to category: custom" className={`nc-em-bar-btn ${activeCat === 'custom' ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={(e) => (customs.length ? jump('custom') : openCustomEmojiUpload(e.currentTarget))}>
+        <div role="button" aria-label="카테고리로 이동: 사용자 지정" className={`nc-em-bar-btn ${activeCat === 'custom' ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={(e) => (customs.length ? jump('custom') : openCustomEmojiUpload(e.currentTarget))}>
           <Icon name="emojiCustom" size={18} />
         </div>
-        <div role="button" aria-label="Jump to category: add" data-tooltip="Add emoji" className="nc-em-bar-btn" onMouseDown={(e) => e.preventDefault()} onClick={(e) => openCustomEmojiUpload(e.currentTarget)}>
+        <div role="button" aria-label="카테고리로 이동: 추가" data-tooltip="이모지 추가" className="nc-em-bar-btn" onMouseDown={(e) => e.preventDefault()} onClick={(e) => openCustomEmojiUpload(e.currentTarget)}>
           <Icon name="plusCircleFill" size={18} />
         </div>
       </div>

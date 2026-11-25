@@ -45,7 +45,7 @@ export function usePageSearch(q: string, opts?: { limit?: number; exclude?: stri
 
 /** “Parent / … / Grandparent” breadcrumb shown under a page result. */
 export function breadcrumbOf(pageId: string): string {
-  const anc = ancestorsOf(pageId).map((b: BlockRecord) => pageTitle(b) || 'Untitled');
+  const anc = ancestorsOf(pageId).map((b: BlockRecord) => pageTitle(b) || '제목 없음');
   if (!anc.length) return '';
   if (anc.length <= 2) return anc.join(' / ');
   return `${anc[0]} / … / ${anc[anc.length - 1]}`;

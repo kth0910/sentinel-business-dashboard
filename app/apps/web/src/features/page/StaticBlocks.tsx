@@ -28,7 +28,7 @@ const ToggleDefault = createContext(true);
 
 function ToggleArrow({ open, onClick }: { open: boolean; onClick: () => void }) {
   return (
-    <span role="button" aria-label={open ? 'Close' : 'Open'} aria-expanded={open} className="nc-static-toggle" onClick={onClick}
+    <span role="button" aria-label={open ? '닫기' : '열기'} aria-expanded={open} className="nc-static-toggle" onClick={onClick}
       style={{ display: 'inline-flex', cursor: 'pointer', fontSize: 12, color: 'var(--lp-icon-primary)', transform: open ? undefined : 'rotate(-90deg)', transition: 'transform 120ms' }}>▼</span>
   );
 }
@@ -104,13 +104,13 @@ function StaticBlock({ block: b, get, depth, index }: { block: BlockRecord; get:
       return wrap(<div style={{ textAlign: 'center', fontFamily: 'KaTeX_Main, serif', padding: 8 }}>{toPlainText(title)}</div>);
     case 'image': {
       const src = toPlainText(b.properties?.source as RichText | undefined) || (b.format?.display_source as string) || '';
-      return wrap(src ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: 4, display: 'block' }} /> : <div className="nc-static-placeholder">Image</div>);
+      return wrap(src ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: 4, display: 'block' }} /> : <div className="nc-static-placeholder">이미지</div>);
     }
     case 'page': case 'collection_view_page': case 'link_to_page': case 'alias':
       return wrap(
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, textDecoration: 'underline', textDecorationColor: 'var(--lp-border-primary-transparent)' }}>
           <PageIcon block={b} size={20} />
-          <span>{toPlainText(b.properties?.title) || 'Untitled'}</span>
+          <span>{toPlainText(b.properties?.title) || '제목 없음'}</span>
         </div>,
       );
     case 'column_list':
@@ -138,7 +138,7 @@ function StaticBlock({ block: b, get, depth, index }: { block: BlockRecord; get:
       );
     }
     case 'collection_view':
-      return wrap(<div className="nc-static-placeholder">Database</div>);
+      return wrap(<div className="nc-static-placeholder">데이터베이스</div>);
     case 'video': case 'audio': case 'file': case 'pdf': case 'bookmark': case 'embed':
       return wrap(<div className="nc-static-placeholder">{toPlainText(b.properties?.title) || toPlainText(b.properties?.source as RichText | undefined) || b.type}</div>);
     case 'column': case 'transclusion_container': case 'tabs': case 'tab':
@@ -176,7 +176,7 @@ export function StaticPage({ rootId, blocks, changed }: { rootId: string; blocks
       )}
       <div className={`nc-static-content ${root.format?.page_full_width ? 'wide' : ''}`}>
         {icon && <div className="nc-static-icon" style={{ marginTop: cover ? -42 : 64 }}><PageIcon icon={icon} size={78} /></div>}
-        <h1 className={`nc-static-title ${changedSet.has(rootId) ? 'nc-vh-changed' : ''}`} style={{ marginTop: icon ? 8 : cover ? 24 : 80 }}>{toPlainText(root.properties?.title) || 'Untitled'}</h1>
+        <h1 className={`nc-static-title ${changedSet.has(rootId) ? 'nc-vh-changed' : ''}`} style={{ marginTop: icon ? 8 : cover ? 24 : 80 }}>{toPlainText(root.properties?.title) || '제목 없음'}</h1>
         <div className="lit-page-content" style={{ paddingTop: 8 }}>
           <Children ids={root.content} get={get} depth={0} />
         </div>

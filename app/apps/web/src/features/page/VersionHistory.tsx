@@ -31,13 +31,13 @@ interface Version { id: string; createdTime: number; authorIds: string[]; curren
 export function versionTimestamp(ms: number): string {
   const d = new Date(ms);
   const now = new Date();
-  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const time = d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
   const day = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
   const diff = Math.round((day(now) - day(d)) / 86400000);
   if (diff === 0) return t('lp.page.today_at', 'Today at {time}', { time });
   if (diff === 1) return t('lp.page.yesterday_at', 'Yesterday at {time}', { time });
-  if (diff < 7) return t('lp.page.at', '{weekday} at {time}', { weekday: d.toLocaleDateString('en-US', { weekday: 'long' }), time });
-  return t('lp.page.at_8709', '{date} at {time}', { date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' }), time });
+  if (diff < 7) return t('lp.page.at', '{weekday} at {time}', { weekday: d.toLocaleDateString('ko-KR', { weekday: 'long' }), time });
+  return t('lp.page.at_8709', '{date} at {time}', { date: d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' }), time });
 }
 
 const GROUPS: { id: string; label: string; short: string; ms: number }[] = [
@@ -79,7 +79,7 @@ function VersionHistory({ pageId, close, initial }: { pageId: string; close: () 
       setBookmarks(res.bookmarks ?? {});
       setSelected((s) => s ?? res.versions[0]?.id ?? null);
     } catch (e: any) {
-      setError(e?.status === 403 ? 'You need edit access to view version history.' : t('lp.page.couldn_t_load_version_history', 'Couldn’t load version history.'));
+      setError(e?.status === 403 ? '버전 기록을 보려면 편집 권한이 필요합니다.' : t('lp.page.couldn_t_load_version_history', 'Couldn’t load version history.'));
     }
   }, [pageId]);
 
@@ -241,7 +241,7 @@ function VersionHistory({ pageId, close, initial }: { pageId: string; close: () 
         <div className="nc-vh-sidebar-head">
           <div className="sub">{t('lp.page.version_history', 'Version history')}</div>
           <div className="title nc-ellipsis">{title}</div>
-          <div role="button" className="nc-vh-group-btn" aria-label={`Group by ${bucket.short}`} onClick={(e) => openMenu(e.currentTarget, {
+          <div role="button" className="nc-vh-group-btn" aria-label={`${bucket.short} 단위로 그룹화`} onClick={(e) => openMenu(e.currentTarget, {
             width: 220,
             sections: [{ title: t('lp.page.organize_changes_by', 'Organize changes by'), items: GROUPS.map((g) => ({ label: g.label, checked: g.id === grouping, onSelect: () => setGrouping(g.id) })) }],
           }, { placement: 'bottom-start' })}>
@@ -250,7 +250,7 @@ function VersionHistory({ pageId, close, initial }: { pageId: string; close: () 
             <Icon name="chevronDownNarrow" size={14} />
           </div>
         </div>
-        <div className="lit-scroller vertical nc-vh-list" role="listbox" aria-label="Version history entries">
+        <div className="lit-scroller vertical nc-vh-list" role="listbox" aria-label="버전 기록 목록">
           {versions && listed.length === 0 && (
             <div className="nc-vh-empty small">{grouping === 'bookmarks' ? t('lp.page.you_haven_t_bookmarked_any_versions', 'You haven’t bookmarked any versions') : t('lp.page.there_s_no_change_history_yet', 'There’s no change history yet.')}</div>
           )}

@@ -1,3 +1,4 @@
+import { serverErrorKo } from '../features/biz/serverErrorsKo.ts';
 
 export const clientId = crypto.randomUUID();
 
@@ -7,7 +8,7 @@ export class ApiError extends Error {
   /** the error response body */
   data?: any;
   constructor(status: number, name: string, message: string, data?: any) {
-    super(message);
+    super(serverErrorKo(message)); // 업무관리 시연판: 서버 영어 메시지를 한국어로
     this.status = status;
     this.name = name;
     this.data = data;
@@ -37,6 +38,6 @@ export async function uploadFile(file: File | Blob, name: string, spaceId?: stri
   const q = new URLSearchParams({ name, type: (file as File).type || 'application/octet-stream', ...(spaceId ? { spaceId } : {}), ...(blockId ? { blockId } : {}) });
   const res = await fetch(`/api/upload?${q}`, { method: 'POST', body: file, credentials: 'same-origin' });
   const json = await res.json();
-  if (!res.ok) throw new ApiError(res.status, 'UploadError', json?.message ?? 'Upload failed');
+  if (!res.ok) throw new ApiError(res.status, 'UploadError', json?.message ?? '업로드 실패');
   return json;
 }

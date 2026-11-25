@@ -136,7 +136,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
   // <head>: title, description, social preview, robots, favicon
   const page = pageId ? records.get<BlockRecord>('block', pageId) : undefined;
   const root = site?.rootId ? records.get<BlockRecord>('block', site.rootId) : undefined;
-  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || 'Untitled') : 'Litpage';
+  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || '제목 없음') : 'CoolNotion!';
   useEffect(() => {
     document.title = docTitle;
   });
@@ -178,9 +178,9 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
     return (
       <div className="nc-public-page">
         <div className="nc-public-message">
-          <div className="title">We couldn’t find this page</div>
-          <div className="sub">The page may not be published, or the link may have expired.</div>
-          <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open Litpage')}</button>
+          <div className="title">페이지를 찾을 수 없습니다</div>
+          <div className="sub">페이지가 게시되지 않았거나 링크가 만료되었을 수 있습니다.</div>
+          <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open CoolNotion!')}</button>
         </div>
       </div>
     );
@@ -199,11 +199,11 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
     }
     try {
       const res = await api('duplicatePublicPage', { pageId, spaceId: useSession.getState().spaceId });
-      useUI.getState().toast('Duplicated to your Private pages');
+      useUI.getState().toast('개인 페이지로 복제했습니다');
       await useSession.getState().load();
       if (res.blockId) navigate(`/${spaceDomain(res.spaceId)}/${compactId(res.blockId)}`);
     } catch (e: any) {
-      useUI.getState().toast(e?.message ?? 'Couldn’t duplicate this page');
+      useUI.getState().toast(e?.message ?? '이 페이지를 복제하지 못했습니다');
     }
   };
 
@@ -241,18 +241,18 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
             <span key={c.id} style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
               <div role="button" className="nc-crumb" onClick={() => c.id !== pageId && navigate(`/public/${c.id === site?.rootId && settings?.slug ? settings.slug : c.id.replace(/-/g, '')}`)}>
                 {c.icon && <PageIcon icon={c.icon} size={18} />}
-                <span className="nc-ellipsis" style={{ maxWidth: 240, marginInlineStart: c.icon ? 6 : 0 }}>{c.title || 'Untitled'}</span>
+                <span className="nc-ellipsis" style={{ maxWidth: 240, marginInlineStart: c.icon ? 6 : 0 }}>{c.title || '제목 없음'}</span>
               </div>
               {i < arr.length - 1 && <span className="sep">/</span>}
             </span>
           ))}
         </div>
         {links.length > 0 && (
-          <nav className="nc-public-nav" aria-label="Site navigation">
+          <nav className="nc-public-nav" aria-label="사이트 탐색">
             {links.map((b) => (
               <div key={b.id} role="link" className={`nc-public-nav-link ${b.id === pageId ? 'current' : ''}`} onClick={() => navigate(`/public/${b.id === site?.rootId && settings?.slug ? settings.slug : b.id.replace(/-/g, '')}`)}>
                 <PageIcon block={b} size={16} />
-                <span className="nc-ellipsis">{pageTitle(b) || 'Untitled'}</span>
+                <span className="nc-ellipsis">{pageTitle(b) || '제목 없음'}</span>
               </div>
             ))}
           </nav>
@@ -260,7 +260,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
         {header?.search !== false && site?.published && <SiteSearch pageId={pageId} rootSlug={settings?.slug} rootId={site?.rootId ?? null} />}
         {header?.share && (
           <div role="button" className="nc-icon-btn" aria-label={t('lp.page.share', 'Share')} data-tooltip={t('lp.page.let_visitors_share_your_site', 'Let visitors share your site')}
-            onClick={() => { void navigator.clipboard?.writeText(location.href); useUI.getState().toast('Link copied'); }}>
+            onClick={() => { void navigator.clipboard?.writeText(location.href); useUI.getState().toast('링크를 복사했습니다'); }}>
             <Icon name="link" size={16} />
           </div>
         )}
@@ -278,7 +278,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
           </button>
         )}
         {status !== 'ready' && header?.signup !== false && (
-          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get Litpage for free')}</button>
+          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get CoolNotion! for free')}</button>
         )}
       </div>
       <PageView pageId={pageId} state={state} inPeek publicView />

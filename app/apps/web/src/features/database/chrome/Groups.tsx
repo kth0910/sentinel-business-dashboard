@@ -70,8 +70,8 @@ export function openGroupMenu(anchor: HTMLElement, group: GroupResult, view: Col
     width: 220,
     sections: [{
       items: [
-        { id: 'hide', label: 'Hide group', icon: 'eyeSlash', onSelect: () => setSavedGroups(view, savedGroupsFrom(allGroups.map((g) => (g.id === group.id ? { ...g, hidden: true } : g)), property, savedGroupsOf(view)), { action: 'hideGroup' }) },
-        { id: 'calc', label: 'Calculate', icon: 'sum', submenu: () => calculateMenuDef(prop ?? { name: '', type: 'title' }, aggregatorName(agg ?? undefined), (a) => setGroupAggregation(view, { ...(agg?.property ? { property: agg.property } : {}), aggregator: a as any })) },
+        { id: 'hide', label: '그룹 숨기기', icon: 'eyeSlash', onSelect: () => setSavedGroups(view, savedGroupsFrom(allGroups.map((g) => (g.id === group.id ? { ...g, hidden: true } : g)), property, savedGroupsOf(view)), { action: 'hideGroup' }) },
+        { id: 'calc', label: '계산', icon: 'sum', submenu: () => calculateMenuDef(prop ?? { name: '', type: 'title' }, aggregatorName(agg ?? undefined), (a) => setGroupAggregation(view, { ...(agg?.property ? { property: agg.property } : {}), aggregator: a as any })) },
       ],
     }],
   }, { placement: 'bottom-start' });
@@ -86,15 +86,15 @@ export function GroupHeader({ group, view, collection, readOnly, collapsed, onTo
   const showAgg = agg && !!explicit && aggregatorName(explicit) !== 'none';
   return (
     <div className={`nc-group-header ${sticky ? 'sticky' : ''}`} style={groupColorVars(group)}>
-      <div role="button" className={`nc-group-caret ${collapsed ? 'collapsed' : ''}`} aria-label={collapsed ? 'Expand group' : 'Collapse group'} onClick={onToggle}>
+      <div role="button" className={`nc-group-caret ${collapsed ? 'collapsed' : ''}`} aria-label={collapsed ? '그룹 펼치기' : '그룹 접기'} onClick={onToggle}>
         <Icon name="triangleDown" size={20} />
       </div>
       <div className="nc-group-token" onClick={onToggle}><GroupToken group={group} /></div>
       {showAgg && <span className="nc-group-count">{agg!.display}</span>}
       {!readOnly && (
         <div className="nc-group-actions">
-          {!structureRO && <div role="button" className="nc-group-action" aria-label="Group options" onClick={(e) => q.groupBy && openGroupMenu(e.currentTarget, group, view, collection, q.groups ?? [], q.groupBy.property)}><Icon name="ellipsisSmall" size={16} /></div>}
-          <div role="button" className="nc-group-action" aria-label="Create an entry in this group" data-tooltip="Create an entry in this group" onClick={onAdd}><Icon name="plusSmall" size={16} /></div>
+          {!structureRO && <div role="button" className="nc-group-action" aria-label="그룹 옵션" onClick={(e) => q.groupBy && openGroupMenu(e.currentTarget, group, view, collection, q.groups ?? [], q.groupBy.property)}><Icon name="ellipsisSmall" size={16} /></div>}
+          <div role="button" className="nc-group-action" aria-label="이 그룹에 항목 만들기" data-tooltip="이 그룹에 항목 만들기" onClick={onAdd}><Icon name="plusSmall" size={16} /></div>
         </div>
       )}
     </div>
@@ -116,7 +116,7 @@ export function HiddenGroups({ groups, view, collection, onShow }: { groups: Gro
         <div key={g.id} className="nc-hidden-group-row">
           <GroupToken group={g} />
           <span className="nc-group-count">{g.rows.length}</span>
-          <div role="button" className="nc-group-action" aria-label="Show group" onClick={() => onShow(g)}><Icon name="eyeSlash" size={16} /></div>
+          <div role="button" className="nc-group-action" aria-label="그룹 표시" onClick={() => onShow(g)}><Icon name="eyeSlash" size={16} /></div>
         </div>
       ))}
     </div>

@@ -213,6 +213,6 @@ export function openNestedMenu(anchor: HTMLElement, def: Parameters<typeof openM
 /** Menu items for picking a date-like property ("Show calendar by" / "Show timeline by"). */
 export function datePropertyItems(schema: Record<string, PropertySchema>, current: string | undefined, onPick: (id: string) => void, opts?: { onlyEditable?: boolean }): MenuItemDef[] {
   const list = dateProperties(schema).filter(([, p]) => !opts?.onlyEditable || p.type === 'date');
-  if (!list.length) return [{ label: 'No date properties', disabled: true }];
+  if (!list.length) return [{ label: '날짜 속성 없음', disabled: true }];
   return list.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: id === current, onSelect: () => onPick(id) }));
 }

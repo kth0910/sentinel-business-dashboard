@@ -7,7 +7,7 @@ import { collectionAccess } from '../access.ts';
 export function openLayoutBuilder(collectionId: string) {
   const access = collectionAccess(collectionId);
   if (access.locked) {
-    useUI.getState().toast('Unlock this table to adjust its layout.');
+    useUI.getState().toast('레이아웃을 조정하려면 이 테이블의 잠금을 해제하세요.');
     return;
   }
   if (!access.canEditStructure) return;

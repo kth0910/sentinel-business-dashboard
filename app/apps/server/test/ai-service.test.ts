@@ -66,13 +66,13 @@ beforeAll(async () => {
 
 describe('chat orchestration', () => {
   it('attaches the current page, persists the turn and resolves search citations', async () => {
-    const prep = svc.prepareChatTurn({ userId, spaceId, text: 'What does Welcome to Litpage say about shortcuts?', pageId });
-    expect(prep.thread.title).toBe('What does Welcome to Litpage say about shortcuts?');
+    const prep = svc.prepareChatTurn({ userId, spaceId, text: 'What does 시작하기 say about shortcuts?', pageId });
+    expect(prep.thread.title).toBe('What does 시작하기 say about shortcuts?');
     const ctx = prep.userMessage!.data.contexts!;
     expect(ctx).toHaveLength(1);
-    expect(ctx[0]).toMatchObject({ kind: 'page', pageId, title: 'Welcome to Litpage' });
-    expect(ctx[0].markdown).toContain('# Welcome to Litpage');
-    expect(ctx[0].markdown).toContain('▸ More shortcuts and ideas');
+    expect(ctx[0]).toMatchObject({ kind: 'page', pageId, title: '시작하기' });
+    expect(ctx[0].markdown).toContain('# 시작하기');
+    expect(ctx[0].markdown).toContain('▸ 더 알아보기');
 
     const seen: any[] = [];
     const sources: any[] = [];
@@ -95,7 +95,7 @@ describe('chat orchestration', () => {
     await svc.executeChatTurn(prep2, {}, undefined, fake([say('You are welcome.')], seen2) as any);
     const msgs = seen2[0].messages;
     expect(msgs.map((m: any) => m.role)).toEqual(['user', 'assistant', 'user']);
-    expect(msgs[0].content[0].text).toContain('<page id="' + pageId + '" title="Welcome to Litpage">');
+    expect(msgs[0].content[0].text).toContain('<page id="' + pageId + '" title="시작하기">');
     expect(msgs[1].content).toBe('The Acme deal is in your tracker [1].');
 
     // retry replaces the last answer
@@ -168,7 +168,7 @@ describe('writer, block, autofill', () => {
   it('writer reads the page as context', () => {
     const req = svc.prepareWriter({ userId, pageId, skill: 'Summarize' });
     const content = req.messages[0].content as any[];
-    expect(content[0].text).toContain('Welcome to Litpage');
+    expect(content[0].text).toContain('시작하기');
     expect(content.at(-1).text).toContain('Summarize the page');
   });
 

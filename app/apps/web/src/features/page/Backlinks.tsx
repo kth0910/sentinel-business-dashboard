@@ -56,7 +56,7 @@ function Row({ id, onOpen }: { id: string; onOpen?: () => void }) {
   return (
     <div role="button" className="nc-backlink" onClick={() => { onOpen?.(); openPage(id); }}>
       <PageIcon block={b} size={18} />
-      <span className="nc-ellipsis">{pageTitle(b) || 'New page'}</span>
+      <span className="nc-ellipsis">{pageTitle(b) || '새 페이지'}</span>
       {priv && <span className="nc-backlink-private" data-tooltip={t('lp.page.only_you_can_see_this_backlink', 'Only you can see this backlink')}>{t('lp.page.private', 'Private')}</span>}
     </div>
   );

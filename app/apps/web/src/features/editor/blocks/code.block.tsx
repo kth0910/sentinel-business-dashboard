@@ -37,7 +37,7 @@ export function openLanguagePicker(blockIds: string[], anchor: HTMLElement | DOM
   const b = getBlock(blockIds[0]);
   const current = b ? languageOf(b) : '';
   return openMenu(anchor as any, {
-    search: 'Find a language…', width: 240, maxHeight: '50vh',
+    search: '언어 찾기…', width: 240, maxHeight: '50vh',
     sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: l, checked: l === current, onSelect: () => setLanguage(blockIds, l) })) }],
   }, { placement, offset: 8 });
 }
@@ -51,7 +51,7 @@ export function toggleWrap(ids: string[]) {
 
 export function copyCode(blockId: string) {
   const text = toPlainText(getBlock(blockId)?.properties?.title as RichText | undefined);
-  void copyText(text, 'Copied');
+  void copyText(text, '복사됨');
 }
 
 export function formatCode(blockId: string) {
@@ -67,7 +67,7 @@ export function formatCode(blockId: string) {
     out = null;
   }
   if (out == null) {
-    toast(lang === 'json' ? 'Could not format: invalid JSON' : `Format code isn’t available for ${languageOf(b)}`);
+    toast(lang === 'json' ? '서식을 적용할 수 없습니다. JSON 형식이 올바르지 않습니다.' : `${languageOf(b)}은(는) 코드 서식을 지원하지 않습니다`);
     return;
   }
   if (out !== text) run('formatCode', (tx) => setProperty(tx, blockId, 'title', out ? [[out]] : []));
@@ -159,28 +159,28 @@ function CodeBlock({ block, readOnly }: BlockProps) {
 
   return (
     <div className="nc-bpad">
-      <div className={`nc-code-box nc-blk-hoverable ${showCode ? '' : 'preview-only'}`} role="figure" aria-label="Code block">
+      <div className={`nc-code-box nc-blk-hoverable ${showCode ? '' : 'preview-only'}`} role="figure" aria-label="코드 블록">
         {!readOnly && (
           <ActionBar className="nc-code-actionbar">
-            <div ref={langRef} role="button" tabIndex={0} aria-label="Choose a language" className="nc-blk-action with-text nc-code-lang-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => langRef.current && openLanguagePicker([block.id], langRef.current)}>
+            <div ref={langRef} role="button" tabIndex={0} aria-label="언어 선택" className="nc-blk-action with-text nc-code-lang-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => langRef.current && openLanguagePicker([block.id], langRef.current)}>
               {language}
               <Icon name="chevronDown" size={12} />
             </div>
             <ActionDivider />
             {isMermaid && (
               <>
-                <ActionButton icon={preview === 'code' ? 'code' : preview === 'preview' ? 'previewEye' : 'splitView'} tooltip="Display" label="Choose a preview format" onClick={(e) => openMenu(e.currentTarget, {
+                <ActionButton icon={preview === 'code' ? 'code' : preview === 'preview' ? 'previewEye' : 'splitView'} tooltip="표시" label="미리보기 형식 선택" onClick={(e) => openMenu(e.currentTarget, {
                   width: 200,
-                  sections: [{ items: ([['code', 'Code', 'code'], ['preview', 'Preview', 'previewEye'], ['split_view', 'Split', 'splitView']] as const).map(([f, label, icon]) => ({ label, icon, checked: preview === f, onSelect: () => setPreviewFormat(block.id, f) })) }],
+                  sections: [{ items: ([['code', '코드', 'code'], ['preview', '미리보기', 'previewEye'], ['split_view', '분할', 'splitView']] as const).map(([f, label, icon]) => ({ label, icon, checked: preview === f, onSelect: () => setPreviewFormat(block.id, f) })) }],
                 })} />
-                <ActionButton icon="zoomIn" tooltip="Expand diagram" onClick={() => {
+                <ActionButton icon="zoomIn" tooltip="다이어그램 확대" onClick={() => {
                   void renderMermaid(text).then((r) => r.svg && openLightbox(() => <div className="nc-lightbox-diagram" dangerouslySetInnerHTML={{ __html: r.svg! }} />));
                 }} />
-                <ActionButton icon="download" tooltip="Download image" label="Download diagram image" onClick={() => {
+                <ActionButton icon="download" tooltip="이미지 다운로드" label="다이어그램 이미지 다운로드" onClick={() => {
                   void renderMermaid(text).then(async (r) => {
-                    if (!r.svg) return toast('The diagram has errors');
+                    if (!r.svg) return toast('다이어그램에 오류가 있습니다');
                     const blob = await svgToJpeg(r.svg);
-                    if (!blob) return toast('Could not export the diagram');
+                    if (!blob) return toast('다이어그램을 내보내지 못했습니다');
                     const url = URL.createObjectURL(blob);
                     downloadUrl(url, 'diagram.jpeg');
                     setTimeout(() => URL.revokeObjectURL(url), 5000);
@@ -188,9 +188,9 @@ function CodeBlock({ block, readOnly }: BlockProps) {
                 }} />
               </>
             )}
-            <ActionButton icon={copied ? 'check' : 'copy'} tooltip="Copy" label="Copy code" onClick={() => { copyCode(block.id); setCopied(true); setTimeout(() => setCopied(false), 1500); }} />
-            <ActionButton icon="arrowTurnDownLeft" tooltip={wrap ? 'Disable code wrapping' : 'Wrap code'} active={wrap} onClick={() => toggleWrap([block.id])} />
-            <ActionButton icon="ellipsis" tooltip="More actions" label="Open block options" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
+            <ActionButton icon={copied ? 'check' : 'copy'} tooltip="복사" label="코드 복사" onClick={() => { copyCode(block.id); setCopied(true); setTimeout(() => setCopied(false), 1500); }} />
+            <ActionButton icon="arrowTurnDownLeft" tooltip={wrap ? '코드 줄바꿈 끄기' : '코드 줄바꿈'} active={wrap} onClick={() => toggleWrap([block.id])} />
+            <ActionButton icon="ellipsis" tooltip="추가 작업" label="블록 옵션 열기" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
           </ActionBar>
         )}
         {showCode && (
@@ -248,19 +248,19 @@ registerBlock(['code'], CodeBlock);
 registerBlockMenu(['code'], ({ ids, block, turnInto }) => {
   const items: MenuItemDef[] = [
     turnInto,
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
-    { label: 'Copy code', icon: 'copyCode', onSelect: () => copyCode(block.id) },
-    { label: 'Wrap code', icon: 'arrowTurnDownLeft', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_wrap === true} />, onSelect: () => { toggleWrap(ids); return false; } },
+    { label: '캡션', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    { label: '코드 복사', icon: 'copyCode', onSelect: () => copyCode(block.id) },
+    { label: '코드 줄바꿈', icon: 'arrowTurnDownLeft', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_wrap === true} />, onSelect: () => { toggleWrap(ids); return false; } },
     {
-      label: 'Language', icon: 'curlyBraces',
+      label: '언어', icon: 'curlyBraces',
       submenu: () => ({
-        search: 'Find a language…', width: 240, maxHeight: '50vh',
+        search: '언어 찾기…', width: 240, maxHeight: '50vh',
         sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: l, checked: l === languageOf(block), onSelect: () => setLanguage(ids, l) })) }],
       }),
     },
-    { label: 'Format code', icon: 'lightning', onSelect: () => formatCode(block.id) },
+    { label: '코드 서식 지정', icon: 'lightning', onSelect: () => formatCode(block.id) },
     {
-      label: 'Line numbers', icon: 'listNumber', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_line_numbers === true} />,
+      label: '줄 번호', icon: 'listNumber', right: <LiveSwitch blockId={block.id} get={(b) => b.format?.code_line_numbers === true} />,
       onSelect: () => { const on = getBlock(block.id)?.format?.code_line_numbers === true; run('toggleCodeLineNumbers', (tx) => { for (const id of ids) setFormat(tx, id, { code_line_numbers: !on }); }); return false; },
     },
   ];

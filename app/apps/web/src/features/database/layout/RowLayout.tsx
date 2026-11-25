@@ -49,7 +49,7 @@ function SectionView({ page, col, section, hidden, readOnly, structureRO, icons,
 function PropertyGroupView({ m, page, col, readOnly, structureRO, icons, custom, inPanel }: { m: PropertiesModule; page: BlockRecord; col: CollectionRecord; readOnly: boolean; structureRO: boolean; icons: boolean; custom: boolean; inPanel?: boolean }) {
   return (
     <div className={`nc-row-props-wrap ${inPanel ? 'in-panel' : ''}`}>
-      <div role="table" aria-label="Page properties" className={`nc-row-props ${icons ? '' : 'no-icons'}`}>
+      <div role="table" aria-label="페이지 속성" className={`nc-row-props ${icons ? '' : 'no-icons'}`}>
         {m.sections.map((s) => <SectionView key={s.id} page={page} col={col} section={s} hidden={m.hidden} readOnly={readOnly} structureRO={structureRO} icons={icons} custom={custom} />)}
         {!structureRO && !inPanel && <AddPropertyRow col={col} />}
       </div>
@@ -67,7 +67,7 @@ function PlainPropertyModule({ propId, page, col, readOnly, structureRO, icons }
         {icons && <PropertyIcon prop={p} size={16} />}
         <span>{p.name}</span>
       </div>
-      <PropertyCell row={page} schema={col.schema} propId={propId} readOnly={readOnly} mode="page" wrap placeholder={<span className="nc-page-prop-empty">Empty</span>} className="nc-page-prop-cell" />
+      <PropertyCell row={page} schema={col.schema} propId={propId} readOnly={readOnly} mode="page" wrap placeholder={<span className="nc-page-prop-empty">하위 페이지 없음</span>} className="nc-page-prop-cell" />
     </div>
   );
 }
@@ -94,14 +94,14 @@ function RelationSection({ propId, page, col, readOnly, structureRO, icons }: { 
         {pages.map((b) => (
           <div key={b.id} role="button" className="nc-layout-relation-row" onClick={() => openPeek(b.id, 'side_peek')}>
             <PageIcon block={b} size={18} />
-            <span className="nc-layout-relation-title nc-ellipsis">{toPlainText(b.properties?.title) || 'Untitled'}</span>
+            <span className="nc-layout-relation-title nc-ellipsis">{toPlainText(b.properties?.title) || '제목 없음'}</span>
             {target && shown.map((sp) => <PropertyCell key={sp} row={b} schema={target.schema} propId={sp} readOnly noEdit className="nc-layout-relation-prop" />)}
           </div>
         ))}
-        {!pages.length && <div className="nc-layout-relation-empty">No related pages</div>}
+        {!pages.length && <div className="nc-layout-relation-empty">관련 페이지 없음</div>}
         {!readOnly && (
           <div role="button" className="nc-layout-relation-add" data-testid="relation-section-add" onClick={(e) => openRelationPicker(e.currentTarget, { rowIds: [page.id], propId, collectionId: col.id })}>
-            <Icon name="plus" size={14} /><span>Add a relation</span>
+            <Icon name="plus" size={14} /><span>관계형 추가</span>
           </div>
         )}
       </div>
@@ -151,20 +151,20 @@ function PinnedProperties({ ids, page, col, readOnly, icons }: { ids: string[]; 
   const scroll = (dir: number) => ref.current?.scrollBy({ left: dir * 240, behavior: 'smooth' });
   return (
     <div className="nc-pinned-props-wrap">
-      {overflow.left && <span role="button" className="nc-pinned-scroll left" aria-label="Scroll left" onClick={() => scroll(-1)}><Icon name="chevronLeft" size={14} /></span>}
-      <div className="nc-pinned-props hide-scrollbar" ref={ref} aria-label="Pinned properties">
+      {overflow.left && <span role="button" className="nc-pinned-scroll left" aria-label="왼쪽으로 스크롤" onClick={() => scroll(-1)}><Icon name="chevronLeft" size={14} /></span>}
+      <div className="nc-pinned-props hide-scrollbar" ref={ref} aria-label="고정된 속성">
         {ids.map((id) => {
           const p = col.schema[id];
           if (!p) return null;
           return (
             <div key={id} className="nc-pinned-prop" data-property={id}>
               <div className="nc-pinned-prop-label">{icons && <PropertyIcon prop={p} size={14} />}<span>{p.name}</span></div>
-              <PropertyCell row={page} schema={col.schema} propId={id} readOnly={readOnly} mode="page" placeholder={<span className="nc-page-prop-empty">Empty</span>} className="nc-pinned-prop-value" />
+              <PropertyCell row={page} schema={col.schema} propId={id} readOnly={readOnly} mode="page" placeholder={<span className="nc-page-prop-empty">하위 페이지 없음</span>} className="nc-pinned-prop-value" />
             </div>
           );
         })}
       </div>
-      {overflow.right && <span role="button" className="nc-pinned-scroll right" aria-label="Scroll right" onClick={() => scroll(1)}><Icon name="chevronRight" size={14} /></span>}
+      {overflow.right && <span role="button" className="nc-pinned-scroll right" aria-label="오른쪽으로 스크롤" onClick={() => scroll(1)}><Icon name="chevronRight" size={14} /></span>}
     </div>
   );
 }
@@ -173,7 +173,7 @@ function PinnedProperties({ ids, page, col, readOnly, icons }: { ids: string[]; 
 function RelatedTab({ page, tab }: { page: BlockRecord; tab: NonNullable<PageLayout['tabs']>[number] }) {
   useDatabaseVersion();
   const target = useCollection(tab.collection_id);
-  if (!target) return <div className="nc-layout-tab-empty">This data source isn’t available.</div>;
+  if (!target) return <div className="nc-layout-tab-empty">이 데이터 소스를 사용할 수 없습니다.</div>;
   const relProp = Object.entries(target.schema).find(([, p]) => p.type === 'relation' && ((p.collection_pointer as { id?: string } | undefined)?.id ?? p.collection_id) === page.parent_id)?.[0];
   const rows = relProp ? collectionRows(target.id).filter((r) => JSON.stringify(r.properties?.[relProp] ?? []).includes(page.id)) : [];
   return (
@@ -181,13 +181,13 @@ function RelatedTab({ page, tab }: { page: BlockRecord; tab: NonNullable<PageLay
       {rows.map((r) => (
         <div key={r.id} role="link" className="nc-layout-tab-row" onClick={() => openPeek(r.id, 'side_peek')}>
           <PageIcon block={r} size={16} fallback="page" />
-          <span className="nc-layout-tab-row-title">{toPlainText(r.properties?.title) || 'Untitled'}</span>
+          <span className="nc-layout-tab-row-title">{toPlainText(r.properties?.title) || '제목 없음'}</span>
         </div>
       ))}
-      {!rows.length && <div className="nc-layout-tab-empty">No related pages</div>}
+      {!rows.length && <div className="nc-layout-tab-empty">관련 페이지 없음</div>}
       {relProp && (
         <div role="button" className="nc-layout-tab-new" onClick={() => createRow(target.id, { properties: { [relProp]: encodeRelation([page.id], page.space_id) }, action: 'layout.newRelatedPage' })}>
-          <Icon name="plusSmall" size={16} /><span>New page</span>
+          <Icon name="plusSmall" size={16} /><span>새 페이지</span>
         </div>
       )}
     </div>
@@ -207,7 +207,7 @@ function LayoutTabs({ page, layout }: { page: BlockRecord; layout: PageLayout })
   return (
     <div className="layout-content" ref={ref}>
       <div className="nc-layout-tabs" role="tablist">
-        <div role="tab" aria-selected={active === 'content'} className={`nc-layout-tab ${active === 'content' ? 'active' : ''}`} onClick={() => setActive('content')}>Content</div>
+        <div role="tab" aria-selected={active === 'content'} className={`nc-layout-tab ${active === 'content' ? 'active' : ''}`} onClick={() => setActive('content')}>콘텐츠</div>
         {(layout.tabs ?? []).map((t) => (
           <div key={t.id} role="tab" aria-selected={active === t.id} className={`nc-layout-tab ${active === t.id ? 'active' : ''}`} onClick={() => setActive(t.id)}>{t.name}</div>
         ))}
@@ -224,12 +224,12 @@ function HeaderActions({ page, hasPanel, panelOpen, collectionId }: { page: Bloc
       <div
         role="button"
         className={`nc-layout-head-btn ${panelOpen ? 'on' : ''}`}
-        aria-label="Layout/conceal details"
+        aria-label="세부 정보 표시/숨기기"
         data-testid="toggle-details"
         onClick={() => useDetailsPanel.getState().set(collectionId, !panelOpen)}
       >
         <Icon name="panelRight" size={16} />
-        <span>{panelOpen ? 'Hide details' : 'View details'}</span>
+        <span>{panelOpen ? '세부 정보 숨기기' : '세부 정보 보기'}</span>
       </div>
       {void page}
     </div>
@@ -285,9 +285,9 @@ export function RowDetailsPanel(props: RowProps) {
   if (!col || !st.layout || !st.panelOpen) return null;
   const structureRO = props.readOnly || !access.canEditStructure;
   return (
-    <aside className="nc-row-details-panel" aria-label="Details" style={{ width: DETAILS_PANEL_WIDTH }}>
+    <aside className="nc-row-details-panel" aria-label="세부 정보" style={{ width: DETAILS_PANEL_WIDTH }}>
       <div className="nc-row-details-head">
-        <span role="button" className="nc-row-details-close" aria-label="Hide details" data-tooltip="Hide details" onClick={() => useDetailsPanel.getState().set(col.id, false)}><Icon name="arrowChevronDoubleRight" size={16} /></span>
+        <span role="button" className="nc-row-details-close" aria-label="세부 정보 숨기기" data-tooltip="세부 정보 숨기기" onClick={() => useDetailsPanel.getState().set(col.id, false)}><Icon name="arrowChevronDoubleRight" size={16} /></span>
       </div>
       {st.layout.modules.page_details.map((m) => <ModuleView key={m.id} m={m} page={props.page} col={col} layout={st.layout!} props={props} structureRO={structureRO} custom inPanel />)}
     </aside>

@@ -90,7 +90,7 @@ function ReviewDialog({ tpl, close, onDone }: { tpl: TemplateInfo; close: () => 
       ) : (
         <>
           <div className="nc-mkt-review-title">{t('lp.templates.tell_us_what_you_think', 'Tell us what you think')}</div>
-          <div className="nc-mkt-review-sub">{t('lp.templates.help_the_litpage_community_by_writing', 'Help the Litpage community by writing a review')}</div>
+          <div className="nc-mkt-review-sub">{t('lp.templates.help_the_litpage_community_by_writing', 'Help the CoolNotion! community by writing a review')}</div>
           <StarInput value={rating} onChange={setRating} />
           <label className="nc-mkt-review-field">
             <span>{t('lp.templates.display_name_for_your_review', 'Display name for your review')}</span>
@@ -171,7 +171,7 @@ export function ReviewsSection({ tpl }: { tpl: TemplateInfo }) {
             <div className="based">{t('lp.templates.based_on_ratingcount_plural_one_other', 'Based on {ratingCount, plural, one {# review} other {# reviews}}', { ratingCount: n })}</div>
             <div className="nc-mkt-histogram">
               {[5, 4, 3, 2, 1].map((star) => (
-                <div key={star} className="bar-row" aria-label={`${star} star rating, ${data.histogram[star - 1]} reviews`}>
+                <div key={star} className="bar-row" aria-label={`${star}점, 리뷰 ${data.histogram[star - 1]}개`}>
                   <span className="lbl">{star}</span>
                   <span className="bar"><span style={{ width: `${(data.histogram[star - 1] / max) * 100}%` }} /></span>
                   <span className="cnt">{data.histogram[star - 1]}</span>

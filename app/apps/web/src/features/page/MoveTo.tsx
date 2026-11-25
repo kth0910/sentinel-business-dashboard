@@ -117,7 +117,7 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
     const b = records.get<BlockRecord>('block', id);
     return !!b && b.alive !== false && PAGE_TYPES.has(b.type) && !excluded.has(id) && (!spaceId || b.space_id === spaceId);
   };
-  const destinationName = (target: Target) => (target.kind === 'page' ? pageTitle(getBlock(target.id)) || 'page' : target.kind === 'team' ? records.get<TeamRecord>('team', target.id)?.name ?? 'Teamspace' : t('lp.page.private', 'Private'));
+  const destinationName = (target: Target) => (target.kind === 'page' ? pageTitle(getBlock(target.id)) || 'page' : target.kind === 'team' ? records.get<TeamRecord>('team', target.id)?.name ?? '팀스페이스' : t('lp.page.private', 'Private'));
   const moveTo = (target: Target) => {
     if (crossSpace) {
       void duplicateTo(target);
@@ -130,7 +130,7 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
       } else if (target.kind === 'team') moveBlocksIn(tx, ids, { parentId: target.id, parentTable: 'team' });
       else if (sv) moveBlocksIn(tx, ids, { parentId: sv.space_id, parentTable: 'space', list: { table: 'space_view', id: sv.id, path: ['private_pages'] }, first: true });
     });
-    useUI.getState().toast(`Moved to ${destinationName(target)}`);
+    useUI.getState().toast(`${destinationName(target)}(으)로 이동했습니다`);
     close();
   };
   // another workspace: confirm, then the server duplicates the page tree there
@@ -207,13 +207,13 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
   if (!query && crossSpace) {
     // another workspace: its top-level destinations first (Private, joined teamspaces)
     rows.push({ key: 'private', depth: 0, target: { kind: 'private' }, label: t('lp.page.private_pages', 'Private Pages'), icon: <Icon name="lock" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />, expandable: false });
-    for (const tm of teams) rows.push({ key: `team:${tm.id}`, depth: 0, target: { kind: 'team', id: tm.id }, label: tm.name ?? 'Teamspace', icon: <PageIcon icon={tm.icon || '🏠'} size={20} />, expandable: false });
+    for (const tm of teams) rows.push({ key: `team:${tm.id}`, depth: 0, target: { kind: 'team', id: tm.id }, label: tm.name ?? '팀', icon: <PageIcon icon={tm.icon || '🏠'} size={20} />, expandable: false });
     for (const id of suggested) pushPage(id, 0);
   } else if (!query) {
     for (const id of suggested) pushPage(id, 0);
   } else {
-    if ((crossSpace || sv) && ('private pages'.includes(query) || 'private'.startsWith(query))) rows.push({ key: 'private', depth: 0, target: { kind: 'private' }, label: 'Private pages', icon: <Icon name="lock" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />, expandable: false });
-    for (const tm of teams) if (tm.name?.toLowerCase().includes(query)) rows.push({ key: `team:${tm.id}`, depth: 0, target: { kind: 'team', id: tm.id }, label: tm.name ?? 'Teamspace', icon: <PageIcon icon={tm.icon || '🏠'} size={20} />, expandable: false });
+    if ((crossSpace || sv) && ('private pages'.includes(query) || 'private'.startsWith(query))) rows.push({ key: 'private', depth: 0, target: { kind: 'private' }, label: '비공개 페이지', icon: <Icon name="lock" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />, expandable: false });
+    for (const tm of teams) if (tm.name?.toLowerCase().includes(query)) rows.push({ key: `team:${tm.id}`, depth: 0, target: { kind: 'team', id: tm.id }, label: tm.name ?? '팀스페이스', icon: <PageIcon icon={tm.icon || '🏠'} size={20} />, expandable: false });
     for (const id of results) pushPage(id, 0);
   }
   const sel = Math.min(cursor, Math.max(0, rows.length - 1));
@@ -272,7 +272,7 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
           >
             <div
               role="button"
-              aria-label={r.id && expanded.has(r.id) ? 'Close' : 'Open'}
+              aria-label={r.id && expanded.has(r.id) ? '닫기' : '열기'}
               className={`nc-moveto-chevron ${r.expandable ? '' : 'hidden'} ${r.id && expanded.has(r.id) ? 'open' : ''}`}
               onClick={(e) => { e.stopPropagation(); if (r.expandable && r.id) toggle(r.id); }}
             >
@@ -286,7 +286,7 @@ function MoveTo({ ids, close, addTo }: { ids: string[]; close: () => void; addTo
       <div className="nc-moveto-footer">
         <div role="button" className="nc-moveto-space" aria-haspopup="menu" onClick={(e) => openSpaces(e.currentTarget)}>
           <PageIcon icon={space?.icon || undefined} size={16} fallback="workspace" />
-          <span className="nc-ellipsis">{space?.name ?? 'Workspace'}</span>
+          <span className="nc-ellipsis">{space?.name ?? '워크스페이스'}</span>
           <Icon name="chevronDownNarrow" size={12} style={{ color: 'var(--lp-icon-tertiary)' }} />
         </div>
       </div>

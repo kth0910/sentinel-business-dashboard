@@ -22,9 +22,9 @@ type UseCase = 'team' | 'personal' | 'school';
 
 
 const STARTER_TEMPLATES: Record<UseCase, { id: string; label: string; icon: string }[]> = {
-  team: [{ id: 'team-wiki', label: 'Team wiki', icon: '📚' }, { id: 'project-tracker', label: 'Projects', icon: '🎯' }, { id: 'meeting-notes', label: 'Meeting notes', icon: '🗓️' }],
-  school: [{ id: 'todo-list', label: 'Assignments', icon: '✏️' }, { id: 'reading-list', label: 'Reading list', icon: '📚' }, { id: 'weekly-planner', label: 'Weekly planner', icon: '🗓️' }],
-  personal: [{ id: 'todo-list', label: 'Task list', icon: '✅' }, { id: 'journal', label: 'Journal', icon: '📔' }, { id: 'reading-list', label: 'Reading list', icon: '📚' }],
+  team: [{ id: 'team-wiki', label: '팀 위키', icon: '📚' }, { id: 'project-tracker', label: '프로젝트', icon: '🎯' }, { id: 'meeting-notes', label: '회의록', icon: '🗓️' }],
+  school: [{ id: 'todo-list', label: '과제', icon: '✏️' }, { id: 'reading-list', label: '읽을 거리', icon: '📚' }, { id: 'weekly-planner', label: '주간 플래너', icon: '🗓️' }],
+  personal: [{ id: 'todo-list', label: '할 일 목록', icon: '✅' }, { id: 'journal', label: '일지', icon: '📔' }, { id: 'reading-list', label: '읽을 거리', icon: '📚' }],
 };
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -117,7 +117,7 @@ export function OnboardingPage() {
         await finish(res.spaceId);
       }
     } catch (e: any) {
-      useUI.getState().toast(e?.message ?? 'Error');
+      useUI.getState().toast(e?.message ?? '오류');
     } finally {
       setBusy(false);
     }
@@ -160,7 +160,7 @@ export function OnboardingPage() {
           <form className="nc-onb-card" noValidate onSubmit={(e) => { e.preventDefault(); void saveProfile(); }}>
             <div className="nc-auth-heading">
               <h1>{t('lp.auth.set_up_your_profile', 'Set up your profile')}</h1>
-              <h2>{t('lp.auth.this_is_the_name_and_photo', 'This is the name and photo people see in Litpage')}</h2>
+              <h2>{t('lp.auth.this_is_the_name_and_photo', 'This is the name and photo people see in CoolNotion!')}</h2>
             </div>
             <div className="nc-onb-avatar-wrap">
               <div
@@ -207,8 +207,8 @@ export function OnboardingPage() {
         {step === 'use' && (
           <div className="nc-onb-card wide">
             <div className="nc-auth-heading">
-              <h1>{t('lp.auth.how_will_you_use_litpage', 'How will you use Litpage?')}</h1>
-              <h2>{t('lp.auth.we_ll_use_this_to_tailor', 'We’ll use this to tailor Litpage for you')}</h2>
+              <h1>{t('lp.auth.how_will_you_use_litpage', 'How will you use CoolNotion!?')}</h1>
+              <h2>{t('lp.auth.we_ll_use_this_to_tailor', 'We’ll use this to tailor CoolNotion! for you')}</h2>
             </div>
             <div className="nc-onb-choices" role="radiogroup">
               {([

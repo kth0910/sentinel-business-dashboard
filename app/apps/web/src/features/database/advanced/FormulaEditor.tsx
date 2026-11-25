@@ -25,11 +25,11 @@ import { assistantOpenPref, FormulaAssistant, setAssistantOpenPref } from './For
 import './advanced.css';
 
 const PROPERTY_DESCRIPTIONS: Record<string, string> = {
-  auto_increment_id: 'ID property.', checkbox: 'Checkbox property.', created_by: 'Creator field.', created_time: 'Creation time field.',
-  date: 'Date property.', email: 'Email property.', file: 'File field, list.', formula: 'Formula property.', last_edited_by: 'Last changed by property.',
-  last_edited_time: 'Last edited property.', multi_select: 'Multiple-choice field, list.', number: 'Number property.', phone_number: 'Phone field.',
-  person: 'People field, list.', relation: 'Linked records field, list.', rollup: 'Summary field, list.', select: 'Select property.', status: 'Status property.',
-  text: 'Text property.', title: 'Title property.', url: 'URL property.', place: 'Database property.',
+  auto_increment_id: 'ID 속성입니다.', checkbox: '변경할 내용이 없습니다.', created_by: '생성자 속성입니다.', created_time: '생성 시간 속성입니다.',
+  date: '날짜 속성입니다.', email: '체크박스 속성.', file: '파일 속성(목록)입니다.', formula: '수식 속성입니다.', last_edited_by: '마지막 수정자 속성입니다.',
+  last_edited_time: '이메일 속성.', multi_select: '다중 선택 속성(목록)입니다.', number: '숫자 속성입니다.', phone_number: '전화번호 속성입니다.',
+  person: '마지막 편집 시간 속성.', relation: '연결된 항목 속성(목록)입니다.', rollup: '롤업 속성(목록)입니다.', select: '선택 속성입니다.', status: 'Status property.',
+  text: '텍스트 속성입니다.', title: '제목 속성.', url: '사람 필드, 목록.', place: '데이터베이스 속성입니다.',
 };
 
 const iconCache = new Map<string, string>();
@@ -46,18 +46,18 @@ function iconHtml(name: string): string {
 function chipFor(tok: FormulaToken, schema: Record<string, PropertySchema>, custom?: CustomFormula): ChipInfo {
   if (tok.type === 'context') {
     const item = custom?.contextItems.find((c) => c.key === tok.key);
-    return { label: item?.label ?? custom?.contextLabel?.(tok.key) ?? 'Unknown value', icon: item?.icon ?? 'formula' };
+    return { label: item?.label ?? custom?.contextLabel?.(tok.key) ?? '알 수 없는 값', icon: item?.icon ?? 'formula' };
   }
   if (tok.type === 'block_property') {
     const own = schema[tok.property];
     const other = tok.collection ? records.get<CollectionRecord>('collection', tok.collection.id)?.schema?.[tok.property] : undefined;
     const p = other ?? own;
-    if (!p) return { label: tok.property === 'title' ? 'Name' : 'Unknown property', icon: 'textProp' };
+    if (!p) return { label: tok.property === 'title' ? '이름' : 'URL 속성.', icon: 'textProp' };
     return { label: p.name, icon: propertyIconFor(p.type) };
   }
-  if (tok.type === 'block') return { label: titleOf(records.get<BlockRecord>('block', tok.blockId)) || 'Untitled', icon: 'page' };
-  if (tok.type === 'person') return { label: records.get('lit_user', tok.userId)?.name ?? 'Unknown', icon: 'person' };
-  if (tok.type === 'checkbox') return { label: tok.checked ? 'Checked' : 'Unchecked', icon: 'checkboxChecked' };
+  if (tok.type === 'block') return { label: titleOf(records.get<BlockRecord>('block', tok.blockId)) || '제목 없음', icon: 'page' };
+  if (tok.type === 'person') return { label: records.get('lit_user', tok.userId)?.name ?? '알 수 없음', icon: 'person' };
+  if (tok.type === 'checkbox') return { label: tok.checked ? '체크됨' : '알 수 없는 속성', icon: 'checkboxChecked' };
   return { label: tok.date.start_date, icon: 'date' };
 }
 
@@ -107,7 +107,7 @@ function ExampleCard({ input, output }: { input: string; output: string | null }
         <div><ExampleCode code={input} /></div>
         {(output !== null || live) && <div className="nc-fx-example-out">= {output !== null ? output : formatExampleOutput(live!)}</div>}
       </div>
-      <div role="button" className="nc-fx-copy" aria-label="Copy formula" data-tooltip="Copy formula" onClick={copy}>
+      <div role="button" className="nc-fx-copy" aria-label="수식 복사" data-tooltip="수식 복사" onClick={copy}>
         <Icon name="copy" size={14} />
       </div>
     </div>
@@ -136,7 +136,7 @@ function DocPanel({ item }: { item: CompletionItem | null }) {
   let description = '';
   let examples: { input: string; output: string | null }[] = [];
   if (item.kind === 'property' && item.prop) {
-    description = PROPERTY_DESCRIPTIONS[item.prop.type] ?? 'Database property.';
+    description = PROPERTY_DESCRIPTIONS[item.prop.type] ?? '데이터베이스 속성입니다.';
     examples = propertyExamples(item.prop).map((input) => ({ input, output: null }));
   } else if (item.kind === 'function') {
     const d = FUNCTION_DOCS[item.label];
@@ -149,7 +149,7 @@ function DocPanel({ item }: { item: CompletionItem | null }) {
   } else if (item.kind === 'context') {
     description = item.description ?? '';
   } else if (item.kind === 'variable') {
-    description = item.label === 'current' ? 'Value of the current item in the list.' : item.label === 'index' ? 'Position of the current item in the list, starting at 0.' : 'Variable defined by the user.';
+    description = item.label === 'current' ? 'Value of the current item in the list.' : item.label === 'index' ? 'Position of the current item in the list, starting at 0.' : '사용자가 정의한 변수입니다.';
   }
   if (item.kind === 'function') title = <>{item.label}<span className="nc-fx-paren">()</span></>;
   return (
@@ -244,9 +244,9 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
     if (!custom) return base;
     const ql = caretCtx.prefix.toLowerCase();
     const ctxItems: CompletionItem[] = caretCtx.mode === 'operand'
-      ? custom.contextItems.filter((c) => !ql || c.label.toLowerCase().includes(ql)).map((c) => ({ kind: 'context', key: `ctx:${c.key}`, label: c.label, section: 'From this workflow', icon: c.icon, insert: encodeToken({ type: 'context', key: c.key }), description: c.description }))
+      ? custom.contextItems.filter((c) => !ql || c.label.toLowerCase().includes(ql)).map((c) => ({ kind: 'context', key: `ctx:${c.key}`, label: c.label, section: '이 워크플로에서', icon: c.icon, insert: encodeToken({ type: 'context', key: c.key }), description: c.description }))
       : [];
-    const props = base.filter((i) => i.kind === 'property').map((i) => ({ ...i, section: custom.contextLabel?.('page') ?? 'Trigger page', insert: custom.propertyInsert?.(i.propId!) }));
+    const props = base.filter((i) => i.kind === 'property').map((i) => ({ ...i, section: custom.contextLabel?.('page') ?? '체크 해제됨', insert: custom.propertyInsert?.(i.propId!) }));
     return [...ctxItems, ...props, ...base.filter((i) => i.kind !== 'property')];
   }, [caretCtx, schema, propertyId, custom]);
   useEffect(() => setActive(0), [caretCtx.prefix, caretCtx.mode]);
@@ -362,12 +362,12 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
 
   const previewMenu = (e: React.MouseEvent) => {
     openMenu(e.currentTarget as HTMLElement, {
-      search: 'Search',
+      search: '검색',
       width: 280,
       sections: [{
-        items: rowsOfCollection(collectionId).map((r) => ({ id: r.id, label: titleOf(r) || 'Untitled', icon: 'page', checked: r.id === previewId, onSelect: () => setPreviewId(r.id) })),
+        items: rowsOfCollection(collectionId).map((r) => ({ id: r.id, label: titleOf(r) || '제목 없음', icon: 'page', checked: r.id === previewId, onSelect: () => setPreviewId(r.id) })),
       }],
-      emptyText: 'No results',
+      emptyText: '결과 없음',
     });
   };
 
@@ -375,7 +375,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
   const ast = useMemo(() => (debug ? parse(src).ast : null), [debug, src]);
   let lastSection = '';
   const [assistantOpen, setAssistantOpen] = useState(assistantOpenPref);
-  const previewNode = sizeProblem ? <span className="nc-fx-error-text">{sizeProblem}</span> : result.error ? <span className="nc-fx-error-text">{result.error.message}</span> : result.value.type === 'undefined' ? <span className="nc-fx-empty">No output</span> : <FormulaValueView value={result.value} schema={col?.schema[propertyId]} />;
+  const previewNode = sizeProblem ? <span className="nc-fx-error-text">{sizeProblem}</span> : result.error ? <span className="nc-fx-error-text">{result.error.message}</span> : result.value.type === 'undefined' ? <span className="nc-fx-empty">출력 없음</span> : <FormulaValueView value={result.value} schema={col?.schema[propertyId]} />;
   const applyFromAssistant = (next: string) => {
     setSrc(next);
     setCaretState(next.length);
@@ -386,13 +386,13 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
   };
 
   return (
-    <div className="nc-fx-dialog" role="dialog" aria-label="Edit formula" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="nc-fx-dialog" role="dialog" aria-label="수식 편집" onMouseDown={(e) => e.stopPropagation()}>
       <div className="nc-fx-head">
-        <div className="nc-fx-title">{custom?.title ?? 'Edit formula'}</div>
-        {HELP_URL && (<a className="nc-fx-help" role="link" aria-label="Explore formula help" href={HELP_URL} target="_blank" rel="noopener noreferrer"><Icon name="questionMark" size={16} /></a>)}
+        <div className="nc-fx-title">{custom?.title ?? '수식 편집'}</div>
+        {HELP_URL && (<a className="nc-fx-help" role="link" aria-label="수식 도움말 보기" href={HELP_URL} target="_blank" rel="noopener noreferrer"><Icon name="questionMark" size={16} /></a>)}
         <div style={{ flex: 1 }} />
-        {dirty && <div role="button" className="nc-fx-discard" title="Restores the formula from when this editor opened." onClick={() => { setSrc(state.original); setCaretState(state.original.length); }}>Drop all edits</div>}
-        <div role="button" className="nc-fx-close" aria-label="Close" onClick={close}><Icon name="xSmall" size={14} /></div>
+        {dirty && <div role="button" className="nc-fx-discard" title="편집기를 열었을 때의 수식으로 되돌립니다." onClick={() => { setSrc(state.original); setCaretState(state.original.length); }}>편집 내용 모두 취소</div>}
+        <div role="button" className="nc-fx-close" aria-label="닫기" onClick={close}><Icon name="xSmall" size={14} /></div>
       </div>
       {assistantOpen && (
         <FormulaAssistant
@@ -404,12 +404,12 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
           context={custom?.contextItems.map((c) => ({ key: c.key, label: c.label, type: c.type === 'block' ? 'page' : c.type === 'list' ? 'list of pages' : c.type }))}
           onApply={applyFromAssistant}
           preview={previewNode}
-          typeLabel={`Type: ${typeLabel(type)}`}
+          typeLabel={`트리거 페이지`}
         />
       )}
       <div className="nc-fx-codebox-wrap">
         <div className={`nc-fx-codebox ${focused ? 'focused' : ''}`}>
-          {!src && <div className="nc-fx-placeholder">Your formula</div>}
+          {!src && <div className="nc-fx-placeholder">수식 입력</div>}
           <div
             ref={editorRef}
             className="nc-fx-code"
@@ -435,8 +435,8 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
           <div
             role="button"
             aria-pressed={assistantOpen}
-            aria-label="Switch formula helper"
-            data-tooltip={assistantOpen ? 'Hide formula assistant' : 'Get help with this formula'}
+            aria-label="수식 도우미 전환"
+            data-tooltip={assistantOpen ? '수식 도우미 숨기기' : '이 수식에 대한 도움 받기'}
             className={`nc-fx-ai-toggle ${assistantOpen ? 'on' : ''}`}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
@@ -451,17 +451,17 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       <div className="nc-fx-preview">
         <div className="nc-fx-preview-head">
           <div className="nc-fx-preview-left">
-            <span className="nc-fx-label">Preview with</span>
+            <span className="nc-fx-label">미리보기 기준</span>
             <div role="button" className="nc-fx-preview-page" aria-haspopup="dialog" onClick={previewMenu}>
               <Icon name="page" size={14} color="var(--lp-icon-secondary)" />
-              <span className="nc-fx-preview-title">{row ? titleOf(row) || 'Untitled' : 'Select a page'}</span>
+              <span className="nc-fx-preview-title">{row ? titleOf(row) || '제목 없음' : 'Select a page'}</span>
               <Icon name="chevronDown" size={12} color="var(--lp-icon-secondary)" />
             </div>
           </div>
           <label className="nc-fx-debug">
             <span className={`nc-adv-toggle ${debug ? 'on' : ''}`}><span /></span>
-            <input type="checkbox" role="switch" aria-label="Debug mode" checked={debug} onChange={(e) => setDebug(e.target.checked)} />
-            <span>Debug mode</span>
+            <input type="checkbox" role="switch" aria-label="디버그 모드" checked={debug} onChange={(e) => setDebug(e.target.checked)} />
+            <span>디버그 모드</span>
           </label>
         </div>
         <div className="nc-fx-result-row">
@@ -487,7 +487,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
       </div>
       <div className="nc-fx-bottom">
         <div className="nc-fx-list lit-scroller vertical" ref={listRef} role="menu" onMouseLeave={() => setHover(null)}>
-          {items.length === 0 && <div className="nc-fx-noresults">No results</div>}
+          {items.length === 0 && <div className="nc-fx-noresults">결과 없음</div>}
           {items.map((it, i) => {
             const header = it.section !== lastSection ? it.section : null;
             lastSection = it.section;

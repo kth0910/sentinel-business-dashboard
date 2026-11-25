@@ -165,7 +165,7 @@ export function AnalyticsSection() {
       <div className="nc-set-column wide">
         {header}
         <EnterpriseUpsell
-          title={t('lp.settings.track_litpage_and_ai_use', 'Track Litpage and AI use')}
+          title={t('lp.settings.track_litpage_and_ai_use', 'Track CoolNotion! and AI use')}
           description={t('lp.settings.upgrade_to_enterprise_to_see_workspace', 'Upgrade to Enterprise to see workspace engagement, adoption patterns, and AI usage')}
           points={[
             t('lp.settings.workspace_adoption_data', 'Workspace adoption data'),
@@ -236,7 +236,7 @@ function changeByline(cur: number, prev: number, days: number): string {
   const key = `last_${days === 365 ? 365 : days === 90 ? 90 : days === 7 ? 7 : 28}_days`;
   if (!prev || cur === prev) {
     if (!prev && cur) return t('lp.settings.up_members_compared_with_the_prior', 'Up {changeValue} members compared with the prior {numberOfDays} days', { changeValue: cur, numberOfDays: days });
-    return t(`workspaceAnalytics.overview.userEngagement.summaryByline.${key}.none`, `No changes in previous ${days} days`);
+    return t(`workspaceAnalytics.overview.userEngagement.summaryByline.${key}.none`, `이전 ${days}일 동안 변경 없음`);
   }
   const pct = Math.round((Math.abs(cur - prev) / prev) * 100);
   return cur > prev

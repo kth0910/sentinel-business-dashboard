@@ -69,7 +69,7 @@ export function readableText(rt: RichText | undefined, ctx?: QueryContext): stri
 function groupMentionName(groupId: string, spaceId: string | undefined, ctx?: QueryContext): string {
   const space = spaceId ? ctx?.getRecord?.('space', spaceId) : undefined;
   const g = ((space?.settings?.groups ?? []) as { id: string; name?: string }[]).find((x) => x?.id === groupId);
-  return `@${g?.name || 'Deleted group'}`;
+  return `@${g?.name || '삭제된 그룹'}`;
 }
 
 export function userName(id: string, ctx?: QueryContext): string {
@@ -79,7 +79,7 @@ export function userName(id: string, ctx?: QueryContext): string {
 
 export function pageTitle(id: string, ctx?: QueryContext): string {
   const b = ctx?.getRecord?.('block', id);
-  return toPlainText(b?.properties?.title) || (b ? 'Untitled' : '');
+  return toPlainText(b?.properties?.title) || (b ? '제목 없음' : '');
 }
 
 /** Raw (non-computed) decode of a stored property value. */
@@ -179,7 +179,7 @@ export function decodeStored(raw: RichText | undefined, prop: PropertySchema | u
       return { kind: 'person', ids: row?.last_edited_by_id ? [row.last_edited_by_id] : [] };
     case 'location': {
       const col = row ? ctx?.getRecord?.('collection', row.parent_id) : undefined;
-      return { kind: 'text', text: col ? toPlainText(col.name) || 'Untitled' : '' };
+      return { kind: 'text', text: col ? toPlainText(col.name) || '제목 없음' : '' };
     }
     default:
       return raw ? { kind: 'text', text: toPlainText(raw) } : EMPTY_TEXT;
@@ -245,7 +245,7 @@ export function valueToText(v: PropertyValue, prop?: PropertySchema, ctx?: Query
     case 'relation': return v.ids.map((id) => pageTitle(id, ctx)).filter(Boolean).join(', ');
     case 'file': return v.files.map((f) => f.name).join(', ');
     case 'place': return v.place ? [v.place.name, v.place.address].filter(Boolean).join(', ') : '';
-    case 'verification': return v.state === 'none' ? '' : v.state === 'verified' ? 'Verified' : 'Expired';
+    case 'verification': return v.state === 'none' ? '' : v.state === 'verified' ? '확인됨' : '만료됨';
     case 'button': return '';
     case 'array': return v.items.map((i) => valueToText(i, undefined, ctx)).filter(Boolean).join(', ');
     case 'error': return '';

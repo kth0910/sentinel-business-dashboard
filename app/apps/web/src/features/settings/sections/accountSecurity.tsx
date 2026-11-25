@@ -201,7 +201,7 @@ function TwoStepSetup({ sec, close, onChange }: { sec: AccountSecurity; close: (
   return (
     <>
       <h3>{t('lp.settings.authenticator_based_two_step_verificatio', 'Authenticator-based two-step verification is on')}</h3>
-      <div className="desc">{t('lp.settings.whenever_you_enter_your_password_litpage', 'Whenever you enter your password, Litpage will request a verification code to confirm it’s you.')}</div>
+      <div className="desc">{t('lp.settings.whenever_you_enter_your_password_litpage', 'Whenever you enter your password, CoolNotion! will request a verification code to confirm it’s you.')}</div>
       <div className="actions">
         <Button variant="primary" onClick={() => { close(); void loadAccountSecurity().then((s) => openManageTwoStep(s, onChange)); }}>{t('lp.settings.see_two_step_verification_options', 'See two-step verification options')}</Button>
         <Button onClick={close}>{t('lp.settings.close', 'Close')}</Button>
@@ -213,7 +213,7 @@ function TwoStepSetup({ sec, close, onChange }: { sec: AccountSecurity; close: (
 function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void }) {
   const download = () => {
     const text = [
-      t('lp.settings.litpage_backup_codes', 'Litpage recovery codes'),
+      t('lp.settings.litpage_backup_codes', 'CoolNotion! recovery codes'),
       t('lp.settings.keep_these_somewhere_secure_and_check', 'Keep these somewhere secure and check off each code as you use it.'),
       '',
       ...codes,
@@ -229,7 +229,7 @@ function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void })
   return (
     <>
       <h3>{t('lp.settings.keep_these_backup_codes_safe', 'Keep these backup codes safe')}</h3>
-      <div className="desc">{bold(msg('lp.settings.you_can_view_these_only_once', '<boldtext>You can view these only once</boldtext>, so save them somewhere safe to avoid being locked out.'))}</div>
+      <div className="desc">{bold(msg('lp.settings.you_can_view_these_only_once', '<boldtext>이 코드는 한 번만 볼 수 있습니다</boldtext>, so save them somewhere safe to avoid being locked out.'))}</div>
       <div className="nc-set-codes" data-testid="backup-codes">{codes.map((c) => <span key={c}>{c}</span>)}</div>
       <div className="actions">
         <Button icon="download" onClick={download}>{t('lp.settings.download_a_txt_file', 'Download a .txt file')}</Button>
@@ -296,7 +296,7 @@ function ManageTwoStep({ initial, close, onChange }: { initial: AccountSecurity;
     return (
       <>
         <h3>{t('lp.settings.two_step_verification_is_off', 'Two-step verification is off')}</h3>
-        <div className="desc">{t('lp.settings.two_step_verification_was_removed_from', 'Two-step verification was removed from your account. Litpage will ask only for your password when you sign in.')}</div>
+        <div className="desc">{t('lp.settings.two_step_verification_was_removed_from', 'Two-step verification was removed from your account. CoolNotion! will ask only for your password when you sign in.')}</div>
         <div className="actions"><Button variant="primary" onClick={close}>{t('lp.settings.complete', 'Complete')}</Button></div>
       </>
     );
@@ -311,10 +311,10 @@ function ManageTwoStep({ initial, close, onChange }: { initial: AccountSecurity;
         <h3>{isTurnOff || lastFactor ? t('lp.settings.disable_two_step_verification', 'Disable two-step verification') : t('lp.settings.delete_6b57', 'Delete {friendlyName}', { friendlyName: pending.kind === 'delete' ? pending.factor.name : '' })}</h3>
         <div className="desc">
           {isTurnOff
-            ? t('lp.settings.disabling_two_step_verification_removes', 'Disabling two-step verification removes an extra layer of account security. Litpage will ask only for your password when you sign in.')
+            ? t('lp.settings.disabling_two_step_verification_removes', 'Disabling two-step verification removes an extra layer of account security. CoolNotion! will ask only for your password when you sign in.')
             : lastFactor
-              ? t('lp.settings.deleting_disables_two_step_verification', 'Deleting {mfaSettingName} disables two-step verification and removes an extra layer of account security. Litpage will ask only for your password when you sign in.', { mfaSettingName: pending.factor.name })
-              : bold(msg('lp.settings.after_deletion_codes_from_won_t', 'After deletion, codes from {friendlyName} won’t work. <boldtext>Delete this verification method?</boldtext>').replace('{friendlyName}', pending.kind === 'delete' ? pending.factor.name : ''))}
+              ? t('lp.settings.deleting_disables_two_step_verification', 'Deleting {mfaSettingName} disables two-step verification and removes an extra layer of account security. CoolNotion! will ask only for your password when you sign in.', { mfaSettingName: pending.factor.name })
+              : bold(msg('lp.settings.after_deletion_codes_from_won_t', 'After deletion, codes from {friendlyName} won’t work. <boldtext>이 인증 방법을 삭제할까요?</boldtext>').replace('{friendlyName}', pending.kind === 'delete' ? pending.factor.name : ''))}
         </div>
         <div className="actions">
           <Button variant="danger" onClick={() => setVerifying(true)}>{isTurnOff || lastFactor ? t('lp.settings.disable_two_step_verification', 'Disable two-step verification') : t('lp.settings.delete', 'Delete')}</Button>
@@ -327,7 +327,7 @@ function ManageTwoStep({ initial, close, onChange }: { initial: AccountSecurity;
     return (
       <>
         <h3>{t('lp.settings.create_new_backup_codes', 'Create new backup codes')}</h3>
-        <div className="desc">{bold(msg('lp.settings.backup_codes_let_you_sign_in', 'Backup codes let you sign in when you lose access to your password or other verification methods. <boldtext>Old codes stop working when you create new ones.</boldtext>'))}</div>
+        <div className="desc">{bold(msg('lp.settings.backup_codes_let_you_sign_in', 'Backup codes let you sign in when you lose access to your password or other verification methods. <boldtext>새 코드를 만들면 이전 코드는 사용할 수 없습니다.</boldtext>'))}</div>
         <div className="actions">
           <Button variant="primary" onClick={() => setVerifying(true)}>{t('lp.settings.create_fresh_backup_codes', 'Create fresh backup codes')}</Button>
           <Button onClick={() => setPending(null)}>{t('lp.settings.cancel', 'Cancel')}</Button>
@@ -465,7 +465,7 @@ function RemovePassword({ mfaOn, close, onDone }: { mfaOn: boolean; close: () =>
     <>
       <h3>{t('lp.settings.remove_your_password_and_use_temporary', 'Remove your password and use temporary sign-in codes?')}</h3>
       <div className="desc">{t('lp.settings.when_you_sign_in_we_ll', 'When you sign in, we’ll email you a link and a code.')}</div>
-      {mfaOn && <div className="desc">{bold(msg('lp.settings.continuing_will_also_disable_two_step', '<boldtext>Continuing will also disable two-step verification.</boldtext>'))}</div>}
+      {mfaOn && <div className="desc">{bold(msg('lp.settings.continuing_will_also_disable_two_step', '<boldtext>계속하면 2단계 인증도 해제됩니다.</boldtext>'))}</div>}
       <div>
         <label className="nc-set-label">{t('lp.settings.type_the_password_you_use_now', 'Type the password you use now')}</label>
         <div className="nc-set-input"><input type="password" autoFocus value={pw} placeholder={t('lp.settings.current_password', 'Current password')} onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void submit(); }} /></div>
@@ -538,7 +538,7 @@ function ManageEmails({ close, onChange }: { close: () => void; onChange: () => 
     return (
       <>
         <h3>{t('lp.settings.add_an_email_address', 'Add an email address')}</h3>
-        <div className="desc">{t('lp.settings.add_an_email_for_signing_in', 'Add an email for signing in to this Litpage account. It must not already belong to another Litpage account.')}</div>
+        <div className="desc">{t('lp.settings.add_an_email_for_signing_in', 'Add an email for signing in to this CoolNotion! account. It must not already belong to another CoolNotion! account.')}</div>
         <div>
           <label className="nc-set-label">{t('lp.settings.email_address', 'Email address')}</label>
           <div className="nc-set-input"><input autoFocus type="email" aria-label={t('lp.settings.add_an_email_address', 'Add an email address')} value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void send(); }} /></div>
@@ -570,7 +570,7 @@ function ManageEmails({ close, onChange }: { close: () => void; onChange: () => 
   return (
     <div className="left">
       <h3>{t('lp.settings.manage_emails', 'Manage emails')}</h3>
-      <div className="desc">{t('lp.settings.sign_in_to_litpage_with_several', 'Sign in to Litpage with several email addresses under one account')}</div>
+      <div className="desc">{t('lp.settings.sign_in_to_litpage_with_several', 'Sign in to CoolNotion! with several email addresses under one account')}</div>
       <div>
         {(sec?.emails ?? []).map((e) => (
           <div key={e.email} className="nc-set-email-row" data-email={e.email}>

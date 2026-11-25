@@ -25,14 +25,14 @@ import './feed.css';
 function ago(t: number | undefined): string {
   if (!t) return '';
   const s = Math.max(0, Math.floor((Date.now() - t) / 1000));
-  if (s < 60) return 'Just now';
+  if (s < 60) return '방금';
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h`;
   const d = Math.floor(h / 24);
   if (d < 30) return `${d}d`;
-  return new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(t).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function Byline({ row }: { row: BlockRecord }) {
@@ -43,7 +43,7 @@ function Byline({ row }: { row: BlockRecord }) {
   return (
     <div className="nc-feed-byline">
       {anonymous ? <span className="nc-feed-anon">?</span> : <UserAvatar userId={row.created_by_id} size={24} />}
-      <span className="nc-feed-author">{anonymous ? 'Anonymous' : user?.name || user?.email || 'Unknown'}</span>
+      <span className="nc-feed-author">{anonymous ? '익명' : user?.name || user?.email || '알 수 없음'}</span>
       <span className="nc-feed-time">{ago(row.created_time)}{edited ? ' (edited)' : ''}</span>
     </div>
   );
@@ -60,7 +60,7 @@ function FeedCard({ row, props, showByline, wrap, onOpen, bg, views }: { row: Bl
       <div className="nc-feed-body">
         <div role="link" className="nc-feed-title" onClick={onOpen}>
           <PageIcon block={row} size={26} fallback={null} className="nc-feed-icon" />
-          <span>{titleOf(row) || 'Untitled'}</span>
+          <span>{titleOf(row) || '제목 없음'}</span>
         </div>
         {props.ids.length > 0 && (
           <div className={`nc-feed-props ${wrap ? 'wrap' : ''}`}>
@@ -117,11 +117,11 @@ function FeedView(props: ViewProps) {
       {kit.rows.length > limit && (
         <div role="button" className="nc-feed-load-more" onClick={() => setLimit((l) => l + first)}>
           <Icon name="arrowDown" size={16} />
-          <span>Load more</span>
+          <span>더 불러오기</span>
         </div>
       )}
       {!readOnly && (
-        <div role="button" className="nc-feed-new" onClick={() => kit.addRow(undefined, { open: true })}><Icon name="plus" size={16} /><span>New page</span></div>
+        <div role="button" className="nc-feed-new" onClick={() => kit.addRow(undefined, { open: true })}><Icon name="plus" size={16} /><span>새 페이지</span></div>
       )}
     </div>
   );
@@ -133,8 +133,8 @@ function FeedLayoutSettings({ view, readOnly }: LayoutSettingsProps) {
   const fmt = (view.format ?? {}) as Record<string, any>;
   return (
     <>
-      <SettingsToggle label="Wrap properties" on={fmt.table_wrap === true} disabled={readOnly} onChange={(v) => setFormat(view, { table_wrap: v }, 'feedView.wrapProperties')} />
-      <SettingsToggle label="Display author credit" on={fmt.feed_show_author_byline !== false} disabled={readOnly} onChange={(v) => setFormat(view, { feed_show_author_byline: v }, 'feedView.showAuthorByline')} />
+      <SettingsToggle label="속성 줄바꿈" on={fmt.table_wrap === true} disabled={readOnly} onChange={(v) => setFormat(view, { table_wrap: v }, 'feedView.wrapProperties')} />
+      <SettingsToggle label="작성자 표시" on={fmt.feed_show_author_byline !== false} disabled={readOnly} onChange={(v) => setFormat(view, { feed_show_author_byline: v }, 'feedView.showAuthorByline')} />
     </>
   );
 }

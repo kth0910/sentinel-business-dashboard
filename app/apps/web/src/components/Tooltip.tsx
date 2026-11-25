@@ -1,4 +1,4 @@
-// Global hover tooltips: any element with data-tooltip="Text" (optional data-tooltip-sub="⌘K") shows a
+// Global hover tooltips: any element with data-tooltip="텍스트" (optional data-tooltip-sub="⌘K") shows a
 
 import { useEffect, useState } from 'react';
 import './tooltip.css';

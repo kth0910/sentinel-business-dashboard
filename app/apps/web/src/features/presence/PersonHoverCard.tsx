@@ -94,7 +94,7 @@ function GuestUpgrade({ email }: { email?: string }) {
 export function localTime(tz: string | null): string | null {
   if (!tz) return null;
   try {
-    return new Date().toLocaleTimeString('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
+    return new Date().toLocaleTimeString('ko-KR', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
   } catch {
     return null;
   }

@@ -79,7 +79,7 @@ export interface ChartConfig {
 }
 
 export const CHART_HEIGHT: Record<ChartHeight, number> = { small: 300, medium: 400, large: 600, extra_large: 800 };
-export const CHART_TYPE_LABEL: Record<ChartType, string> = { column: 'Vertical bar', bar: 'Horizontal bar', line: 'Line', donut: 'Donut', number: 'Number' };
+export const CHART_TYPE_LABEL: Record<ChartType, string> = { column: '세로 막대', bar: '가로 막대', line: '선', donut: '도넛', number: '숫자' };
 export const CHART_TYPE_ORDER: ChartType[] = ['column', 'bar', 'line', 'donut', 'number'];
 /** “Colorful” palette order for the chart theme. */
 export const COLORFUL = ['blue', 'yellow', 'green', 'purple', 'orange', 'pink', 'teal', 'red', 'brown', 'gray'];
@@ -230,41 +230,41 @@ export interface ChartData {
 }
 
 export const AGG_LABEL: Record<string, string> = {
-  count: 'Count', count_values: 'Count values', unique: 'Distinct', empty: 'Empty', not_empty: 'Not empty', sum: 'Sum', average: 'Average',
-  median: 'Median', min: 'Min', max: 'Max', range: 'Range', checked: 'Checked', unchecked: 'Unchecked', percent_empty: 'Percent empty',
-  percent_not_empty: 'Percent with values', percent_checked: 'Percent checked', percent_unchecked: 'Percent unchecked', earliest_date: 'Earliest date', latest_date: 'Latest date',
+  count: '개수', count_values: '값 개수', unique: '고유값', empty: '하위 페이지 없음', not_empty: '비어 있지 않음', sum: '합계', average: '평균',
+  median: '중앙값', min: '최소', max: '최대', range: '범위', checked: '체크됨', unchecked: '체크 안 됨', percent_empty: '빈 값 비율',
+  percent_not_empty: '값이 있는 비율', percent_checked: '체크 비율', percent_unchecked: '체크 안 됨 비율', earliest_date: '가장 이른 날짜', latest_date: '가장 늦은 날짜',
 };
 
 /** Donut center / value captions ("Total", "Total Estimate", "Average Estimate", …). */
 export function aggregationCaption(agg: ChartAggregation, schema: Schema): string {
   const a = typeof agg.aggregator === 'string' ? agg.aggregator : agg.aggregator.operator;
   const name = agg.property ? schema[agg.property]?.name ?? '' : '';
-  if (a === 'count' && !agg.property) return 'Total';
-  if (a === 'sum') return `Total ${name}`;
-  if (a === 'unique') return `Distinct ${name}`;
+  if (a === 'count' && !agg.property) return '전체';
+  if (a === 'sum') return `${name} 합계`;
+  if (a === 'unique') return `${name} 고유 값`;
   if (['average', 'median', 'min', 'max'].includes(a)) return `${AGG_LABEL[a]} ${name}`;
   return `${AGG_LABEL[a] ?? a} ${name}`.trim();
 }
 
-/** Y axis "What to show" label: "Count" or "Sum · Estimate" style. */
+/** Y axis "What to show" label: "개수" or "Sum · Estimate" style. */
 export function aggregationLabel(agg: ChartAggregation, schema: Schema): string {
   const a = typeof agg.aggregator === 'string' ? agg.aggregator : agg.aggregator.operator;
-  if (a === 'count' && !agg.property) return 'Count';
-  const name = agg.property ? schema[agg.property]?.name ?? 'Deleted property' : '';
+  if (a === 'count' && !agg.property) return '개수';
+  const name = agg.property ? schema[agg.property]?.name ?? '삭제된 속성' : '';
   return name ? `${name} (${AGG_LABEL[a] ?? a})` : AGG_LABEL[a] ?? a;
 }
 
-/** Number chart default title: "Count all" / "{Aggregation} of {property}". */
+/** Number chart default title: "전체 개수" / "{Aggregation} of {property}". */
 export function numberChartTitle(agg: ChartAggregation, schema: Schema): string {
   const a = typeof agg.aggregator === 'string' ? agg.aggregator : agg.aggregator.operator;
-  if (a === 'count' && !agg.property) return 'Count all';
+  if (a === 'count' && !agg.property) return '전체 개수';
   const name = agg.property ? schema[agg.property]?.name ?? '' : '';
-  return `${AGG_LABEL[a] ?? a} of ${name}`;
+  return `${name}의 ${AGG_LABEL[a] ?? a}`;
 }
 
 function aggregate(rows: BlockRecord[], agg: ChartAggregation, schema: Schema, ctx: QueryContext): { value: number; display: string } {
   const a = typeof agg.aggregator === 'string' ? agg.aggregator : agg.aggregator.operator;
-  if (a === 'count' && !agg.property) return { value: rows.length, display: rows.length.toLocaleString('en-US') };
+  if (a === 'count' && !agg.property) return { value: rows.length, display: rows.length.toLocaleString('ko-KR') };
   if (agg.property && !schema[agg.property]) return { value: 0, display: '0' };
   const r = aggregateRows(rows, { aggregator: agg.aggregator as never, property: agg.property }, schema, ctx);
   const v = r.value ?? 0;
@@ -306,7 +306,7 @@ export function chartGroupLists(rows: BlockRecord[], cfg: ChartConfig, schema: S
 }
 
 export function computeChart(rows: BlockRecord[], cfg: ChartConfig, schema: Schema, ctx: QueryContext, saved: ChartSavedGroups = {}): ChartData {
-  const base: ChartData = { kind: 'groups', points: [], series: [], total: 0, rowCount: rows.length, xName: '', yName: 'Count', integer: true, caption: 'Total' };
+  const base: ChartData = { kind: 'groups', points: [], series: [], total: 0, rowCount: rows.length, xName: '', yName: '개수', integer: true, caption: '합계' };
   const dc = cfg.dataConfig;
   if (dc.type === 'number_reducer') {
     const agg = dc.aggregationConfig.aggregation;
@@ -314,7 +314,7 @@ export function computeChart(rows: BlockRecord[], cfg: ChartConfig, schema: Sche
     const r = aggregate(rows, agg, schema, ctx);
     return { ...base, kind: 'number', number: { value: r.value, display: r.display, title: numberChartTitle(agg, schema) } };
   }
-  if (dc.type !== 'groups_reducer') return { ...base, kind: 'error', error: 'This chart configuration is not supported.' };
+  if (dc.type !== 'groups_reducer') return { ...base, kind: 'error', error: '지원하지 않는 차트 설정입니다.' };
   const gb = dc.groupBy;
   const prop = schema[gb.property];
   if (!prop) return { ...base, kind: 'error', error: 'This field has been deleted. Please choose another field.' };
@@ -340,7 +340,7 @@ export function computeChart(rows: BlockRecord[], cfg: ChartConfig, schema: Sche
       });
       if (integer || aName === 'sum') {
         pt.value = pt.parts.reduce((a, p) => a + p.value, 0);
-        pt.display = pt.value.toLocaleString('en-US');
+        pt.display = pt.value.toLocaleString('ko-KR');
       }
     }
     return pt;
@@ -431,7 +431,7 @@ export function formatTick(v: number, numberFormat?: string): string {
   if (abs >= 1e9) s = `${+(v / 1e9).toFixed(1)}B`;
   else if (abs >= 1e6) s = `${+(v / 1e6).toFixed(1)}M`;
   else if (abs >= 1e4) s = `${+(v / 1e3).toFixed(1)}K`;
-  else s = (Math.round(v * 100) / 100).toLocaleString('en-US');
+  else s = (Math.round(v * 100) / 100).toLocaleString('ko-KR');
   if (numberFormat === 'percent') return `${Math.round(v * 10000) / 100}%`;
   return s;
 }

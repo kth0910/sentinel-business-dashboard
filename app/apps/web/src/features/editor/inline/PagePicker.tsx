@@ -32,7 +32,7 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
         <div className="nc-input focused">
           <input
             autoFocus
-            placeholder={placeholder ?? 'Find a page…'}
+            placeholder={placeholder ?? '페이지 찾기…'}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
@@ -45,7 +45,7 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
       </div>
       <div className="lit-scroller vertical nc-menu-scroll" role="listbox">
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">{q ? 'Pages' : 'Recents'}</div>
+          <div className="nc-menu-section-title">{q ? '페이지' : '최근 항목'}</div>
           {hits.ids.map((id, i) => {
             const b = pageOrNull(id) as BlockRecord | undefined;
             const crumb = breadcrumbOf(id);
@@ -54,14 +54,14 @@ function PagePicker({ placeholder, exclude, onPick, close }: PagePickerOpts & { 
                 <div className="nc-menu-item-inner">
                   <div className="nc-menu-icon"><PageIcon block={b} size={20} /></div>
                   <div className="nc-menu-label">
-                    <div className="nc-ellipsis">{pageTitle(b) || 'New page'}</div>
+                    <div className="nc-ellipsis">{pageTitle(b) || '새 페이지'}</div>
                     {crumb && <div className="nc-menu-desc nc-ellipsis">{crumb}</div>}
                   </div>
                 </div>
               </div>
             );
           })}
-          {!hits.loading && !hits.ids.length && <div className="nc-menu-empty">No results</div>}
+          {!hits.loading && !hits.ids.length && <div className="nc-menu-empty">결과 없음</div>}
         </div>
       </div>
     </PopoverSurface>

@@ -19,7 +19,7 @@ function BookmarkBlock({ block, readOnly }: BlockProps) {
   if (!url) {
     return (
       <div className="nc-bpad">
-        <BlockPlaceholder block={block} readOnly={readOnly} icon="bookmark" label="Add a bookmark" onOpen={(el) => openMediaPicker(block, el)} />
+        <BlockPlaceholder block={block} readOnly={readOnly} icon="bookmark" label="북마크 추가" onOpen={(el) => openMediaPicker(block, el)} />
       </div>
     );
   }
@@ -32,7 +32,7 @@ function BookmarkBlock({ block, readOnly }: BlockProps) {
       <div className="nc-blk-hoverable" style={{ position: 'relative' }}>
         <a className={`nc-bookmark ${loading ? 'loading' : ''}`} href={url} target="_blank" rel="noreferrer noopener" role="link" draggable={false}>
           <div className="nc-bookmark-text">
-            <div className="nc-bookmark-title">{title || (loading ? 'Fetching preview…' : url)}</div>
+            <div className="nc-bookmark-title">{title || (loading ? '미리보기 불러오는 중…' : url)}</div>
             {desc && <div className="nc-bookmark-desc">{desc}</div>}
             <div className="nc-bookmark-url">
               {icon ? <img src={icon} alt="" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} /> : null}
@@ -47,8 +47,8 @@ function BookmarkBlock({ block, readOnly }: BlockProps) {
         </a>
         {!readOnly && (
           <ActionBar>
-            <ActionButton icon="caption" tooltip="Caption" onClick={() => showCaption(block.id)} />
-            <ActionButton icon="ellipsis" tooltip="More actions" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
+            <ActionButton icon="caption" tooltip="캡션" onClick={() => showCaption(block.id)} />
+            <ActionButton icon="ellipsis" tooltip="추가 작업" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())} />
           </ActionBar>
         )}
       </div>
@@ -63,11 +63,11 @@ registerBlock(['bookmark'], BookmarkBlock);
 registerBlockMenu(['bookmark'], ({ block, color }) => {
   const url = toPlainText((block.properties as any)?.link as RichText | undefined) || sourceOf(block);
   return [
-    { label: 'Caption', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
+    { label: '캡션', icon: 'caption', shortcut: '⌘⌥M', onSelect: () => showCaption(block.id) },
     ...(url ? [
-      { label: 'Copy source link', icon: 'link', onSelect: () => void copyText(url, 'Link copied') },
-      { label: 'Reload', icon: 'refresh', onSelect: () => void refreshBookmark(block.id, url) },
-      { label: 'Replace', icon: 'replace', onSelect: () => replaceMedia(block) },
+      { label: '원본 링크 복사', icon: 'link', onSelect: () => void copyText(url, '링크를 복사했습니다') },
+      { label: '새로고침', icon: 'refresh', onSelect: () => void refreshBookmark(block.id, url) },
+      { label: '바꾸기', icon: 'replace', onSelect: () => replaceMedia(block) },
     ] : []),
     color,
   ];

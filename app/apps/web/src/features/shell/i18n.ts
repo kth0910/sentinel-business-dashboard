@@ -12,13 +12,16 @@ import ko from './i18n.ko-KR.json';
 export type Locale = 'en-US' | 'ko-KR';
 export const LOCALES: { id: Locale; label: string; native: string }[] = [
   { id: 'en-US', label: 'English (US)', native: 'English (US)' },
-  { id: 'ko-KR', label: 'Korean', native: '한국어' },
+  { id: 'ko-KR', label: '한국어', native: '한국어' },
 ];
 
 const STORAGE_KEY = 'nc:locale';
+/** 업무관리 시연판: 화면 언어는 한국어로 고정(언어 선택 메뉴도 숨김). null이면 litpage 원래 동작. */
+export const FORCED_LOCALE: Locale | null = 'ko-KR';
 const catalogs: Record<Locale, Record<string, string>> = { 'en-US': {}, 'ko-KR': ko as Record<string, string> };
 
 function initialLocale(): Locale {
+  if (FORCED_LOCALE) return FORCED_LOCALE;
   try {
     const v = localStorage.getItem(STORAGE_KEY);
     if (v === 'en-US' || v === 'ko-KR') return v;
@@ -37,7 +40,7 @@ export function getLocale(): Locale {
 
 
 export function setLocale(l: string | undefined | null, opts?: { reload?: boolean }): boolean {
-  const next: Locale = l === 'ko-KR' ? 'ko-KR' : 'en-US';
+  const next: Locale = FORCED_LOCALE ?? (l === 'ko-KR' ? 'ko-KR' : 'en-US');
   if (next === current) return false;
   current = next;
   try {

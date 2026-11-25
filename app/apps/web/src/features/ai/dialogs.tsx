@@ -117,7 +117,7 @@ function McpConnectForm({ close, onDone }: { close: () => void; onDone: (c: McpC
           <div className="nc-ai-mcp-warning">
             <Icon name="warning" size={16} />
             <div>
-              <div className="nc-ai-mcp-warning-title">Litpage has not reviewed this endpoint</div>
+              <div className="nc-ai-mcp-warning-title">CoolNotion! has not reviewed this endpoint</div>
               <div>After connection, it can read or change agent content and send data outside Litpage. Connect only trusted endpoints.</div>
             </div>
           </div>

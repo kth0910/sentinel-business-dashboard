@@ -59,7 +59,7 @@ function ListRow({ row, view, collection, props, readOnly, selected, color, subi
               property="title"
               value={title}
               className="nc-list-title editing"
-              placeholder="Untitled"
+              placeholder="제목 없음"
               placeholderAlways
               onChange={(next) => setValue(row.id, 'title', next, { coalesce: `title:${row.id}` })}
               onBlur={() => db?.setEditingTitle(null)}
@@ -88,7 +88,7 @@ function ListRow({ row, view, collection, props, readOnly, selected, color, subi
             />
           ) : (
             <>
-              <div className={`nc-list-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : 'Untitled'}</div>
+              <div className={`nc-list-title ${title.length ? '' : 'untitled'}`}>{title.length ? <TitleText title={title} search={db?.search} /> : '제목 없음'}</div>
               {subitemCount > 0 && <SubitemCount count={subitemCount} />}
             </>
           )}
@@ -157,13 +157,13 @@ function ListView({ view, collection, readOnly }: ViewProps) {
       {list.length > limit && (
         <div role="button" className="nc-list-load-more" onClick={() => setLimit((l) => l + (Number.isFinite(first) ? first : 50))}>
           <Icon name="arrowDown" size={16} />
-          <span>Load more</span>
+          <span>더 불러오기</span>
         </div>
       )}
       {!readOnly && (
         <div role="button" className="nc-list-new" onClick={() => db?.addRow({ group: group ?? null, position: 'end', editTitle: true })}>
           <Icon name="plusSmall" size={16} />
-          <span>New page</span>
+          <span>새 페이지</span>
         </div>
       )}
     </>

@@ -38,8 +38,8 @@ export function pageScript(pageId: string): string | null {
 }
 
 const LANG_NAMES: Record<string, string> = {
-  ko: 'Korean', ja: 'Japanese', zh: 'Chinese', en: 'English', fr: 'French', de: 'German', es: 'Spanish', pt: 'Portuguese',
-  it: 'Italian', nl: 'Dutch', ru: 'Russian', vi: 'Vietnamese', th: 'Thai', id: 'Indonesian', tr: 'Turkish',
+  ko: 'Korean', ja: '일본어', zh: 'Chinese', en: 'English', fr: 'French', de: '독일어', es: 'Spanish', pt: 'Portuguese',
+  it: 'Italian', nl: '네덜란드어', ru: 'Russian', vi: 'Vietnamese', th: 'Thai', id: 'Indonesian', tr: '튀르키예어',
 };
 
 /** Target language for the suggestion: the first preferred language (UI locale, then browser languages)

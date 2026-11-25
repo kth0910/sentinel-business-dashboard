@@ -61,7 +61,7 @@ export async function runButton(blockId: string, anchor: HTMLElement | null) {
     return;
   }
   const page = getBlock(pageIdOfBlock(blockId));
-  await runButtonSteps({ surface: 'button_block', steps, block: b, page, anchor, label: nameOf(b) || 'New button' });
+  await runButtonSteps({ surface: 'button_block', steps, block: b, page, anchor, label: nameOf(b) || '새 버튼' });
 }
 
 /* ------------------------------------------------------------------ config panel */
@@ -78,7 +78,7 @@ function InsertBlocksEditor({ block }: { block: BlockRecord }) {
           let id = '';
           run('button.addTemplateBlock', (tx) => { id = createBlockIn(tx, { type: 'text', parentId: live.id, parentTable: 'block' }); });
           useEditor.getState().requestFocus(id, 0);
-        }}>Click to edit or drop blocks…</div>
+        }}>클릭해서 편집하거나 블록을 끌어다 놓으세요…</div>
       )}
     </div>
   );
@@ -98,22 +98,22 @@ function ConfigPanel({ block, onDone }: { block: BlockRecord; onDone: () => void
   return (
     <div className="nc-button-config" onMouseDown={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} data-menu-keys="ignore">
       <div className="nc-button-config-head">
-        <div role="button" className="nc-button-config-icon" aria-label="Change button icon" onClick={(e) => openIconPicker(e.currentTarget, { current: icon, onPick: (v) => run('button.setIcon', (tx) => setFormat(tx, block.id, { page_icon: v ?? undefined })) })}>
+        <div role="button" className="nc-button-config-icon" aria-label="버튼 아이콘 변경" onClick={(e) => openIconPicker(e.currentTarget, { current: icon, onPick: (v) => run('button.setIcon', (tx) => setFormat(tx, block.id, { page_icon: v ?? undefined })) })}>
           {icon ? <PageIcon icon={icon} size={22} fallback={null} /> : <Icon name="smileFace" size={20} />}
         </div>
         <input
           ref={nameRef}
           className="nc-button-config-name"
-          placeholder="New button"
+          placeholder="새 버튼"
           value={name}
           onChange={(e) => { setName(e.target.value); saveName(e.target.value); }}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onDone(); } if (e.key === 'Escape') { e.preventDefault(); onDone(); } }}
         />
       </div>
-      <div className="nc-button-config-label">When</div>
-      <div className="nc-button-config-card"><Icon name="cursorClick" size={16} style={{ color: 'var(--lp-icon-secondary)' }} /><span><b style={{ fontWeight: 500 }}>Button</b> is clicked</span></div>
+      <div className="nc-button-config-label">조건</div>
+      <div className="nc-button-config-card"><Icon name="cursorClick" size={16} style={{ color: 'var(--lp-icon-secondary)' }} /><span><b style={{ fontWeight: 500 }}>버튼</b> is clicked</span></div>
       <div className="nc-button-config-connector" />
-      <div className="nc-button-config-label" style={{ marginTop: 0 }}>Do</div>
+      <div className="nc-button-config-label" style={{ marginTop: 0 }}>실행</div>
       <StepList
         surface="button_block"
         blockId={block.id}
@@ -121,7 +121,7 @@ function ConfigPanel({ block, onDone }: { block: BlockRecord; onDone: () => void
         onChange={setSteps}
         renderInsertBlocks={() => <InsertBlocksEditor block={block} />}
       />
-      <button className="nc-blk-btn primary nc-button-done" onClick={onDone}>Done</button>
+      <button className="nc-blk-btn primary nc-button-done" onClick={onDone}>완료</button>
     </div>
   );
 }
@@ -133,7 +133,7 @@ function ButtonBlock({ block, readOnly }: BlockProps) {
   const [running, setRunning] = useState(false);
   const btnRef = useRef<HTMLDivElement>(null);
   const configured = stepsOf(block).length > 0;
-  const label = nameOf(block) || 'New button';
+  const label = nameOf(block) || '새 버튼';
   const icon = block.format?.page_icon as string | undefined;
   const color = block.format?.block_color as string | undefined;
   const style = useMemo<React.CSSProperties>(() => {
@@ -167,7 +167,7 @@ function ButtonBlock({ block, readOnly }: BlockProps) {
           onClick={async () => {
             // buttons are for people who can edit the page; the server checks every write again
             if (readOnly) {
-              if (configured) toast('You need edit access to use this button');
+              if (configured) toast('이 버튼을 사용하려면 편집 권한이 필요합니다');
               return;
             }
             if (!configured) return openButtonConfig(block.id);
@@ -182,10 +182,10 @@ function ButtonBlock({ block, readOnly }: BlockProps) {
         >
           {icon && <PageIcon icon={icon} size={16} fallback={null} />}
           <span className="label">{label}</span>
-          {!configured && <span className="warn" aria-label="This button has no configured actions"><Icon name="warningTriangleFill" size={18} /></span>}
+          {!configured && <span className="warn" aria-label="이 버튼에는 설정된 동작이 없습니다"><Icon name="warningTriangleFill" size={18} /></span>}
         </div>
         {!readOnly && !open && (
-          <div role="button" className="nc-blk-action nc-button-gear" aria-label="Edit button" data-tooltip="Edit button" onMouseDown={(e) => e.preventDefault()} onClick={() => openButtonConfig(block.id)}>
+          <div role="button" className="nc-blk-action nc-button-gear" aria-label="버튼 편집" data-tooltip="버튼 편집" onMouseDown={(e) => e.preventDefault()} onClick={() => openButtonConfig(block.id)}>
             <Icon name="settings" size={16} />
           </div>
         )}
@@ -204,13 +204,13 @@ function setEffect(blockId: string, effect: ButtonEffect | undefined) {
 }
 
 registerBlockMenu(['button'], ({ block, color }) => [
-  { label: 'Edit', icon: 'settings', onSelect: () => { openButtonConfig(block.id); setTimeout(() => blockElement(block.id)?.scrollIntoView({ block: 'nearest' }), 50); } },
+  { label: '편집', icon: 'settings', onSelect: () => { openButtonConfig(block.id); setTimeout(() => blockElement(block.id)?.scrollIntoView({ block: 'nearest' }), 50); } },
   // “Click effect ▸ None / Confetti”
   {
-    id: 'click-effect', label: 'Click effect', icon: 'sparkles',
+    id: 'click-effect', label: '클릭 효과', icon: 'sparkles',
     submenu: () => ({ width: 180, sections: [{ items: [
-      { id: 'none', label: 'None', checked: !effectOf(block), onSelect: () => setEffect(block.id, undefined) },
-      { id: 'confetti', label: 'Confetti', checked: effectOf(block) === 'confetti', onSelect: () => setEffect(block.id, 'confetti') },
+      { id: 'none', label: '없음', checked: !effectOf(block), onSelect: () => setEffect(block.id, undefined) },
+      { id: 'confetti', label: '색종이', checked: effectOf(block) === 'confetti', onSelect: () => setEffect(block.id, 'confetti') },
     ] }] }),
   },
   color,

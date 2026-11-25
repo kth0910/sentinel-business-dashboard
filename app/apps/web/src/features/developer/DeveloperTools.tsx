@@ -22,7 +22,7 @@ import { pickPage } from './pagePicker.tsx';
 import '../settings/settings.css';
 import './developer.css';
 
-const fmtDate = (ms: number | null | undefined) => (ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
+const fmtDate = (ms: number | null | undefined) => (ms ? new Date(ms).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' }) : '—');
 
 function relative(ms: number): string {
   const d = Date.now() - ms;
@@ -179,7 +179,7 @@ function TokensTab() {
   return (
     <>
       <div className="nc-dev-toolbar">
-        <div className="desc" style={{ fontSize: 13, color: 'var(--lp-text-secondary)' }}>{t('lp.developer.create_a_personal_access_token_for', 'Create a personal access token for Litpage API requests. <manageTokens>Manage your tokens</manageTokens>.').replace(/<[^>]+>[^<]*<\/[^>]+>\.?/, '').trim()}</div>
+        <div className="desc" style={{ fontSize: 13, color: 'var(--lp-text-secondary)' }}>{t('lp.developer.create_a_personal_access_token_for', 'Create a personal access token for CoolNotion! API requests. <manageTokens>토큰 관리</manageTokens>.').replace(/<[^>]+>[^<]*<\/[^>]+>\.?/, '').trim()}</div>
         <span className="grow" />
         <Button variant="primary" icon="plus" onClick={create}>{t('lp.developer.new_token', 'New token')}</Button>
       </div>
@@ -189,7 +189,7 @@ function TokensTab() {
           {(tokens ?? []).map((p) => (
             <tr key={p.id}>
               <td className="primary">{p.name || t('lp.developer.untitled_token', 'Untitled token')} <span className="nc-dev-mono">{p.prefix}…</span></td>
-              <td>{t('lp.developer.litpage_api', 'Litpage API')}</td>
+              <td>{t('lp.developer.litpage_api', 'CoolNotion! API')}</td>
               <td>{fmtDate(p.createdTime)}</td>
               <td>{p.lastUsedTime ? fmtDate(p.lastUsedTime) : t('lp.developer.text', '—')}</td>
               <td>{t('lp.developer.active', 'Active')}</td>
@@ -347,7 +347,7 @@ function ConnectionDetail({ id }: { id: string }) {
           </div>
           <div className="nc-dev-section">
             <h2>{t('lp.developer.integration_token', 'Integration token')}</h2>
-            <div className="desc">{t('lp.developer.api_requests_to_this_workspace_are', 'API requests to this workspace are authenticated with this token. Don’t share it: whoever holds it can act as the connection. <docslink>Read about internal connections.</docslink>').replace(/<docslink>.*<\/docslink>/, '').trim()}</div>
+            <div className="desc">{t('lp.developer.api_requests_to_this_workspace_are', 'API requests to this workspace are authenticated with this token. Don’t share it: whoever holds it can act as the connection. <docslink>내부 연결에 대해 알아보세요.</docslink>').replace(/<docslink>.*<\/docslink>/, '').trim()}</div>
             <div className="nc-dev-token" data-testid="token-prefix">
               <span className="grow">{c.canManage ? `${c.tokenPrefix}${'•'.repeat(24)}` : '•'.repeat(34)}</span>
               {c.canManage && (
@@ -368,7 +368,7 @@ function ConnectionDetail({ id }: { id: string }) {
             <div className="nc-dev-section">
               <h2>{t('lp.developer.make_your_first_request', 'Make your first request')}</h2>
               <div className="desc">{t('lp.developer.share_a_page_with_this_connection', 'Share a page with this connection (page ••• › Connections), then call the API with its token. Replace the token placeholder with the secret you copied.')}</div>
-              <pre className="nc-dev-code" data-testid="api-example">{`curl ${location.origin}/v1/search \\\n  -H "Authorization: Bearer ${c.tokenPrefix}…" \\\n  -H "Litpage-Version: 2026-10-01" \\\n  -H "Content-Type: application/json" \\\n  -d '{"page_size": 10}'`}</pre>
+              <pre className="nc-dev-code" data-testid="api-example">{`curl ${location.origin}/v1/search \\\n  -H "Authorization: Bearer ${c.tokenPrefix}…" \\\n  -H "CoolNotion!-Version: 2026-10-01" \\\n  -H "Content-Type: application/json" \\\n  -d '{"page_size": 10}'`}</pre>
             </div>
           )}
           <div className="nc-dev-section">
@@ -483,7 +483,7 @@ function WebhooksTab({ data, reload }: { data: ConnectionDetailData; reload: () 
     return (
       <div className="nc-dev-empty">
         <b>{t('lp.developer.no_webhook_subscription', 'No webhook is configured')}</b>
-        <div style={{ margin: '6px 0 12px' }}>{t('lp.developer.when_something_important_changes_receive', 'When something important changes, receive updates instantly and trigger automated workflows. <learnMoreLink>Learn more</learnMoreLink>').replace(/<learnMoreLink>.*<\/learnMoreLink>/, '').trim()}</div>
+        <div style={{ margin: '6px 0 12px' }}>{t('lp.developer.when_something_important_changes_receive', 'When something important changes, receive updates instantly and trigger automated workflows. <learnMoreLink>자세히 알아보기</learnMoreLink>').replace(/<learnMoreLink>.*<\/learnMoreLink>/, '').trim()}</div>
         <Button variant="primary" onClick={() => openSubDialog((close) => <WebhookForm connectionId={c.id} events={data.events} close={close} onDone={reload} />)}>
           {t('lp.developer.create_a_subscription', 'Create a subscription')}
         </Button>
@@ -497,7 +497,7 @@ function WebhooksTab({ data, reload }: { data: ConnectionDetailData; reload: () 
         return (
           <div key={w.id} className="nc-dev-section" data-testid="webhook">
             {w.status === 'pending_verification' && (
-              <div className="nc-dev-callout warn"><Icon name="warning" size={16} /><div><b>{t('lp.developer.webhook_events_won_t_arrive_until', 'Webhook events won’t arrive until your endpoint is verified')}</b><div className="sub">{t('lp.developer.verify_your_endpoint_before_receiving_ev', 'Verify your endpoint before receiving events. This confirms a secure connection between Litpage and your application.')}</div></div></div>
+              <div className="nc-dev-callout warn"><Icon name="warning" size={16} /><div><b>{t('lp.developer.webhook_events_won_t_arrive_until', 'Webhook events won’t arrive until your endpoint is verified')}</b><div className="sub">{t('lp.developer.verify_your_endpoint_before_receiving_ev', 'Verify your endpoint before receiving events. This confirms a secure connection between CoolNotion! and your application.')}</div></div></div>
             )}
             {w.status === 'paused_errors' && (
               <div className="nc-dev-callout warn"><Icon name="warning" size={16} /><div><b>{t('lp.developer.deliveries_to_this_webhook_are_paused', 'Deliveries to this webhook are paused')}</b><div className="sub">{t('lp.developer.this_webhook_subscription_is_paused_beca', 'This webhook subscription is paused because of a high error rate. Fix the issue and resume it to restart event delivery.')}</div></div></div>
@@ -512,7 +512,7 @@ function WebhooksTab({ data, reload }: { data: ConnectionDetailData; reload: () 
                 if (ok) { await api('devUpdateWebhook', { webhookId: w.id, status: 'paused' }); reload(); }
               }}>{t('lp.developer.pause', 'Pause')}</Button>}
               {(w.status === 'paused' || w.status === 'paused_errors') && <Button onClick={async () => {
-                const ok = await confirmDialog({ title: t('lp.developer.turn_this_subscription_back_on', 'Turn this subscription back on?'), description: t('lp.developer.litpage_will_begin_sending_events_to', 'Litpage will begin sending events to your webhook URL, so make sure it can reply with a successful HTTP response.'), confirmLabel: t('lp.developer.resume', 'Resume') });
+                const ok = await confirmDialog({ title: t('lp.developer.turn_this_subscription_back_on', 'Turn this subscription back on?'), description: t('lp.developer.litpage_will_begin_sending_events_to', 'CoolNotion! will begin sending events to your webhook URL, so make sure it can reply with a successful HTTP response.'), confirmLabel: t('lp.developer.resume', 'Resume') });
                 if (ok) { await api('devUpdateWebhook', { webhookId: w.id, status: 'active' }); reload(); }
               }}>{t('lp.developer.resume', 'Resume')}</Button>}
               <Button onClick={() => openSubDialog((close) => <WebhookForm connectionId={c.id} events={data.events} existing={w} close={close} onDone={reload} />)}>{t('lp.developer.edit_subscription', 'Edit subscription')}</Button>
@@ -633,7 +633,7 @@ function Failures({ w, close }: { w: Webhook; close: () => void }) {
       <table className="nc-dev-table">
         <tbody>
           {(list ?? []).map((f) => (
-            <tr key={f.id}><td className="primary">{eventLabel(f.eventType)}</td><td>{f.status ? `HTTP ${f.status}` : f.error}</td><td>{new Date(f.time).toLocaleString('en-US')}</td></tr>
+            <tr key={f.id}><td className="primary">{eventLabel(f.eventType)}</td><td>{f.status ? `HTTP ${f.status}` : f.error}</td><td>{new Date(f.time).toLocaleString('ko-KR')}</td></tr>
           ))}
         </tbody>
       </table>

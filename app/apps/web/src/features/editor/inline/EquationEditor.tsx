@@ -167,7 +167,7 @@ function EquationEditor({ blockId, property, offset, initial, close, from }: { b
           suppressContentEditableWarning
           spellCheck={false}
           role="textbox"
-          aria-label="Equation (LaTeX)"
+          aria-label="수학 공식 (LaTeX)"
           aria-multiline="true"
           data-placeholder="E = mc^2"
           onInput={onInput}

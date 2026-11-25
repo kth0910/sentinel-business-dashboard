@@ -263,7 +263,7 @@ describe('groups', () => {
     const v = view({ format: { collection_group_by: { type: 'multi_select', property: 'tags', sort: { type: 'manual' }, hideEmptyGroups: true } } });
     const g = runQuery(rows, collection, v, ctx).groups!;
     expect(g.map((x) => [x.label, titles(x.rows)])).toEqual([
-      ['No Tags', ['Write API spec', 'Plan Q4 roadmap', '']],
+      ['Tags 없음', ['Write API spec', 'Plan Q4 roadmap', '']],
       ['UI', ['Design homepage']],
       ['Web', ['Design homepage', 'Update docs']],
       ['Bug', ['Fix login bug']],
@@ -276,23 +276,23 @@ describe('groups', () => {
   });
   it('person, checkbox, number ranges, text prefixes, date buckets', () => {
     const person = computeGroups(rows, { type: 'person', property: 'who', sort: { type: 'manual' } }, schema, ctx);
-    expect(person.map((g) => [g.label, g.rows.length])).toEqual([['No Assignee', 3], ['Alice', 2], ['Bob', 2]]);
+    expect(person.map((g) => [g.label, g.rows.length])).toEqual([['Assignee 없음', 3], ['Alice', 2], ['Bob', 2]]);
     const cb = computeGroups(rows, { type: 'checkbox', property: 'done', sort: { type: 'manual' } }, schema, ctx);
-    expect(cb.map((g) => [g.label, g.rows.length])).toEqual([['Unchecked', 5], ['Checked', 1]]);
+    expect(cb.map((g) => [g.label, g.rows.length])).toEqual([['체크 안 됨', 5], ['체크됨', 1]]);
     const num = computeGroups(rows, { type: 'number', property: 'pts', groupBy: { type: 'range' }, start: 0, end: 10, size: 5, sort: { type: 'ascending' } }, schema, ctx);
-    expect(num.map((g) => [g.label, g.rows.length])).toEqual([['No Points', 2], ['0 through 5', 1], ['5 through 10', 2], ['Outside range', 1]]);
+    expect(num.map((g) => [g.label, g.rows.length])).toEqual([['Points 없음', 2], ['0 ~ 5', 1], ['5 ~ 10', 2], ['범위 밖', 1]]);
     const txt = computeGroups(rows, { type: 'title', property: 'title', groupBy: 'alphabet_prefix', sort: { type: 'ascending' } }, schema, ctx);
-    expect(txt.map((g) => g.label)).toEqual(['No Name', 'D', 'F', 'P', 'U', 'W']);
+    expect(txt.map((g) => g.label)).toEqual(['Name 없음', 'D', 'F', 'P', 'U', 'W']);
     const rel = computeGroups(rows, { type: 'date', property: 'due', groupBy: 'relative', sort: { type: 'ascending' } }, schema, ctx);
-    expect(rel.map((g) => [g.label, g.rows.length])).toEqual([['No Due', 1], ['Last 7 days', 1], ['Today', 1], ['Next 7 days', 2], ['Next 30 days', 1]]);
+    expect(rel.map((g) => [g.label, g.rows.length])).toEqual([['Due 없음', 1], ['지난 7일', 1], ['오늘', 1], ['다음 7일', 2], ['다음 30일', 1]]);
     const month = computeGroups(rows, { type: 'date', property: 'due', groupBy: 'month', sort: { type: 'ascending' } }, schema, ctx);
-    expect(month.map((g) => g.label)).toEqual(['No Due', 'October 2026']);
+    expect(month.map((g) => g.label)).toEqual(['Due 없음', '2026년 10월']);
   });
   it('board sub-groups (collection_group_by on a board)', () => {
     const v = view({ type: 'board', format: { board_columns_by: { type: 'select', property: 'pri', sort: { type: 'manual' } }, collection_group_by: { type: 'checkbox', property: 'done', sort: { type: 'manual' } } } });
     const g = runQuery(rows, collection, v, ctx).groups!;
     const high = g.find((x) => x.label === 'High')!;
-    expect(high.subgroups!.map((s) => [s.label, s.rows.length])).toEqual([['Unchecked', 1], ['Checked', 1]]);
+    expect(high.subgroups!.map((s) => [s.label, s.rows.length])).toEqual([['체크 안 됨', 1], ['체크됨', 1]]);
   });
   it('group assignment for new rows / drags', () => {
     const g = computeGroups(rows, { type: 'status', property: 'st', groupBy: 'group', sort: { type: 'ascending' } }, schema, ctx);
@@ -327,9 +327,9 @@ describe('calculations', () => {
     expect(agg('pts', 'range')).toBe('$10.00');
   });
   it('dates', () => {
-    expect(agg('due', 'earliest_date')).toBe('Oct 15, 2026');
-    expect(agg('due', 'latest_date')).toBe('Oct 30, 2026');
-    expect(agg('due', 'date_range')).toBe('15 days');
+    expect(agg('due', 'earliest_date')).toBe('2026년 10월 15일');
+    expect(agg('due', 'latest_date')).toBe('2026년 10월 30일');
+    expect(agg('due', 'date_range')).toBe('15일');
   });
   it('status per group', () => {
     expect(aggregateRows(rows, { property: 'st', aggregator: { operator: 'count_per_group', groupName: 'To-do' } }, schema, ctx).display).toBe('3');
@@ -363,12 +363,12 @@ describe('formatting & parsing', () => {
   });
   it('date formats and ranges', () => {
     const r = getPropertyValue(rows[0], 'due', schema, ctx);
-    expect(formatDateRange(r.kind === 'date' ? r.date : null)).toBe('October 20, 2026 → October 24, 2026');
+    expect(formatDateRange(r.kind === 'date' ? r.date : null)).toBe('2026년 10월 20일 → 2026년 10월 24일');
     const dt = encodeDate({ type: 'datetime', start_date: '2026-10-20', start_time: '16:00' });
     const v = getPropertyValue(row('t', { due: dt }), 'due', schema, ctx);
-    expect(valueToText(v, schema.due, ctx)).toBe('October 20, 2026 4:00 PM');
-    expect(valueToText(v, { ...schema.due, date_format: 'relative', time_format: 'H:mm' } as PropertySchema, ctx)).toBe('Today 16:00');
-    expect(valueToText(v, { ...schema.due, date_format: 'MM/DD/YYYY' } as PropertySchema, ctx)).toBe('10/20/2026 4:00 PM');
+    expect(valueToText(v, schema.due, ctx)).toBe('2026년 10월 20일 오후 4:00');
+    expect(valueToText(v, { ...schema.due, date_format: 'relative', time_format: 'H:mm' } as PropertySchema, ctx)).toBe('오늘 16:00');
+    expect(valueToText(v, { ...schema.due, date_format: 'MM/DD/YYYY' } as PropertySchema, ctx)).toBe('10/20/2026 오후 4:00');
   });
   it('relative ranges', () => {
     const [s, e] = relativeRange({ value: 'the_past_month' }, NOW)!;

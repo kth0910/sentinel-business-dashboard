@@ -65,16 +65,16 @@ function bucketsFor(v: PropertyValue, prop: PropertySchema, gb: GroupBy, kind: s
     }
     case 'checkbox': {
       const checked = v.kind === 'checkbox' ? v.checked : false;
-      return [{ value: { type: 'checkbox', value: checked }, label: checked ? 'Checked' : 'Unchecked', rank: checked ? 1 : 0, uncategorized: false }];
+      return [{ value: { type: 'checkbox', value: checked }, label: checked ? '체크됨' : '체크 안 됨', rank: checked ? 1 : 0, uncategorized: false }];
     }
     case 'person':
     case 'created_by':
     case 'last_edited_by':
       if (v.kind !== 'person') return none();
-      return v.ids.map((id) => ({ value: { type, value: { id, table: 'lit_user' } }, label: userName(id, ctx) || 'Unknown', rank: 0, uncategorized: false }));
+      return v.ids.map((id) => ({ value: { type, value: { id, table: 'lit_user' } }, label: userName(id, ctx) || '알 수 없음', rank: 0, uncategorized: false }));
     case 'relation':
       if (v.kind !== 'relation') return none();
-      return v.ids.map((id) => ({ value: { type: 'relation', value: { id, table: 'block' } }, label: pageTitle(id, ctx) || 'Untitled', rank: 0, uncategorized: false }));
+      return v.ids.map((id) => ({ value: { type: 'relation', value: { id, table: 'block' } }, label: pageTitle(id, ctx) || '제목 없음', rank: 0, uncategorized: false }));
     case 'date':
     case 'created_time':
     case 'last_edited_time':
@@ -116,17 +116,17 @@ function bucketsFor(v: PropertyValue, prop: PropertySchema, gb: GroupBy, kind: s
       const start = gb.start ?? g.start ?? 0;
       const end = gb.end ?? g.end ?? 1000;
       const size = Math.max(1e-9, gb.size ?? g.size ?? 100);
-      if (n < start || n >= end) return [{ value: { type: 'number', value: { type: 'out_of_range' } }, label: 'Outside range', rank: Number.MAX_SAFE_INTEGER, uncategorized: false }];
+      if (n < start || n >= end) return [{ value: { type: 'number', value: { type: 'out_of_range' } }, label: '범위 밖', rank: Number.MAX_SAFE_INTEGER, uncategorized: false }];
       const lo = start + Math.floor((n - start) / size) * size;
       const hi = Math.min(lo + size, end);
-      return [{ value: { type: 'number', value: { type: 'range', start: lo, end: hi } }, label: `${formatNumber(lo)} through ${formatNumber(hi)}`, rank: lo, uncategorized: false }];
+      return [{ value: { type: 'number', value: { type: 'range', start: lo, end: hi } }, label: `${formatNumber(lo)} ~ ${formatNumber(hi)}`, rank: lo, uncategorized: false }];
     }
     default: {
       const text = valueToText(v, prop, ctx).trim();
       if (!text) return none();
       if (gb.groupBy === 'alphabet_prefix') {
         const ch = text[0].toUpperCase();
-        if (!/\p{L}/u.test(ch)) return [{ value: { type: 'text', value: { type: 'other' } }, label: 'Other', rank: 0, uncategorized: false }];
+        if (!/\p{L}/u.test(ch)) return [{ value: { type: 'text', value: { type: 'other' } }, label: '기타', rank: 0, uncategorized: false }];
         return [{ value: { type: 'text', value: { type: 'alphabet_prefix', value: ch } }, label: ch, rank: 0, uncategorized: false }];
       }
       return [{ value: { type: 'text', value: { type: 'exact', value: text } }, label: text, rank: 0, uncategorized: false }];
@@ -153,8 +153,8 @@ function staticCandidates(prop: PropertySchema, gb: GroupBy, kind: string): Cand
   }
   if (kind === 'checkbox') {
     return [
-      { value: { type: 'checkbox', value: false }, label: 'Unchecked', rank: 0, uncategorized: false },
-      { value: { type: 'checkbox', value: true }, label: 'Checked', rank: 1, uncategorized: false },
+      { value: { type: 'checkbox', value: false }, label: '체크 안 됨', rank: 0, uncategorized: false },
+      { value: { type: 'checkbox', value: true }, label: '체크됨', rank: 1, uncategorized: false },
     ];
   }
   return [];
@@ -181,7 +181,7 @@ export function computeGroups(rows: BlockRecord[], gb: GroupBy, schema: Schema, 
     if (!byKey.has(k)) byKey.set(k, { c, rows: [] });
     return byKey.get(k)!;
   };
-  const uncategorized: Candidate = { value: { type: gb.type || prop.type }, label: `No ${prop.name}`, rank: -1, uncategorized: true };
+  const uncategorized: Candidate = { value: { type: gb.type || prop.type }, label: `${prop.name} 없음`, rank: -1, uncategorized: true };
   for (const c of staticCandidates(prop, gb, kind)) add(c);
   const uncatEntry = add(uncategorized);
   rows.forEach((row, i) => {

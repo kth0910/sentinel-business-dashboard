@@ -56,7 +56,7 @@ function TableOfContents({ block }: BlockProps) {
   return (
     <div className="nc-bpad">
       <div className={`nc-toc-2 ${colored ? 'colored' : ''}`}>
-        {headings.length === 0 && <div className="nc-toc-empty-2">Add headings to create a table of contents.</div>}
+        {headings.length === 0 && <div className="nc-toc-empty-2">제목을 추가하면 목차가 만들어집니다.</div>}
         {headings.map((h) => (
           <a
             key={h.id}
@@ -68,7 +68,7 @@ function TableOfContents({ block }: BlockProps) {
               scrollToBlock(h.id);
             }}
           >
-            <span className="t">{toPlainText(h.properties?.title) || 'Untitled'}</span>
+            <span className="t">{toPlainText(h.properties?.title) || '제목 없음'}</span>
           </a>
         ))}
       </div>

@@ -28,23 +28,23 @@ export function GetStartedBar({ pageId }: { pageId: string }) {
   // no "Ask AI" while the workspace has Litpage AI off
   const aiOn = policyFromSpaceSettings(records.get<SpaceRecord>('space', spaceId ?? '')?.settings as Record<string, unknown> | undefined).enabled;
   const items: [string, ReactNode, () => void][] = [
-    ...(aiOn ? [['Ask AI', <span className="nc-chip-ai"><Icon name="aiFace" size={14} /></span>, () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId } }))] as [string, ReactNode, () => void]] : []),
+    ...(aiOn ? [['AI에게 질문', <span className="nc-chip-ai"><Icon name="aiFace" size={14} /></span>, () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { pageId } }))] as [string, ReactNode, () => void]] : []),
     // an AI meeting notes block in this page (features/meetings), not offered while the workspace has it off
     ...(meetingsEnabled(spaceId) ? [['AI meeting notes', <Icon name="paperMicrophone" size={20} />, () => insertMeetingBlock(pageId)] as [string, ReactNode, () => void]] : []),
-    ['Database', <Icon name="viewTable" size={20} />, () => toDb('table', true)],
-    ['Form', <Icon name="page" size={20} />, () => toDb('form')],
-    ['Templates', <Shapes size={20} aria-hidden />, () => useUI.getState().set({ templatesOpen: true })],
+    ['데이터베이스', <Icon name="viewTable" size={20} />, () => toDb('table', true)],
+    ['폼', <Icon name="page" size={20} />, () => toDb('form')],
+    ['템플릿', <Shapes size={20} aria-hidden />, () => useUI.getState().set({ templatesOpen: true })],
   ];
   const openMore = (anchor: HTMLElement) => {
     const views: [ViewType, string, string][] = [
-      ['table', 'Table', 'dbViewTable'], ['board', 'Board', 'dbViewBoard'], ['list', 'List', 'dbViewList'],
-      ['timeline', 'Timeline', 'dbViewTimeline'], ['calendar', 'Calendar', 'dbViewCalendar'], ['gallery', 'Gallery', 'dbViewGallery'],
+      ['table', '테이블', 'dbViewTable'], ['board', '보드', 'dbViewBoard'], ['list', '목록', 'dbViewList'],
+      ['timeline', '타임라인', 'dbViewTimeline'], ['calendar', '캘린더', 'dbViewCalendar'], ['gallery', '갤러리', 'dbViewGallery'],
     ];
     openMenu(anchor, {
       width: 200,
       sections: [
         { items: views.map(([type, label, icon]) => ({ label, icon, onSelect: () => toDb(type) })) },
-        { items: [{ label: 'Import', icon: 'import', onSelect: () => openImport({ pageId }) }] },
+        { items: [{ label: '가져오기', icon: 'import', onSelect: () => openImport({ pageId }) }] },
       ],
     }, { placement: 'top-start', offset: 6 });
   };
@@ -53,7 +53,7 @@ export function GetStartedBar({ pageId }: { pageId: string }) {
       <div role="menu" aria-orientation="horizontal" className="nc-get-started-menu">
         <div className="nc-get-started-fade" />
         <div className="nc-get-started-body">
-          <div className="nc-get-started-title">Start with</div>
+          <div className="nc-get-started-title">시작하기</div>
           <div className="nc-get-started-row">
             {items.map(([label, icon, fn]) => (
               <div key={label} role="button" className="nc-chip" onClick={fn}>
@@ -61,7 +61,7 @@ export function GetStartedBar({ pageId }: { pageId: string }) {
                 <span className="nc-chip-label">{label}</span>
               </div>
             ))}
-            <div role="button" aria-label="More" className="nc-chip icon" onClick={(e) => openMore(e.currentTarget)}><Icon name="ellipsis" size={20} /></div>
+            <div role="button" aria-label="더 보기" className="nc-chip icon" onClick={(e) => openMore(e.currentTarget)}><Icon name="ellipsis" size={20} /></div>
           </div>
         </div>
       </div>

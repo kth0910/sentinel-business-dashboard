@@ -281,7 +281,7 @@ function prioritizeWithAi() {
       const a = (n.activity ?? {}) as { page_id?: string; text?: string; message?: string };
       const page = records.get<BlockRecord>('block', a.page_id ?? n.navigable_block_id);
       const quote = a.text || a.message;
-      return `- ${n.type.replace(/_/g, ' ')} from ${actor?.name || actor?.email || 'someone'}${page ? ` in “${pageTitle(page) || 'Untitled'}”` : ''}${quote ? `: ${String(quote).slice(0, 160)}` : ''}`;
+      return `- ${n.type.replace(/_/g, ' ')} from ${actor?.name || actor?.email || 'someone'}${page ? ` in “${pageTitle(page) || '제목 없음'}”` : ''}${quote ? `: ${String(quote).slice(0, 160)}` : ''}`;
     });
   const query = `${t('lp.shell.which_of_my_unread_notifications_should', 'Which of my unread notifications should I handle first?')}${unread.length ? `\n\n${unread.join('\n')}` : ''}`;
   window.dispatchEvent(new CustomEvent('nc:ai-open', { detail: { query } }));

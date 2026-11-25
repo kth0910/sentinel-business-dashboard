@@ -65,7 +65,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
   const [err, setErr] = useState('');
   const set = (p: Partial<SiteSettingsValue>) => setS((x) => ({ ...x, ...p }));
   const setHeader = (p: Partial<NonNullable<SiteSettingsValue['header']>>) => setS((x) => ({ ...x, header: { ...(x.header ?? {}), ...p } }));
-  const title = pageTitle(root) || 'Untitled';
+  const title = pageTitle(root) || '제목 없음';
   const url = `${location.origin}/public/${s.slug || ''}`;
 
   useEffect(() => {
@@ -114,7 +114,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
       search: t('lp.page.choose_a_page', 'Choose a page'),
       sections: [{
         items: pages.length
-          ? pages.slice(0, 200).map((b) => ({ label: pageTitle(b) || 'Untitled', icon: <PageIcon block={b} size={20} />, onSelect: () => { setHeader({ links: [...(s.header?.links ?? []), { pageId: b.id }] }); closeMenu(); return false; } }))
+          ? pages.slice(0, 200).map((b) => ({ label: pageTitle(b) || '제목 없음', icon: <PageIcon block={b} size={20} />, onSelect: () => { setHeader({ links: [...(s.header?.links ?? []), { pageId: b.id }] }); closeMenu(); return false; } }))
           : [{ label: t('lp.page.your_site_s_other_published_pages', 'Your site’s other published pages will show up here'), disabled: true }],
       }],
     }, { placement: 'bottom-start' });
@@ -152,13 +152,13 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
         <Section title={t('lp.page.site_link', 'Site link')}>
           <div className="nc-site-slug">
             <span className="prefix nc-ellipsis">{location.host}/public/</span>
-            <input aria-label="Short link" placeholder={title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-site'} value={s.slug ?? ''} onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} />
+            <input aria-label="짧은 링크" placeholder={title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'my-site'} value={s.slug ?? ''} onChange={(e) => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} />
           </div>
           {slugState && <div className={`nc-site-hint ${slugState.ok ? 'ok' : 'bad'}`}>{slugState.ok ? t('lp.page.available', 'Available') : slugState.reason}</div>}
         </Section>
 
         <Section title={t('lp.page.theme', 'Theme')}>
-          <div className="nc-site-segment" role="radiogroup" aria-label="Theme">
+          <div className="nc-site-segment" role="radiogroup" aria-label="테마">
             {(['system', 'light', 'dark'] as const).map((th) => (
               <div key={th} role="radio" aria-checked={s.theme === th} className={`opt ${s.theme === th ? 'on' : ''}`} onClick={() => set({ theme: th })}>
                 {th === 'system' ? t('lp.page.system', 'System') : th === 'light' ? t('lp.page.light', 'Light') : t('lp.page.dark', 'Dark')}
@@ -189,9 +189,9 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
         </Section>
 
         <Section title={t('lp.page.favicon', 'Favicon')}>
-          <div className="nc-site-segment" role="radiogroup" aria-label="Favicon">
+          <div className="nc-site-segment" role="radiogroup" aria-label="파비콘">
             <div role="radio" aria-checked={s.favicon === 'page_icon'} className={`opt ${s.favicon === 'page_icon' ? 'on' : ''}`} onClick={() => set({ favicon: 'page_icon' })}>{t('lp.page.page_icon', 'Page icon')}</div>
-            <div role="radio" aria-checked={s.favicon === 'litpage'} className={`opt ${s.favicon === 'litpage' ? 'on' : ''}`} onClick={() => set({ favicon: 'litpage' })}>{t('lp.page.litpage_logo', 'Litpage logo')}</div>
+            <div role="radio" aria-checked={s.favicon === 'litpage'} className={`opt ${s.favicon === 'litpage' ? 'on' : ''}`} onClick={() => set({ favicon: 'litpage' })}>{t('lp.page.litpage_logo', 'CoolNotion! logo')}</div>
             <div role="radio" aria-checked={!!s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage'} className={`opt ${s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage' ? 'on' : ''}`}
               onClick={(e) => openIconPicker(e.currentTarget, { current: s.favicon, onPick: (v) => set({ favicon: v ?? 'page_icon' }) })}>
               {s.favicon && s.favicon !== 'page_icon' && s.favicon !== 'litpage' ? <PageIcon icon={s.favicon} size={16} /> : null}
@@ -206,7 +206,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
             ['breadcrumbs', t('lp.page.breadcrumbs', 'Breadcrumbs'), t('lp.page.show_page_breadcrumbs_in_the_header', 'Show page breadcrumbs in the header’s top-left corner')],
             ['search', t('lp.page.search', 'Search'), t('lp.page.let_visitors_search_your_site_content', 'Let visitors search your site content')],
             ['share', t('lp.page.share', 'Share'), t('lp.page.let_visitors_share_your_site', 'Let visitors share your site')],
-            ['signup', t('lp.page.display_a_litpage_signup_button', 'Display a Litpage signup button'), t('lp.page.choose_whether_your_site_displays_the', 'Choose whether your site displays the ‘Get Litpage Free’ button')],
+            ['signup', t('lp.page.display_a_litpage_signup_button', 'Display a CoolNotion! signup button'), t('lp.page.choose_whether_your_site_displays_the', 'Choose whether your site displays the ‘Get CoolNotion! Free’ button')],
           ] as const).map(([k, label, tip]) => (
             <div key={k} className="nc-setting-row" data-tooltip={tip}>
               <div className="label">{label}</div>
@@ -221,7 +221,7 @@ function SiteSettingsDialog({ rootId, close }: { rootId: string; close: () => vo
             return (
               <div key={l.pageId} className="nc-site-link-row">
                 {b && <PageIcon block={b} size={18} />}
-                <span className="nc-ellipsis">{pageTitle(b) || 'Untitled'}</span>
+                <span className="nc-ellipsis">{pageTitle(b) || '제목 없음'}</span>
                 <span role="button" className="nc-icon-btn small" aria-label={t('lp.page.unlink_page', 'Unlink page')} onClick={() => setHeader({ links: links.filter((x) => x.pageId !== l.pageId) })}>
                   <Icon name="close" size={12} />
                 </span>

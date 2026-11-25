@@ -45,13 +45,13 @@ async function mergeFile(blockId: string, file: File) {
               records.mergeRecordMap(res.recordMap);
               useUI.getState().toast(t('lp.import.added_count_plural_one_other', 'Added {count, plural, one {# record} other {# records}}', { count: res.added }));
             } catch (e: any) {
-              useUI.getState().toast(e?.message ?? 'Merge failed');
+              useUI.getState().toast(e?.message ?? '병합하지 못했습니다');
             }
           }}
         />
       </div>
     ), { placement: 'middle', backdrop: 'dim' });
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Merge failed');
+    useUI.getState().toast(e?.message ?? '병합하지 못했습니다');
   }
 }

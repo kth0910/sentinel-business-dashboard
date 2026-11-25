@@ -46,7 +46,7 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
   const { collection, view } = opts;
   const templates = collectionTemplates(collection);
   const defId = defaultTemplateId(collection, view);
-  const name = toPlainText(collection.name as any) || 'Untitled';
+  const name = toPlainText(collection.name as any) || '제목 없음';
   // templates are part of the database's structure: locked databases / Can edit content only use them
   const access = collectionAccess(collection.id);
   const templateMenu = (t: BlockRecord) => (e: React.MouseEvent) => {
@@ -68,10 +68,10 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
       <div className="nc-templates-head">
         <div className="nc-templates-title-row">
           <span className="nc-templates-title">Templates for {name}</span>
-          <span role="button" className="nc-templates-help" aria-label="Help" data-tooltip="Learn about database templates"><Icon name="questionMarkCircle" size={16} /></span>
+          <span role="button" className="nc-templates-help" aria-label="도움말" data-tooltip="데이터베이스 템플릿 알아보기"><Icon name="questionMarkCircle" size={16} /></span>
         </div>
-        {!templates.length && access.canEditStructure && <div className="nc-templates-desc">Create a reusable entry template for this table.</div>}
-        {access.locked && <div className="nc-templates-desc">This table is locked. Unlock it to create templates.</div>}
+        {!templates.length && access.canEditStructure && <div className="nc-templates-desc">이 테이블에서 재사용할 항목 템플릿을 만드세요.</div>}
+        {access.locked && <div className="nc-templates-desc">이 표는 잠겨 있습니다. 템플릿을 만들려면 잠금을 해제하세요.</div>}
       </div>
     ),
     sections: [
@@ -79,24 +79,24 @@ export function openTemplatesMenu(anchor: HTMLElement, opts: { collection: Colle
         items: [
           ...templates.map((t) => ({
             id: t.id,
-            label: toPlainText(t.properties?.title) || 'Untitled',
+            label: toPlainText(t.properties?.title) || '제목 없음',
             icon: <PageIcon block={t} size={20} />,
-            badge: defId === t.id ? 'Default' : undefined,
+            badge: defId === t.id ? '기본' : undefined,
             description: templateCaption(t.id),
-            right: access.canEditStructure ? <span role="button" className="nc-template-more" aria-label="Template options" onClick={templateMenu(t)}><Icon name="ellipsisSmall" size={16} /></span> : undefined,
+            right: access.canEditStructure ? <span role="button" className="nc-template-more" aria-label="템플릿 옵션" onClick={templateMenu(t)}><Icon name="ellipsisSmall" size={16} /></span> : undefined,
             onSelect: () => opts.onCreateFrom(t.id),
           })),
-          { id: 'empty', label: 'Empty', icon: 'pageEmpty', badge: !defId ? 'Default' : undefined, onSelect: () => opts.onCreateFrom('empty') },
+          { id: 'empty', label: '하위 페이지 없음', icon: 'pageEmpty', badge: !defId ? '기본' : undefined, onSelect: () => opts.onCreateFrom('empty') },
         ],
       }] : []),
-      ...(!access.canEditStructure ? [] : [{ items: [{ id: 'new', label: <span className="nc-templates-new">New template</span>, text: 'New template', icon: 'plus', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { const id = createTemplate(collection.id); openPeek(id, 'center_peek'); } }] }]),
+      ...(!access.canEditStructure ? [] : [{ items: [{ id: 'new', label: <span className="nc-templates-new">새 템플릿</span>, text: '새 템플릿', icon: 'plus', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { const id = createTemplate(collection.id); openPeek(id, 'center_peek'); } }] }]),
     ],
     footer: (
       <div className="nc-templates-foot">
-        <div role="button" className="nc-menu-item nc-templates-shortcut" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); useUI.getState().toast('Sidebar shortcuts for templates are not available yet'); }}>
+        <div role="button" className="nc-menu-item nc-templates-shortcut" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); useUI.getState().toast('템플릿의 사이드바 바로가기는 아직 사용할 수 없습니다'); }}>
           <div className="nc-menu-item-inner nc-mi">
             <div className="nc-menu-icon"><Icon name="sidebarLeft" size={20} /></div>
-            <div className="nc-menu-label">Create shortcut to sidebar</div>
+            <div className="nc-menu-label">사이드바에 바로가기 만들기</div>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@ function writeMinimized(viewId: string, v: boolean) {
 
 /** Chevron shown while actions are hovered: “Minimize” collapses them to the settings button, “Expand” restores them. */
 function MinimizeToggle({ minimized, onClick }: { minimized: boolean; onClick: () => void }) {
-  const label = minimized ? 'Expand' : 'Minimize';
+  const label = minimized ? 'Expand' : '최소화';
   return (
     <div role="button" aria-label={label} data-tooltip={label} className="nc-db-tool nc-db-minimize" onClick={onClick}>
       <Icon name={minimized ? 'arrowChevronDoubleLeft' : 'arrowChevronDoubleRight'} size={16} />
@@ -178,7 +178,7 @@ export function Toolbar(p: ToolbarProps) {
     if (p.search !== null) searchRef.current?.focus();
   }, [p.search !== null]);
   const hovered = hover || popoverOpen;
-  const settingsButton = <ToolButton icon="dbToolSettings" label="Settings" className="lit-collection-edit-view" pressed={p.settingsOpen} onClick={(e) => p.onSettings(e.currentTarget)} />;
+  const settingsButton = <ToolButton icon="dbToolSettings" label="설정" className="lit-collection-edit-view" pressed={p.settingsOpen} onClick={(e) => p.onSettings(e.currentTarget)} />;
   if (minimized && !p.compact) {
     return (
       <div ref={rootRef} className="nc-db-toolbar minimized" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -194,27 +194,27 @@ export function Toolbar(p: ToolbarProps) {
       {!p.compact && (
         <>
           {ToolbarLeading && <ToolbarLeading block={block} view={view} collection={collection} readOnly={p.readOnly} />}
-          <ToolButton icon="dbToolFilter" label="Filter" className="lit-collection-filter" active={filterCount > 0} pressed={filterOpen} onClick={(e) => p.onFilter(e.currentTarget)} />
-          <ToolButton icon="arrowUpDownSmall" label="Sort" className="lit-collection-sort" active={sortCount > 0} pressed={sortOpen} onClick={(e) => p.onSort(e.currentTarget)} />
-          {!TRIM.automations && (<ToolButton icon="dbToolLightning" label="Automations" className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />)}
-          {!TRIM.ai && (<ToolButton icon="magicWandSmall" label="AI Autofill" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />)}
+          <ToolButton icon="dbToolFilter" label="필터" className="lit-collection-filter" active={filterCount > 0} pressed={filterOpen} onClick={(e) => p.onFilter(e.currentTarget)} />
+          <ToolButton icon="arrowUpDownSmall" label="정렬" className="lit-collection-sort" active={sortCount > 0} pressed={sortOpen} onClick={(e) => p.onSort(e.currentTarget)} />
+          {!TRIM.automations && (<ToolButton icon="dbToolLightning" label="자동화" className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />)}
+          {!TRIM.ai && (<ToolButton icon="magicWandSmall" label="AI 자동 채우기" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />)}
           <div className={`nc-db-search ${p.search !== null ? 'open' : ''}`}>
-            <ToolButton icon="dbToolSearch" label="Search" onClick={() => (p.search === null ? p.setSearch('') : searchRef.current?.focus())} />
+            <ToolButton icon="dbToolSearch" label="검색" onClick={() => (p.search === null ? p.setSearch('') : searchRef.current?.focus())} />
             {p.search !== null && (
               <input
                 ref={searchRef}
                 className="nc-db-search-input"
-                placeholder="Type to find…"
+                placeholder="검색어 입력…"
                 value={p.search}
                 onChange={(e) => p.setSearch(e.target.value)}
                 onBlur={() => { if (!p.search) p.setSearch(null); }}
                 onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); p.setSearch(null); } }}
               />
             )}
-            {p.search && <span role="button" className="nc-db-search-clear" aria-label="Clear" onMouseDown={(e) => e.preventDefault()} onClick={() => { p.setSearch(''); searchRef.current?.focus(); }}><Icon name="xMarkSmall" size={11} strokeWidth={2.4} /></span>}
+            {p.search && <span role="button" className="nc-db-search-clear" aria-label="지우기" onMouseDown={(e) => e.preventDefault()} onClick={() => { p.setSearch(''); searchRef.current?.focus(); }}><Icon name="xMarkSmall" size={11} strokeWidth={2.4} /></span>}
           </div>
           {p.inline && (
-            <a role="link" className="nc-db-tool" aria-label="Launch as full entry" data-tooltip="Launch as full entry" href={`${pageUrl(block.id)}?v=${compactId(view.id)}`} onClick={(e) => { e.preventDefault(); history.pushState(null, '', `${pageUrl(block.id)}?v=${compactId(view.id)}`); dispatchEvent(new PopStateEvent('popstate')); }}>
+            <a role="link" className="nc-db-tool" aria-label="전체 페이지로 열기" data-tooltip="전체 페이지로 열기" href={`${pageUrl(block.id)}?v=${compactId(view.id)}`} onClick={(e) => { e.preventDefault(); history.pushState(null, '', `${pageUrl(block.id)}?v=${compactId(view.id)}`); dispatchEvent(new PopStateEvent('popstate')); }}>
               <Icon name="dbToolExpand" size={16} />
             </a>
           )}
@@ -225,8 +225,8 @@ export function Toolbar(p: ToolbarProps) {
       {ToolbarExtra ? <ToolbarExtra block={block} view={view} collection={collection} readOnly={p.readOnly} /> : (p.canAdd ?? !p.readOnly) && (
         <div className="nc-db-new-wrap">
           <div className={`lit-collection-view-item-add ${hoverNew ? 'hover' : ''}${newMenuOpen ? ' open' : ''}`} data-inp-target="collection-add-item">
-            <div role="button" aria-haspopup="dialog" className="nc-db-new" onMouseEnter={() => setHoverNew(true)} onMouseLeave={() => setHoverNew(false)} onClick={() => p.onNew()}>New</div>
-            <div role="button" aria-label="More create options" aria-haspopup="dialog" className="nc-db-new-more" onClick={(e) => openTemplatesMenu(e.currentTarget, { collection, view, onCreateFrom: (t) => p.onNew(t) })}>
+            <div role="button" aria-haspopup="dialog" className="nc-db-new" onMouseEnter={() => setHoverNew(true)} onMouseLeave={() => setHoverNew(false)} onClick={() => p.onNew()}>신규</div>
+            <div role="button" aria-label="만들기 옵션 더 보기" aria-haspopup="dialog" className="nc-db-new-more" onClick={(e) => openTemplatesMenu(e.currentTarget, { collection, view, onCreateFrom: (t) => p.onNew(t) })}>
               <Icon name="arrowChevronSingleDownSmall" size={16} strokeWidth={2} />
             </div>
           </div>

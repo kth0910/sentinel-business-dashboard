@@ -26,24 +26,24 @@ export async function enableDesktopPush(): Promise<boolean> {
 
 function text(n: NotificationRecord): { title: string; body: string } {
   const actor = records.get<UserRecord>('lit_user', n.actor_id);
-  const who = actor?.name || actor?.email || 'Someone';
+  const who = actor?.name || actor?.email || '누군가';
   const a = (n.activity ?? {}) as Record<string, any>;
   const page = records.get<BlockRecord>('block', (a.page_id as string) ?? n.navigable_block_id);
   const title = pageTitle(page) || 'a page';
   switch (n.type) {
     case 'mention':
     case 'property_mention':
-      return { title: `${who} mentioned you on ${title}`, body: a.text ?? '' };
+      return { title: `${who}님이 ${title}에서 나를 멘션했습니다`, body: a.text ?? '' };
     case 'comment':
-      return { title: a.kind === 'reaction' ? `${who} reacted in ${title}` : `${who} commented in ${title}`, body: a.text ?? '' };
+      return { title: a.kind === 'reaction' ? `${who}님이 ${title}에서 반응했습니다` : `${who}님이 ${title}에 댓글을 남겼습니다`, body: a.text ?? '' };
     case 'invite':
-      return { title: `${who} sent you an invite to ${title}`, body: '' };
+      return { title: `${who}님이 ${title}에 초대했습니다`, body: '' };
     case 'reminder':
-      return { title: `Reminder in ${title}`, body: a.text ?? a.date_text ?? '' };
+      return { title: `${title} 알림`, body: a.text ?? a.date_text ?? '' };
     case 'access_requested':
-      return { title: `${who} asked for access to ${title}`, body: a.message ?? '' };
+      return { title: `${who}님이 ${title} 액세스를 요청했습니다`, body: a.message ?? '' };
     default:
-      return { title: `${who} updated ${title}`, body: '' };
+      return { title: `${who}님이 ${title}을(를) 수정했습니다`, body: '' };
   }
 }
 

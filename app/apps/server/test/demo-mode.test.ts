@@ -520,7 +520,7 @@ describe('demo sandboxes: normal mode is unchanged', () => {
         { pointer: { table: 'block', id: sb.pageId, spaceId: sb.spaceId }, path: ['content'], command: 'listAfter', args: { id } },
       ] }] }))).toBe(200);
       const welcome = seed.createWorkspace(other, 'Other workspace');
-      expect(titleOf(db.getRecord('block', welcome.spaceView.private_pages[0]))).toBe('Welcome to Litpage');
+      expect(titleOf(db.getRecord('block', welcome.spaceView.private_pages[0]))).toBe('시작하기');
     } finally {
       process.env.NC_DEMO_MODE = '1';
       delete process.env.NC_DEMO_MAX_RECORDS;

@@ -111,7 +111,7 @@ registerBlockMenu(['callout'], ({ block, turnInto, color }) => [
   turnInto,
   color,
   {
-    label: 'Edit icon', icon: 'iconEdit',
+    label: '아이콘 편집', icon: 'iconEdit',
     onSelect: () => {
       const el = blockElement(block.id)?.querySelector('.nc-callout-icon-btn') as HTMLElement | null;
       setTimeout(() => editCalloutIcon(block, el ?? blockElement(block.id)!.getBoundingClientRect()), 0);

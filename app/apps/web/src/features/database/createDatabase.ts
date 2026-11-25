@@ -1,6 +1,6 @@
 // Database creation: collection (schema) + collection_view(s) + block (inline `collection_view` or full-page
 // `collection_view_page`) — the record split uses (05-database-.4: block set with
-// format.collection_pointer, view set with table_properties [{title,280}], collection with schema {title:"Name"}).
+// format.collection_pointer, view set with table_properties [{title,280}], collection with schema {title:"이름"}).
 // New databases start with no rows (the table shows placeholder rows).
 import type { BlockRecord, CollectionRecord, CollectionViewRecord, PropertySchema, ViewType } from '@nc/shared/records.ts';
 import { newId } from '@nc/shared/ids.ts';
@@ -18,7 +18,7 @@ export const VIEW_LABEL: Record<string, string> = VIEW_DEFAULT_NAMES;
 
 /** New database schema: just the title property “Name”. */
 export function defaultSchema(): Record<string, PropertySchema> {
-  return { title: { name: 'Name', type: 'title' } };
+  return { title: { name: '이름', type: 'title' } };
 }
 
 export function shortId(): string {
@@ -38,7 +38,7 @@ export function createViewIn(tx: Tx, blockId: string, type: ViewType, schema: Re
   const id = opts?.id ?? newId();
   const d = defaultViewFormat(type, schema);
   tx.set('collection_view', id, [], {
-    id, type, name: opts?.name ?? VIEW_LABEL[type] ?? 'View', format: { ...d.format, ...(opts?.chartType ? { chart_type: opts.chartType } : {}) }, query2: d.query2,
+    id, type, name: opts?.name ?? VIEW_LABEL[type] ?? '차트', format: { ...d.format, ...(opts?.chartType ? { chart_type: opts.chartType } : {}) }, query2: d.query2,
     parent_id: blockId, parent_table: 'block', alive: true, space_id: tx.spaceId, page_sort: [],
   });
   return id;
@@ -63,7 +63,7 @@ export function createDatabaseIn(tx: Tx, opts: CreateDatabaseOptions): { blockId
   const collectionId = newId();
   const schema = defaultSchema();
 // a new form’s database records who answered: “Respondent”
-  if (opts.viewType === 'form') schema[shortId()] = { name: 'Respondent', type: 'created_by' } as PropertySchema;
+  if (opts.viewType === 'form') schema[shortId()] = { name: '응답자', type: 'created_by' } as PropertySchema;
   const col: Omit<CollectionRecord, 'version'> = {
     id: collectionId, name: opts.name ? [[opts.name]] : [], schema, format: {},
     parent_id: blockId, parent_table: 'block', alive: true, space_id: tx.spaceId, template_pages: [],
@@ -100,7 +100,7 @@ export function insertDatabase(ctx: SlashContext, opts: { viewType: ViewType; in
     };
     setTimeout(() => openLinkedSourcePicker(el ?? document.body, {
       skipViewStep: true,
-      createLabel: 'New chart',
+      createLabel: '새 차트',
       onPick: (target) => {
         run('createLinkedChart', (tx) => {
           const blockId = newId();
@@ -197,7 +197,7 @@ export function turnPageIntoDatabase(pageId: string, viewType: ViewType, opts: {
   run('getStarted.turnIntoDatabase', (tx) => {
     const collectionId = newId();
     const schema = defaultSchema();
-    if (viewType === 'form') schema[shortId()] = { name: 'Respondent', type: 'created_by' } as PropertySchema;
+    if (viewType === 'form') schema[shortId()] = { name: '응답자', type: 'created_by' } as PropertySchema;
     tx.set('collection', collectionId, [], {
       id: collectionId, name: (page.properties?.title as unknown) ?? [], schema, format: {},
       parent_id: pageId, parent_table: 'block', alive: true, space_id: tx.spaceId, template_pages: [],

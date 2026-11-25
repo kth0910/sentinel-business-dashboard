@@ -3,6 +3,8 @@
 import type { DateValue } from '@nc/shared/richtext.ts';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+/** 화면 표시용 요일(업무관리 시연판: 한국어). 영어 WEEKDAYS·MONTHS는 '@' 메뉴의 영어 날짜 입력 해석에만 쓴다. */
+const KO_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function isoDate(d: Date): string {
@@ -28,16 +30,16 @@ function dayDiff(d: Date, from = new Date()): number {
 
 /** “Oct 20, 2026” date input and default mention display. */
 export function formatMedium(d: Date): string {
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
 export function formatTime(t: string | undefined, fmt?: string): string {
   if (!t) return '';
   const [h, m] = t.split(':').map(Number);
   if (fmt === 'H:mm') return `${h}:${String(m).padStart(2, '0')}`;
-  const ampm = h >= 12 ? 'PM' : 'AM';
+  const ampm = h >= 12 ? '오후' : '오전';
   const hh = h % 12 === 0 ? 12 : h % 12;
-  return `${hh}:${String(m).padStart(2, '0')} ${ampm}`;
+  return `${ampm} ${hh}:${String(m).padStart(2, '0')}`;
 }
 
 /** Display label of a date for a given date format. */
@@ -57,19 +59,19 @@ export function formatDateOnly(dateStr: string, format: string | undefined): str
     case 'MMM DD, YYYY':
       return formatMedium(d);
     case 'MMM d':
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `${d.getMonth() + 1}월 ${d.getDate()}일`;
     case 'full':
     case 'MMMM D, YYYY':
-      return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+      return formatMedium(d);
     case 'relative':
     case undefined:
     default: {
       const diff = dayDiff(d);
-      if (diff === 0) return 'Today';
-      if (diff === 1) return 'Tomorrow';
-      if (diff === -1) return 'Yesterday';
-      if (diff < 0 && diff > -7) return `Last ${WEEKDAYS[d.getDay()]}`;
-      if (diff > 1 && diff < 7) return `Next ${WEEKDAYS[d.getDay()]}`;
+      if (diff === 0) return '오늘';
+      if (diff === 1) return '내일';
+      if (diff === -1) return '어제';
+      if (diff < 0 && diff > -7) return `지난 ${KO_DAYS[d.getDay()]}요일`;
+      if (diff > 1 && diff < 7) return `다음 ${KO_DAYS[d.getDay()]}요일`;
       return formatMedium(d);
     }
   }
@@ -115,59 +117,57 @@ export function reminderTime(v: DateValue): number | null {
 export function reminderOptions(withTime: boolean): { label: string; value: DateValue['reminder'] | null }[] {
   if (!withTime) {
     return [
-      { label: 'None', value: null },
-      { label: 'On day of event (9:00 AM)', value: { unit: 'day', value: 0, time: '09:00' } },
-      { label: '1 day before (9:00 AM)', value: { unit: 'day', value: 1, time: '09:00' } },
-      { label: '2 days before (9:00 AM)', value: { unit: 'day', value: 2, time: '09:00' } },
-      { label: '1 week before (9:00 AM)', value: { unit: 'week', value: 1, time: '09:00' } },
+      { label: '없음', value: null },
+      { label: '이벤트 당일(오전 9:00)', value: { unit: 'day', value: 0, time: '09:00' } },
+      { label: '1일 전(오전 9:00)', value: { unit: 'day', value: 1, time: '09:00' } },
+      { label: '2일 전(오전 9:00)', value: { unit: 'day', value: 2, time: '09:00' } },
+      { label: '1주 전(오전 9:00)', value: { unit: 'week', value: 1, time: '09:00' } },
     ];
   }
   return [
-    { label: 'None', value: null },
-    { label: 'When the event starts', value: { unit: 'minute', value: 0 } },
-    { label: '5 minutes before', value: { unit: 'minute', value: 5 } },
-    { label: '10 minutes before', value: { unit: 'minute', value: 10 } },
-    { label: '15 minutes before', value: { unit: 'minute', value: 15 } },
-    { label: '30 minutes before', value: { unit: 'minute', value: 30 } },
-    { label: '1 hour before', value: { unit: 'hour', value: 1 } },
-    { label: '2 hours before', value: { unit: 'hour', value: 2 } },
-    { label: '1 day before (9:00 AM)', value: { unit: 'day', value: 1, time: '09:00' } },
-    { label: '2 days before (9:00 AM)', value: { unit: 'day', value: 2, time: '09:00' } },
+    { label: '없음', value: null },
+    { label: '일정 시작 시', value: { unit: 'minute', value: 0 } },
+    { label: '5분 전', value: { unit: 'minute', value: 5 } },
+    { label: '10분 전', value: { unit: 'minute', value: 10 } },
+    { label: '15분 전', value: { unit: 'minute', value: 15 } },
+    { label: '30분 전', value: { unit: 'minute', value: 30 } },
+    { label: '1시간 전', value: { unit: 'hour', value: 1 } },
+    { label: '2시간 전', value: { unit: 'hour', value: 2 } },
+    { label: '1일 전(오전 9:00)', value: { unit: 'day', value: 1, time: '09:00' } },
+    { label: '2일 전(오전 9:00)', value: { unit: 'day', value: 2, time: '09:00' } },
   ];
 }
 
 export function reminderLabel(v: DateValue): string {
   const r = v.reminder;
-  if (!r) return 'None';
+  if (!r) return '없음';
   const opts = reminderOptions(!!v.start_time);
   const hit = opts.find((o) => o.value && o.value.unit === r.unit && o.value.value === r.value);
-  return hit?.label ?? 'Custom';
+  return hit?.label ?? '사용자 지정';
 }
 
 export const DATE_FORMATS: { label: string; value: string }[] = [
-  { label: 'Full date', value: 'full' },
-  { label: 'Short date', value: 'MMM d' },
-  { label: 'Month, day, year', value: 'MM/DD/YYYY' },
-  { label: 'Day, month, year', value: 'DD/MM/YYYY' },
-  { label: 'Year, month, day', value: 'YYYY/MM/DD' },
-  { label: 'Relative', value: 'relative' },
+  { label: '전체 날짜', value: 'full' },
+  { label: '짧은 날짜', value: 'MMM d' },
+  { label: '월 / 일 / 연도', value: 'MM/DD/YYYY' },
+  { label: '일 / 월 / 연도', value: 'DD/MM/YYYY' },
+  { label: '연도 / 월 / 일', value: 'YYYY/MM/DD' },
+  { label: '상대 날짜', value: 'relative' },
 ];
 
 export function dateFormatLabel(f: string | undefined): string {
-  return DATE_FORMATS.find((x) => x.value === (f ?? 'relative'))?.label ?? 'Relative';
+  return DATE_FORMATS.find((x) => x.value === (f ?? 'relative'))?.label ?? '상대 날짜';
 }
 
 /** Relative captions such as "3 days from now" and "Yesterday". */
 export function timeCaption(d: Date): string {
   const diff = dayDiff(d);
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Tomorrow';
-  if (diff === -1) return 'Yesterday';
+  if (diff === 0) return '오늘';
+  if (diff === 1) return '내일';
+  if (diff === -1) return '어제';
   const abs = Math.abs(diff);
-  const unit = abs >= 365 ? ['year', Math.round(abs / 365)] : abs >= 30 ? ['month', Math.round(abs / 30)] : abs >= 14 ? ['week', Math.round(abs / 7)] : ['day', abs];
-  const n = unit[1] as number;
-  const word = `${n} ${unit[0]}${n === 1 ? '' : 's'}`;
-  return diff > 0 ? `${word} from now` : `${word} ago`;
+  const word = abs >= 365 ? `${Math.round(abs / 365)}년` : abs >= 30 ? `${Math.round(abs / 30)}개월` : abs >= 14 ? `${Math.round(abs / 7)}주` : `${abs}일`;
+  return diff > 0 ? `${word} 후` : `${word} 전`;
 }
 
 export interface ParsedDate {

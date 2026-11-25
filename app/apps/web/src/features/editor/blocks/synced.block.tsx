@@ -92,7 +92,7 @@ export async function copySyncedBlock(blockId: string) {
     document.execCommand('copy');
   }
   lastCopied = c.id;
-  toast('Copied. Paste into any page to mirror it.');
+  toast('복사했습니다. 원하는 페이지에 붙여 넣으면 동기화됩니다.');
 }
 
 let lastCopied: string | null = null;
@@ -106,7 +106,7 @@ export function pasteSyncedReference(srcId: string, atBlockId: string) {
   let cur: BlockRecord | undefined = at;
   for (let i = 0; i < 50 && cur; i++) {
     if (cur.id === srcId) {
-      toast('Can’t paste a synced block inside itself');
+      toast('동기화된 블록을 자기 자신 안에 붙여 넣을 수 없습니다');
       return;
     }
     cur = cur.parent_table === 'block' ? getBlock(cur.parent_id) : undefined;
@@ -215,7 +215,7 @@ function confirmDialog(anchor: HTMLElement | DOMRect, title: string, text: strin
         <div className="msg" style={{ color: 'var(--lp-text-secondary)', fontSize: 13 }}>{text}</div>
         <div className="btns">
           <button className="nc-blk-btn danger outline" onClick={() => { close(); onConfirm(); }}>{confirm}</button>
-          <button className="nc-blk-btn outline" onClick={close}>Cancel</button>
+          <button className="nc-blk-btn outline" onClick={close}>취소</button>
         </div>
       </div>
     </PopoverSurface>
@@ -225,7 +225,7 @@ function confirmDialog(anchor: HTMLElement | DOMRect, title: string, text: strin
 /* ------------------------------------------------------------------ UI */
 
 function pagesLabel(n: number) {
-  return n === 1 ? '1 other page' : `${n} other pages`;
+  return n === 1 ? '다른 페이지 1개' : `다른 페이지 ${n}개`;
 }
 
 function BacklinksButton({ containerId, refs, currentPage }: { containerId: string; refs: RefInfo[]; currentPage?: string }) {
@@ -236,12 +236,12 @@ function BacklinksButton({ containerId, refs, currentPage }: { containerId: stri
     for (const r of refs) if (r.pageId !== currentPage) pages.add(r.pageId);
     return Array.from(pages);
   }, [refs, origPage, currentPage]);
-  const label = others.length === 0 ? 'Editing original' : `Synced to ${pagesLabel(others.length)}`;
+  const label = others.length === 0 ? '원본 편집 중' : `${pagesLabel(others.length)}에 동기화됨`;
   return (
     <div
       role="button"
       tabIndex={0}
-      aria-label="Open backlinks"
+      aria-label="백링크 열기"
       className="nc-blk-action with-text"
       style={{ color: 'var(--lp-text-secondary)', fontSize: 14, height: 24 }}
       onMouseDown={(e) => e.preventDefault()}
@@ -251,13 +251,13 @@ function BacklinksButton({ containerId, refs, currentPage }: { containerId: stri
         openMenu(e.currentTarget, {
           width: 280,
           sections: [{
-            title: 'Synced to',
+            title: '동기화된 위치',
             items: all.map((p) => ({
-              id: p, label: pageTitle(getBlock(p)) || 'New page', icon: <PageIcon block={getBlock(p)} size={20} />,
-              right: p === origPage ? <span className="nc-menu-badge">Original</span> : p === currentPage ? <span className="nc-menu-shortcut">Current</span> : undefined,
+              id: p, label: pageTitle(getBlock(p)) || '새 페이지', icon: <PageIcon block={getBlock(p)} size={20} />,
+              right: p === origPage ? <span className="nc-menu-badge">원본</span> : p === currentPage ? <span className="nc-menu-shortcut">현재</span> : undefined,
               onSelect: () => { if (p !== currentPage) openPage(p); },
             })),
-          }, ...(HELP_URL ? [{ items: [{ label: 'Learn about mirrored blocks', icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank') }] }] : [])],
+          }, ...(HELP_URL ? [{ items: [{ label: '미러 블록 알아보기', icon: 'questionMarkCircle', onSelect: () => window.open(HELP_URL!, '_blank') }] }] : [])],
         });
       }}
     >
@@ -289,7 +289,7 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
     return (
       <div className="nc-bpad0">
         <div className="nc-synced-2 readonly">
-          <div className="nc-synced-missing"><Icon name="blockSync" size={16} />You can’t access this mirrored block</div>
+          <div className="nc-synced-missing"><Icon name="blockSync" size={16} />이 미러 블록에 액세스할 수 없습니다</div>
         </div>
       </div>
     );
@@ -298,13 +298,13 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
     <div className="nc-bpad0" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <div className={`nc-synced-2 ${active ? 'active' : ''} ${readOnly ? 'readonly' : ''}`} data-synced-container={containerId}>
         {!readOnly && (
-          <div className="nc-synced-bar" role="toolbar" aria-label="Mirrored block actions" onMouseDown={(e) => e.preventDefault()}>
+          <div className="nc-synced-bar" role="toolbar" aria-label="동기화 블록 작업" onMouseDown={(e) => e.preventDefault()}>
             <BacklinksButton containerId={containerId} refs={refs} currentPage={currentPage} />
             <div className="nc-blk-action-divider" />
-            <div role="button" tabIndex={0} className="nc-blk-action" aria-label="Copy mirrored block" data-tooltip="Copy mirrored block" onClick={() => void copySyncedBlock(block.id)}>
+            <div role="button" tabIndex={0} className="nc-blk-action" aria-label="미러 블록 복사" data-tooltip="미러 블록 복사" onClick={() => void copySyncedBlock(block.id)}>
               <Icon name="duplicate" size={16} />
             </div>
-            <div role="button" tabIndex={0} className="nc-blk-action" aria-label="Open block options" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())}>
+            <div role="button" tabIndex={0} className="nc-blk-action" aria-label="블록 옵션 열기" onClick={(e) => openBlockMenu([block.id], e.currentTarget.getBoundingClientRect())}>
               <Icon name="ellipsis" size={16} />
             </div>
           </div>
@@ -312,8 +312,8 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
         {src.alive === false && (
           <div className="nc-synced-missing">
             <Icon name="warningTriangle" size={16} />
-            {isReference ? 'The original synced block has been deleted.' : 'This synced block has been deleted.'}
-            {isReference && !readOnly && <button className="nc-blk-btn outline" style={{ marginInlineStart: 'auto' }} onClick={() => unsyncReference(block.id)}>Unsync</button>}
+            {isReference ? '원본 동기화 블록이 삭제되었습니다.' : '이 동기화 블록은 삭제되었습니다.'}
+            {isReference && !readOnly && <button className="nc-blk-btn outline" style={{ marginInlineStart: 'auto' }} onClick={() => unsyncReference(block.id)}>동기화 해제</button>}
           </div>
         )}
         {kids.length ? (
@@ -330,7 +330,7 @@ function SyncFrame({ block, containerId, depth, readOnly, isReference }: { block
               useEditor.getState().requestFocus(id, 0);
             }}
           >
-            Click or drag blocks here, then paste in another page to sync content.
+            블록을 이곳에 클릭하거나 끌어 놓은 뒤 다른 페이지에 붙여넣으면 내용이 동기화됩니다.
           </div>
         )}
       </div>
@@ -357,24 +357,24 @@ registerBlock(['transclusion_container'], SyncedContainer);
 registerBlock(['transclusion_reference'], SyncedReference);
 
 registerBlockMenu(['transclusion_container'], ({ block, anchor }) => [
-  { label: 'Copy and sync', icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
+  { label: '복사 및 동기화', icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
   {
-    label: 'Unsync all', icon: 'unsync',
+    label: '모두 동기화 해제', icon: 'unsync',
     onSelect: () => {
       void fetchReferences(block.id, true).then((refs) => {
         if (!refs.length) return unsyncAll(block.id);
-        confirmDialog(anchor ?? new DOMRect(innerWidth / 2, innerHeight / 3, 0, 0), 'Unsync all?', `${pagesLabel(refs.length)[0].toUpperCase()}${pagesLabel(refs.length).slice(1)} will no longer sync with these blocks.`, 'Unsync all', () => void unsyncAll(block.id));
+        confirmDialog(anchor ?? new DOMRect(innerWidth / 2, innerHeight / 3, 0, 0), '모두 동기화 해제할까요?', `${pagesLabel(refs.length)[0].toUpperCase()}${pagesLabel(refs.length).slice(1)} will no longer sync with these blocks.`, '모두 동기화 해제', () => void unsyncAll(block.id));
       });
     },
   },
 ]);
 
 registerBlockMenu(['transclusion_reference'], ({ block, anchor }) => [
-  { label: 'Copy and sync', icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
-  { label: 'Go to original', icon: 'arrowDiagonalUpRight', onSelect: () => { const p = pageOf(containerOf(block) ?? '')?.id; if (p) openPage(p); } },
+  { label: '복사 및 동기화', icon: 'blockSync', onSelect: () => void copySyncedBlock(block.id) },
+  { label: '원본으로 이동', icon: 'arrowDiagonalUpRight', onSelect: () => { const p = pageOf(containerOf(block) ?? '')?.id; if (p) openPage(p); } },
   {
-    label: 'Unsync', icon: 'unsync',
-    onSelect: () => confirmDialog(anchor ?? new DOMRect(innerWidth / 2, innerHeight / 3, 0, 0), 'Unsync this?', 'Selected blocks will stop mirroring the source.', 'Unsync', () => unsyncReference(block.id)),
+    label: '동기화 해제', icon: 'unsync',
+    onSelect: () => confirmDialog(anchor ?? new DOMRect(innerWidth / 2, innerHeight / 3, 0, 0), '동기화를 해제할까요?', '선택한 블록이 원본과 더 이상 동기화되지 않습니다.', '동기화 해제', () => unsyncReference(block.id)),
   },
 ]);
 

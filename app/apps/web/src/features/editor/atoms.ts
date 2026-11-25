@@ -119,10 +119,10 @@ function renderBlockMention(b: BlockRecord): HTMLElement {
   a.appendChild(iconSpan(page?.format?.page_icon as string | undefined, false));
   const t = document.createElement('span');
   t.className = 'lit-page-mention-token__title';
-  const text = blockMentionText(b) || 'Untitled';
+  const text = blockMentionText(b) || '제목 없음';
   const loc = getLocation();
   const here = (loc.route.name === 'page' && loc.route.pageId === pageId) || loc.peek?.pageId === pageId;
-  const pageTitle = (page?.properties?.title ?? []).map((d: any) => (d[0] === '‣' ? '' : d[0])).join('') || 'New page';
+  const pageTitle = (page?.properties?.title ?? []).map((d: any) => (d[0] === '‣' ? '' : d[0])).join('') || '새 페이지';
   t.textContent = here ? text : `${pageTitle} - ${text}`;
   a.appendChild(t);
   return a;
@@ -139,12 +139,12 @@ function renderPage(pageId: string, link: boolean): HTMLElement {
   const t = document.createElement('span');
   t.className = 'lit-page-mention-token__title';
   const title = (b?.properties?.title ?? []).map((d: any) => (d[0] === '‣' ? '' : d[0])).join('');
-  t.textContent = b ? title || 'New page' : 'No access';
+  t.textContent = b ? title || '새 페이지' : '접근 권한 없음';
   a.appendChild(t);
   if (b && b.alive === false) {
     const badge = document.createElement('span');
     badge.className = 'lit-page-mention-token__trash';
-    badge.textContent = 'In Trash';
+    badge.textContent = '휴지통에 있음';
     a.appendChild(badge);
   }
   return a;
@@ -171,7 +171,7 @@ function renderGroup(groupId: string, spaceId?: string): HTMLElement {
   const g = groupOf(groupId, spaceId);
   const el = mentionShell('lit-group-mention-token');
   const inner = document.createElement('span');
-  inner.append(at(), document.createTextNode(g?.name || 'Deleted group'));
+  inner.append(at(), document.createTextNode(g?.name || '삭제된 그룹'));
   el.append(document.createElement('span'), inner, document.createElement('span'));
   el.dataset.groupId = groupId;
   if (spaceId) el.dataset.spaceId = spaceId;
@@ -183,7 +183,7 @@ function renderUser(userId: string): HTMLElement {
   const el = mentionShell('lit-user-mention-token');
   const inner = document.createElement('span');
   // template variable "@Me — Person who duplicated page" (database templates, button content)
-  inner.append(at(), document.createTextNode(userId === TEMPLATE_ME ? 'Me' : u?.name || u?.email || 'Unknown user'));
+  inner.append(at(), document.createTextNode(userId === TEMPLATE_ME ? '나' : u?.name || u?.email || '알 수 없는 사용자'));
   el.append(document.createElement('span'), inner, document.createElement('span'));
   el.dataset.userId = userId;
   return el;
@@ -196,7 +196,7 @@ function renderDate(v: DateValue): HTMLElement {
   label.className = 'lit-reminder';
   // template variables "@Today" / "@Now" stay variables until the template is used / the button clicked
   const tv = (v as { template_variable?: string }).template_variable;
-  label.textContent = tv === 'today' ? 'Today' : tv === 'now' ? 'Now' : formatDateValue(v);
+  label.textContent = tv === 'today' ? '오늘' : tv === 'now' ? 'Now' : formatDateValue(v);
   inner.append(at(), label);
   const due = reminderTime(v);
   if (due !== null) {
@@ -239,7 +239,7 @@ function renderEquation(tex: string): HTMLElement {
   if (!tex.trim()) {
     el.classList.add('empty');
     el.appendChild(sqrtGlyph());
-    el.appendChild(document.createTextNode('New equation'));
+    el.appendChild(document.createTextNode('새 수식'));
     return el;
   }
   try {
@@ -258,7 +258,7 @@ function renderCustomEmoji(id: string, spaceId?: string): HTMLElement {
   if (!e) {
     el.classList.add('missing');
     el.textContent = ':deleted-emoji:';
-    el.title = 'This custom emoji was deleted';
+    el.title = '삭제된 사용자 지정 이모지입니다';
     return el;
   }
   const img = document.createElement('img');
@@ -271,7 +271,7 @@ function renderCustomEmoji(id: string, spaceId?: string): HTMLElement {
   return el;
 }
 
-const TEMPLATE_VARIABLE_LABEL: Record<string, string> = { me: 'Me', now: 'Now', today: 'Today' };
+const TEMPLATE_VARIABLE_LABEL: Record<string, string> = { me: '나', now: '지금', today: '오늘' };
 
 /** Template variable (["tv", "me" | "now" | "today"]) — "@Today" chip until the template is used. */
 function renderTemplateVariable(v: string): HTMLElement {

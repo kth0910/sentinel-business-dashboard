@@ -198,7 +198,7 @@ export function weekStartDay(): 0 | 1 {
   return getUserPrefs().start_day_of_week === 1 ? 1 : 0;
 }
 
-const WEEKDAYS_SHORT = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const WEEKDAYS_SHORT = ['Su', '월', '화', 'We', 'Th', '금', '토'];
 
 /** Two-letter weekday headers in the user's week order (Su…Sa or Mo…Su). */
 export function weekdayHeaders(): string[] {

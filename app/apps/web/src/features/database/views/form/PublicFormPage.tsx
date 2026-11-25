@@ -32,23 +32,23 @@ export function PublicFormPage({ viewId }: { viewId: string }) {
   else if (res.status === 'login') {
     body = (
       <div className="nc-form-state">
-        <div className="nc-form-state-title">This form is not available publicly.</div>
-        <div className="nc-form-state-sub">Log in to submit, or ask the form owner to publish it.</div>
-        <div role="button" className="nc-form-btn primary" onClick={() => navigate('/login')}>Log in</div>
+        <div className="nc-form-state-title">이 폼은 공개되어 있지 않습니다.</div>
+        <div className="nc-form-state-sub">제출하려면 로그인하거나 폼 소유자에게 게시를 요청하세요.</div>
+        <div role="button" className="nc-form-btn primary" onClick={() => navigate('/login')}>로그인</div>
       </div>
     );
   } else if (res.status === 'denied') {
     body = (
       <div className="nc-form-state">
-        <div className="nc-form-state-title">This form is not available publicly.</div>
+        <div className="nc-form-state-title">이 폼은 공개되어 있지 않습니다.</div>
         <div className="nc-form-state-sub">Only members at {res.spaceName ?? 'this workspace'} can fill out this form.</div>
       </div>
     );
   } else {
     body = (
       <div className="nc-form-state">
-        <div className="nc-form-state-title">This form is closed or no longer available.</div>
-        <div className="nc-form-state-sub">If this seems wrong, reach out to the form owner.</div>
+        <div className="nc-form-state-title">이 폼은 마감되었거나 더 이상 사용할 수 없습니다.</div>
+        <div className="nc-form-state-sub">문제가 있다고 생각되면 폼 소유자에게 문의하세요.</div>
       </div>
     );
   }

@@ -30,7 +30,7 @@ function PipelineBlock({ block }: BlockProps) {
               {rows.slice(0, shown).map((r) => (
                 <tr key={r.key}>
                   <td className="wrap">{r.customer}</td>
-                  <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">Cloud</span>}</td>
+                  <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</td>
                   <td className="num">{r.amount.toLocaleString('ko-KR')}</td>
                   <td>{r.probability || '—'}</td>
                   <td>{r.progress}</td>

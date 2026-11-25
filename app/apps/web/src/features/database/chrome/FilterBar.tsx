@@ -3,6 +3,7 @@
 // relative dates from relativeDates), advanced filter builder (Where / And|Or, rules, nested groups),
 // sort popover (rows with property + Ascending/Descending, "+ Add sort", "Delete sort").
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { STATUS_GROUP_LABELS } from '@nc/shared/database/schema.ts';
 import type { CollectionRecord, CollectionViewRecord, PropertySchema, UserRecord, BlockRecord } from '@nc/shared/records.ts';
 import { toPlainText } from '@nc/shared/richtext.ts';
 import {
@@ -39,7 +40,7 @@ function valuesOf(fv: FilterValue | FilterValue[] | undefined): FilterValue[] {
 function relativeLabel(v: FilterValue): string {
   if (typeof v.value === 'string' && RELATIVE_DATE_LABELS[v.value]) {
     if (v.value === 'custom') return `${v.direction === 'future' ? 'Next' : 'Past'} ${v.count ?? 1} ${v.unit ?? 'week'}${(v.count ?? 1) === 1 ? '' : 's'}`;
-    if (v.value === 'surrounding') return `This ${v.unit ?? 'week'}`;
+    if (v.value === 'surrounding') return `이번 ${v.unit ?? 'week'}`;
     return RELATIVE_DATE_LABELS[v.value];
   }
   return String(v.value ?? '');
@@ -54,10 +55,10 @@ export function filterValueText(leaf: PropertyFilterLeaf, prop: PropertySchema |
     if (v.type === 'is_group') return String(v.value);
     if (prop && (prop.type === 'person' || prop.type === 'created_by' || prop.type === 'last_edited_by')) {
       const u = records.get<UserRecord>('lit_user', String(v.value));
-      return u?.name || u?.email || 'Unknown';
+      return u?.name || u?.email || '알 수 없음';
     }
-    if (prop?.type === 'relation') return toPlainText(records.get<BlockRecord>('block', String(v.value))?.properties?.title) || 'Untitled';
-    if (prop?.type === 'checkbox' || leaf.filter.operator.startsWith('checkbox')) return v.value === true || v.value === 'true' ? 'Checked' : 'Unchecked';
+    if (prop?.type === 'relation') return toPlainText(records.get<BlockRecord>('block', String(v.value))?.properties?.title) || '제목 없음';
+    if (prop?.type === 'checkbox' || leaf.filter.operator.startsWith('checkbox')) return v.value === true || v.value === 'true' ? '체크됨' : '체크 안 됨';
     const raw = v.value;
     if (raw && typeof raw === 'object' && raw.start_date) return raw.end_date ? `${formatDay(ymdToMs(raw.start_date), 'MMM DD, YYYY')} → ${formatDay(ymdToMs(raw.end_date), 'MMM DD, YYYY')}` : formatDay(ymdToMs(raw.start_date), 'MMM DD, YYYY');
     if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return formatDay(ymdToMs(raw), 'MMM DD, YYYY');
@@ -67,7 +68,7 @@ export function filterValueText(leaf: PropertyFilterLeaf, prop: PropertySchema |
 
 export function chipLabel(leaf: PropertyFilterLeaf, prop: PropertySchema | undefined): { name: string; rest: string; active: boolean } {
   const op = leaf.filter.operator;
-  const name = prop?.name ?? 'Property';
+  const name = prop?.name ?? '속성';
   const active = isActiveLeaf(leaf);
   if (op === 'is_empty' || op === 'is_not_empty') return { name, rest: FILTER_OPERATOR_LABELS[op], active };
   const val = filterValueText(leaf, prop);
@@ -90,7 +91,7 @@ function TextValue({ leaf, onChange, number }: { leaf: PropertyFilterLeaf; onCha
       <div className="nc-input focused">
         <input
           autoFocus
-          placeholder="Type a value…"
+          placeholder="값 입력…"
           inputMode={number ? 'decimal' : undefined}
           value={text}
           onChange={(e) => {
@@ -124,19 +125,19 @@ function OptionsValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; prop
   );
   return (
     <div className="nc-filter-options" data-menu-keys="ignore">
-      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="Choose one or more options…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="옵션을 하나 이상 선택하세요…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-filter-options-list">
         {isStatus
           ? groups.map((g) => (
               <div key={g.id}>
-                {row(`g:${g.id}`, <span className="nc-filter-group-name">{g.name}</span>, { type: 'is_group', value: g.name })}
+                {row(`g:${g.id}`, <span className="nc-filter-group-name">{(STATUS_GROUP_LABELS[g.name] ?? g.name)}</span>, { type: 'is_group', value: g.name })}
                 {(g.optionIds ?? []).map((id) => options.find((o) => o.id === id)).filter(Boolean).map((o) => row(o!.id, <span className="nc-filter-option-indent"><StatusPill option={o!} /></span>, { type: 'is_option', value: o!.value }))}
               </div>
             ))
           : options.map((o) => row(o.id, <OptionPill option={o} />, { type: 'exact', value: o.value }))}
-        {!options.length && !isStatus && <div className="nc-select-editor-empty">No results</div>}
+        {!options.length && !isStatus && <div className="nc-select-editor-empty">결과 없음</div>}
       </div>
-      {vals.length > 0 && <div role="button" className="nc-filter-clear" onClick={() => onChange(undefined)}>Clear selection</div>}
+      {vals.length > 0 && <div role="button" className="nc-filter-clear" onClick={() => onChange(undefined)}>선택 해제</div>}
     </div>
   );
 }
@@ -153,13 +154,13 @@ function PeopleValue({ leaf, onChange }: { leaf: PropertyFilterLeaf; onChange: (
   const me: FilterValue = { type: 'relative', value: 'me' };
   return (
     <div className="nc-filter-options" data-menu-keys="ignore">
-      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="Find one or more people…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="사람을 한 명 이상 찾아보세요…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-filter-options-list">
         {(!q || 'me'.includes(q.toLowerCase())) && (
           <div role="option" className="nc-filter-option" onClick={() => toggle(me)}>
             <span className={`nc-prop-checkbox ${has(me) ? 'checked' : ''}`}>{has(me) && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
             <UserAvatar userId={useSession.getState().userId} size={20} />
-            <span>Me</span>
+            <span>나</span>
           </div>
         )}
         {users.map((u) => {
@@ -189,7 +190,7 @@ function RelationValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
   const sprintVars = isSprintsDatabase(records.get<CollectionRecord>('collection', String(prop.collection_id ?? ''))) ? ['current_sprint', 'next_sprint', 'last_sprint'] : [];
   return (
     <div className="nc-filter-options" data-menu-keys="ignore">
-      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="Find one or more entries…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-filter-value-input"><div className="nc-input focused"><input autoFocus placeholder="항목 하나 이상 찾기…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-filter-options-list">
         {sprintVars.map((sv) => (
           <div key={sv} role="option" className="nc-filter-option" onClick={() => { const next = has(sv) ? vals.filter((v) => v.value !== sv) : [...vals, { type: 'relative' as const, value: sv }]; onChange(next.length ? next : undefined); }}>
@@ -200,10 +201,10 @@ function RelationValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
         {pages.map((p) => (
           <div key={p.id} role="option" className="nc-filter-option" onClick={() => { const next = has(p.id) ? vals.filter((v) => v.value !== p.id) : [...vals, { type: 'exact' as const, value: p.id }]; onChange(next.length ? next : undefined); }}>
             <span className={`nc-prop-checkbox ${has(p.id) ? 'checked' : ''}`}>{has(p.id) && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
-            <span>{toPlainText(p.properties?.title) || 'Untitled'}{p.is_template && <span className="nc-filter-option-badge"> Template</span>}</span>
+            <span>{toPlainText(p.properties?.title) || '제목 없음'}{p.is_template && <span className="nc-filter-option-badge"> 템플릿</span>}</span>
           </div>
         ))}
-        {!pages.length && <div className="nc-select-editor-empty">No results</div>}
+        {!pages.length && <div className="nc-select-editor-empty">결과 없음</div>}
       </div>
     </div>
   );
@@ -216,7 +217,7 @@ function CheckboxValue({ leaf, onChange }: { leaf: PropertyFilterLeaf; onChange:
       {[true, false].map((b) => (
         <div key={String(b)} role="option" className="nc-filter-option" onClick={() => onChange({ type: 'exact', value: b })}>
           <span className={`nc-prop-checkbox ${b ? 'checked' : ''}`}>{b && <Icon name="checkmarkSmall" size={12} strokeWidth={2.6} />}</span>
-          <span>{b ? 'Checked' : 'Unchecked'}</span>
+          <span>{b ? '체크됨' : '체크 안 됨'}</span>
           {(cur === b || (cur === undefined && false)) && <Icon name="check" size={16} style={{ marginInlineStart: 'auto' }} />}
         </div>
       ))}
@@ -257,8 +258,8 @@ function DateValue({ leaf, onChange, onUseEnd }: { leaf: PropertyFilterLeaf; onC
   return (
     <div className="nc-filter-date" data-menu-keys="ignore">
       <div className="nc-filter-date-mode">
-        <span role="button" className={`nc-filter-date-tab ${!leaf.filter.use_end ? 'active' : ''}`} data-tooltip="Matches the start of a date range, or the date itself for single dates." onClick={() => onUseEnd(false)}>Start date</span>
-        <span role="button" className={`nc-filter-date-tab ${leaf.filter.use_end ? 'active' : ''}`} data-tooltip="Matches the end of a date range, or the date itself for single dates." onClick={() => onUseEnd(true)}>End date</span>
+        <span role="button" className={`nc-filter-date-tab ${!leaf.filter.use_end ? 'active' : ''}`} data-tooltip="날짜 범위는 시작 날짜, 단일 날짜는 해당 날짜와 일치합니다." onClick={() => onUseEnd(false)}>시작 날짜</span>
+        <span role="button" className={`nc-filter-date-tab ${leaf.filter.use_end ? 'active' : ''}`} data-tooltip="날짜 범위의 종료일 또는 단일 날짜 자체와 일치합니다." onClick={() => onUseEnd(true)}>종료일</span>
       </div>
       <div className="nc-filter-options">
         {(isRange ? RANGE_OPTIONS : SINGLE_DATE_OPTIONS).map((v) => (
@@ -269,10 +270,10 @@ function DateValue({ leaf, onChange, onUseEnd }: { leaf: PropertyFilterLeaf; onC
         ))}
         {isRange && (
           <div className="nc-filter-relative-range">
-            <span>Relative range</span>
+            <span>상대 범위</span>
             <select value={custom.direction} onChange={(e) => onChange({ ...custom, direction: e.target.value as 'past' | 'future' })}>
-              <option value="past">Past</option>
-              <option value="future">Next</option>
+              <option value="past">과거</option>
+              <option value="future">다음</option>
             </select>
             <input type="number" min={1} value={custom.count ?? 1} onChange={(e) => onChange({ ...custom, count: Math.max(1, Number(e.target.value) || 1) })} />
             <select value={custom.unit} onChange={(e) => onChange({ ...custom, unit: e.target.value as 'day' | 'week' | 'month' | 'year' })}>
@@ -281,7 +282,7 @@ function DateValue({ leaf, onChange, onUseEnd }: { leaf: PropertyFilterLeaf; onC
           </div>
         )}
         <div role="option" className={`nc-filter-option ${mode === 'exact' ? 'selected' : ''}`} onClick={() => setMode('exact')}>
-          <span>{isRange ? 'Exact dates' : 'Custom date'}</span>
+          <span>{isRange ? '정확한 날짜' : '날짜 직접 지정'}</span>
           {mode === 'exact' && <Icon name="check" size={16} style={{ marginInlineStart: 'auto' }} />}
         </div>
       </div>
@@ -344,7 +345,7 @@ function FilterChipEditor({ viewId, collectionId, filterId, close }: { viewId: s
   return (
     <PopoverSurface width={['date', 'created_time', 'last_edited_time', 'last_visited_time'].includes(prop?.type ?? '') ? 300 : 260} className="nc-filter-editor" maxHeight="70vh">
       <div className="nc-filter-editor-head" data-menu-keys="ignore">
-        <span className="nc-filter-editor-prop">{prop?.name ?? 'Property'}</span>
+        <span className="nc-filter-editor-prop">{prop?.name ?? '속성'}</span>
         <span role="button" className="nc-filter-editor-op" onClick={(e) => prop && operatorMenu(e.currentTarget, prop, leaf.filter.operator, (op) => update({ ...leaf, filter: { ...leaf.filter, operator: op, ...(op === 'is_empty' || op === 'is_not_empty' ? { value: undefined } : {}) } }))}>
           {/* the header spells the operator in lower case ("Status is ⌄"); the menu keeps "Is" / "Is not" */}
           {(FILTER_OPERATOR_LABELS[leaf.filter.operator] ?? leaf.filter.operator).toLowerCase()}
@@ -353,10 +354,10 @@ function FilterChipEditor({ viewId, collectionId, filterId, close }: { viewId: s
         <span
           role="button"
           className="nc-filter-editor-more"
-          aria-label="More actions"
+          aria-label="추가 작업"
           onClick={(e) => openMenu(e.currentTarget, { width: 240, sections: [{ items: [
-            { id: 'del', label: 'Delete filter', icon: 'trash', onSelect: () => { removePropertyFilter(view, filterId); close(); } },
-            { id: 'adv', label: 'Add an advanced filter', icon: 'filter', description: 'Group rules with an advanced filter and combine AND/OR conditions.', onSelect: () => {
+            { id: 'del', label: '필터 삭제', icon: 'trash', onSelect: () => { removePropertyFilter(view, filterId); close(); } },
+            { id: 'adv', label: '고급 필터 추가', icon: 'filter', description: '고급 필터로 규칙을 묶고 AND/OR 조건을 조합합니다.', onSelect: () => {
               const adv = advancedFilterOf(view) ?? { operator: 'and' as const, filters: [] };
               setAdvancedFilter(view, { ...adv, filters: [...adv.filters, leaf] });
               const latest = effectiveView(records.get<CollectionViewRecord>('collection_view', view.id)!);
@@ -394,7 +395,7 @@ export function openFilterPropertyPicker(anchor: HTMLElement, opts: { view: Coll
   let close: () => void = () => {};
   close = openMenu(anchor, {
     width: 290,
-    search: 'Filter by…',
+    search: '필터 기준…',
     className: 'nc-db-picker',
     hoverAfterMove: true,
     sections: [
@@ -405,7 +406,7 @@ export function openFilterPropertyPicker(anchor: HTMLElement, opts: { view: Coll
         <div role="menuitem" className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); addAdvanced(); }}>
           <div className="nc-menu-item-inner nc-mi">
             <div className="nc-menu-icon" style={{ color: 'var(--lp-icon-secondary)' }}><Icon name="plus" size={20} /></div>
-            <div className="nc-menu-label"><div className="nc-ellipsis" style={{ color: 'var(--lp-text-secondary)' }}>Create an advanced filter</div></div>
+            <div className="nc-menu-label"><div className="nc-ellipsis" style={{ color: 'var(--lp-text-secondary)' }}>고급 필터 만들기</div></div>
           </div>
         </div>
       </div>
@@ -444,29 +445,29 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
       {group.filters.map((node, i) => {
         const p = [...path, i];
         const lead = i === 0 ? (
-          <span className="nc-adv-lead">Where</span>
+          <span className="nc-adv-lead">조건</span>
         ) : i === 1 ? (
           <span role="button" className="nc-adv-lead select" onClick={(e) => openNestedMenu(e.currentTarget, { width: 220, sections: [{ items: [
-            { id: 'and', label: 'And', description: 'Every filter must match', checked: group.operator === 'and', onSelect: () => setCombinator('and') },
-            { id: 'or', label: 'Or', description: 'Any filter can match', checked: group.operator === 'or', onSelect: () => setCombinator('or') },
-          ] }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>{group.operator === 'or' ? 'Or' : 'And'}<Icon name="arrowChevronSingleDownSmall" size={12} /></span>
+            { id: 'and', label: '그리고', description: '모든 필터가 일치해야 표시합니다', checked: group.operator === 'and', onSelect: () => setCombinator('and') },
+            { id: 'or', label: '또는', description: '필터 중 하나라도 일치하면 표시합니다', checked: group.operator === 'or', onSelect: () => setCombinator('or') },
+          ] }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>{group.operator === 'or' ? '또는' : '그리고'}<Icon name="arrowChevronSingleDownSmall" size={12} /></span>
         ) : (
-          <span className="nc-adv-lead muted">{group.operator === 'or' ? 'Or' : 'And'}</span>
+          <span className="nc-adv-lead muted">{group.operator === 'or' ? '또는' : '그리고'}</span>
         );
         const more = (e: React.MouseEvent<HTMLElement>, isGroup: boolean) => openNestedMenu(e.currentTarget, { width: 220, sections: [{ items: [
-          { id: 'rm', label: 'Remove', icon: 'trash', onSelect: () => onChange((root) => updateAt(root, p, () => null)) },
-          { id: 'dup', label: 'Duplicate', icon: 'duplicate', onSelect: () => onChange((root) => {
+          { id: 'rm', label: '제거', icon: 'trash', onSelect: () => onChange((root) => updateAt(root, p, () => null)) },
+          { id: 'dup', label: '복제', icon: 'duplicate', onSelect: () => onChange((root) => {
             const parentPath = p.slice(0, -1);
             const idx = p[p.length - 1];
             const dupe = (g: FilterGroup) => { const filters = [...g.filters]; filters.splice(idx + 1, 0, structuredClone(g.filters[idx])); return { ...g, filters }; };
             return parentPath.length ? updateAt(root, parentPath, (n) => dupe(n as FilterGroup)) : dupe(root);
           }) },
-          ...(isGroup ? [{ id: 'unwrap', label: 'Unwrap group', icon: 'arrowLineRight', onSelect: () => onChange((root) => {
+          ...(isGroup ? [{ id: 'unwrap', label: '그룹 해제', icon: 'arrowLineRight', onSelect: () => onChange((root) => {
             const parentPath = p.slice(0, -1);
             const idx = p[p.length - 1];
             const unwrap = (g: FilterGroup) => { const inner = (g.filters[idx] as FilterGroup).filters; const filters = [...g.filters]; filters.splice(idx, 1, ...inner); return { ...g, filters }; };
             return parentPath.length ? updateAt(root, parentPath, (n) => unwrap(n as FilterGroup)) : unwrap(root);
-          }) }] : depth < 2 ? [{ id: 'wrap', label: 'Place in a group', icon: 'dbGroup', description: 'Group this filter', onSelect: () => onChange((root) => updateAt(root, p, (n) => ({ operator: 'and', filters: [n] }))) }] : []),
+          }) }] : depth < 2 ? [{ id: 'wrap', label: '그룹으로 묶기', icon: 'dbGroup', description: '이 필터를 그룹으로 묶기', onSelect: () => onChange((root) => updateAt(root, p, (n) => ({ operator: 'and', filters: [n] }))) }] : []),
         ] as MenuItemDef[] }] }, { placement: 'bottom-end', parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' });
         if (isFilterGroup(node)) {
           return (
@@ -475,7 +476,7 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
               <div className="nc-adv-nested">
                 <AdvancedRows group={node} path={p} schema={schema} onChange={onChange} depth={depth + 1} />
               </div>
-              <span role="button" className="nc-adv-more" aria-label="More actions" onClick={(e) => more(e, true)}><Icon name="ellipsisSmall" size={16} /></span>
+              <span role="button" className="nc-adv-more" aria-label="추가 작업" onClick={(e) => more(e, true)}><Icon name="ellipsisSmall" size={16} /></span>
             </div>
           );
         }
@@ -484,9 +485,9 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
         return (
           <div key={i} className="nc-adv-row">
             {lead}
-            <span role="button" className="nc-adv-select" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: 'Find a field…', sections: [{ items: props.map(([id, pp]) => ({ id, label: pp.name, icon: <PropertyIcon prop={pp} size={16} />, checked: id === leaf.property, onSelect: () => onChange((root) => updateAt(root, p, () => ({ property: id, filter: { operator: defaultFilterOperator(pp) } }))) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
+            <span role="button" className="nc-adv-select" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: '필드 찾기…', sections: [{ items: props.map(([id, pp]) => ({ id, label: pp.name, icon: <PropertyIcon prop={pp} size={16} />, checked: id === leaf.property, onSelect: () => onChange((root) => updateAt(root, p, () => ({ property: id, filter: { operator: defaultFilterOperator(pp) } }))) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
               {prop && <PropertyIcon prop={prop} size={14} />}
-              <span className="nc-adv-select-text">{prop?.name ?? 'Property'}</span>
+              <span className="nc-adv-select-text">{prop?.name ?? '속성'}</span>
               <Icon name="arrowChevronSingleDownSmall" size={12} />
             </span>
             <span role="button" className="nc-adv-select" onClick={(e) => prop && operatorMenu(e.currentTarget, prop, leaf.filter.operator, (op) => onChange((root) => updateAt(root, p, () => ({ ...leaf, filter: { ...leaf.filter, operator: op, ...(op === 'is_empty' || op === 'is_not_empty' ? { value: undefined } : {}) } }))))}>
@@ -494,15 +495,15 @@ function AdvancedRows({ group, path, schema, onChange, depth }: { group: FilterG
               <Icon name="arrowChevronSingleDownSmall" size={12} />
             </span>
             <AdvancedValue leaf={leaf} prop={prop} onChange={(next) => onChange((root) => updateAt(root, p, () => next))} />
-            <span role="button" className="nc-adv-more" aria-label="More actions" onClick={(e) => more(e, false)}><Icon name="ellipsisSmall" size={16} /></span>
+            <span role="button" className="nc-adv-more" aria-label="추가 작업" onClick={(e) => more(e, false)}><Icon name="ellipsisSmall" size={16} /></span>
           </div>
         );
       })}
       <div role="button" className="nc-adv-add" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, sections: [{ items: [
-        { id: 'rule', label: 'Create a filter rule', icon: 'plus', onSelect: () => addRule(false) },
-        ...(depth < 2 ? [{ id: 'group', label: 'Create a filter group', icon: 'dbGroup', description: 'A group for nested filters', onSelect: () => addRule(true) }] : []),
+        { id: 'rule', label: '필터 규칙 만들기', icon: 'plus', onSelect: () => addRule(false) },
+        ...(depth < 2 ? [{ id: 'group', label: '필터 그룹 만들기', icon: 'dbGroup', description: '중첩 필터를 위한 그룹', onSelect: () => addRule(true) }] : []),
       ] }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-        <Icon name="plus" size={14} /> Create a filter rule <Icon name="arrowChevronSingleDownSmall" size={12} />
+        <Icon name="plus" size={14} /> 필터 규칙 만들기 <Icon name="arrowChevronSingleDownSmall" size={12} />
       </div>
     </div>
   );
@@ -516,7 +517,7 @@ function AdvancedValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
     const cur = valuesOf(leaf.filter.value)[0]?.value ?? '';
     return (
       <span className="nc-adv-value" data-menu-keys="ignore">
-        <input className="nc-adv-input" placeholder="Value" defaultValue={String(cur)} onChange={(e) => onChange({ ...leaf, filter: { ...leaf.filter, value: e.target.value === '' ? undefined : { type: 'exact', value: vt === 'number' || op.startsWith('number') ? Number(e.target.value) : e.target.value } } })} />
+        <input className="nc-adv-input" placeholder="값" defaultValue={String(cur)} onChange={(e) => onChange({ ...leaf, filter: { ...leaf.filter, value: e.target.value === '' ? undefined : { type: 'exact', value: vt === 'number' || op.startsWith('number') ? Number(e.target.value) : e.target.value } } })} />
       </span>
     );
   }
@@ -525,7 +526,7 @@ function AdvancedValue({ leaf, prop, onChange }: { leaf: PropertyFilterLeaf; pro
     <span role="button" className="nc-adv-value select" onClick={(e) => openOverlay(() => (
       <PopoverSurface width={300} className="nc-filter-editor"><FilterValueEditorLive leaf={leaf} prop={prop} onChange={onChange} /></PopoverSurface>
     ), { anchor: e.currentTarget, placement: 'bottom-start', parent: overlayIdOf(e.currentTarget) })}>
-      <span className={text ? '' : 'placeholder'}>{text || 'Value'}</span>
+      <span className={text ? '' : 'placeholder'}>{text || '값'}</span>
       <Icon name="arrowChevronSingleDownSmall" size={12} />
     </span>
   );
@@ -555,7 +556,7 @@ function AdvancedFilter({ viewId, collectionId, close }: { viewId: string; colle
       </div>
       <div className="nc-adv-footer">
         <div role="button" className="nc-menu-item danger-hover" onClick={() => { setAdvancedFilter(view, undefined); close(); }}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">Delete filter</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">필터 삭제</div></div>
         </div>
       </div>
     </PopoverSurface>
@@ -602,7 +603,7 @@ function SortPopover({ viewId, collectionId, close }: { viewId: string; collecti
               }}
             >
               <span className="nc-sort-drag"><Icon name="dragHandle" size={14} /></span>
-              <span role="button" className="nc-adv-select" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: 'Find a field…', sections: [{ items: props.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: id === s.property, onSelect: () => set(sorts.map((x, j) => (j === i ? { ...x, property: id } : x))) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
+              <span role="button" className="nc-adv-select" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: '필드 찾기…', sections: [{ items: props.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: id === s.property, onSelect: () => set(sorts.map((x, j) => (j === i ? { ...x, property: id } : x))) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
                 <PropertyIcon prop={prop} size={14} />
                 <span className="nc-adv-select-text">{prop.name}</span>
                 <Icon name="arrowChevronSingleDownSmall" size={12} />
@@ -614,17 +615,17 @@ function SortPopover({ viewId, collectionId, close }: { viewId: string; collecti
                 <span className="nc-adv-select-text">{sortDirectionLabel(prop, s.direction === 'descending' ? 'descending' : 'ascending')}</span>
                 <Icon name="arrowChevronSingleDownSmall" size={12} />
               </span>
-              <span role="button" className="nc-sort-remove" aria-label="Delete sort rule" data-tooltip="Delete sort rule" onClick={() => set(sorts.filter((_, j) => j !== i))}><Icon name="xMarkSmall" size={14} /></span>
+              <span role="button" className="nc-sort-remove" aria-label="정렬 규칙 삭제" data-tooltip="정렬 규칙 삭제" onClick={() => set(sorts.filter((_, j) => j !== i))}><Icon name="xMarkSmall" size={14} /></span>
             </div>
           );
         })}
       </div>
       <div className="nc-sort-footer">
-        <div role="button" className="nc-menu-item" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: 'Sort by…', sections: [{ items: props.filter(([id]) => !sorts.some((s) => s.property === id)).map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => set([...sorts, { property: id, direction: 'ascending' }]) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={16} /></div><div className="nc-menu-label">Add sort</div></div>
+        <div role="button" className="nc-menu-item" onClick={(e) => openNestedMenu(e.currentTarget, { width: 240, search: '정렬 기준…', sections: [{ items: props.filter(([id]) => !sorts.some((s) => s.property === id)).map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => set([...sorts, { property: id, direction: 'ascending' }]) })) }] }, { parent: overlayIdOf(e.currentTarget), backdrop: 'transparent' })}>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={16} /></div><div className="nc-menu-label">정렬 추가</div></div>
         </div>
         <div role="button" className="nc-menu-item danger-hover" onClick={() => set([])}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={16} /></div><div className="nc-menu-label">Delete sort</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={16} /></div><div className="nc-menu-label">정렬 삭제</div></div>
         </div>
       </div>
     </PopoverSurface>
@@ -642,12 +643,12 @@ export function propsForPicker(schema: Record<string, PropertySchema>, keep: (p:
 export function sortDirectionLabel(prop: PropertySchema | undefined, dir: 'ascending' | 'descending'): string {
   const t = prop?.type as string | undefined;
   const asc = dir === 'ascending';
-  if (!t) return asc ? 'Ascending' : 'Descending';
+  if (!t) return asc ? '오름차순' : '내림차순';
   if (['title', 'text', 'url', 'email', 'phone_number'].includes(t)) return asc ? 'A → Z' : 'Z → A';
-  if (['number', 'auto_increment_id'].includes(t)) return asc ? 'Low → high' : 'High → low';
-  if (['date', 'created_time', 'last_edited_time', 'last_visited_time'].includes(t)) return asc ? 'Old → new' : 'New → old';
-  if (t === 'checkbox') return asc ? 'Unchecked → checked' : 'Checked → unchecked';
-  return asc ? 'Ascending' : 'Descending';
+  if (['number', 'auto_increment_id'].includes(t)) return asc ? '낮음 → 높음' : '높음 → 낮음';
+  if (['date', 'created_time', 'last_edited_time', 'last_visited_time'].includes(t)) return asc ? '오래된 순' : '최신순';
+  if (t === 'checkbox') return asc ? '체크 안 됨 → 체크됨' : '체크됨 → 체크 안 됨';
+  return asc ? '오름차순' : '내림차순';
 }
 
 /** Sort icon: with sorts → sort rows popover; without → "Sort by…" property list. */
@@ -658,7 +659,7 @@ export function openSortMenu(anchor: HTMLElement, opts: { view: CollectionViewRe
     const props = propsForPicker(collection.schema, (p) => p.type !== 'button');
     return openMenu(anchor, {
       width: 290,
-      search: 'Sort by…',
+      search: '정렬 기준…',
       className: 'nc-db-picker',
       hoverAfterMove: true,
       sections: [{ items: props.map(([id, p]) => ({ id, label: p.name, icon: <span className="nc-pick-prop"><PropertyIcon prop={p} size={16} style={{ color: 'var(--lp-icon-primary)', transform: 'scale(1.2)' }} /></span>, onSelect: () => {
@@ -714,7 +715,7 @@ export function FilterBar({ view: viewIn, collection, readOnly, openFilterId, on
         {adv && (
           <div role="button" className="nc-filter-chip advanced active" onClick={(e) => !readOnly && openAdvancedFilter(e.currentTarget, view.id, collection.id)}>
             <Icon name="filterSmall" size={14} />
-            <span>{advCount === 1 ? '1 rule' : `${advCount} rules`}</span>
+            <span>{advCount === 1 ? '규칙 1개' : `규칙 ${advCount}개`}</span>
             <Icon name="arrowChevronSingleDownSmall" size={12} />
           </div>
         )}
@@ -742,7 +743,7 @@ export function FilterBar({ view: viewIn, collection, readOnly, openFilterId, on
             }, 30);
           } })}>
             <Icon name="plusSmall" size={14} />
-            <span>Filter</span>
+            <span>필터</span>
           </div>
         )}
         <FilterBarSaveControl view={view} />

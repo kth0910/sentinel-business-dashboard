@@ -21,31 +21,31 @@ export const GALLERY: { title: string; items: { url: string; title: string }[] }
   {
     title: t('lp.page.color_gradient', 'Color & Gradient'),
     items: [
-      { url: c('solid-red'), title: 'Red' }, { url: c('solid-yellow'), title: 'Yellow' }, { url: c('solid-blue'), title: 'Blue' }, { url: c('solid-beige'), title: 'Beige' },
-      { url: c('gradient-8'), title: 'Gradient 8' }, { url: c('gradient-4'), title: 'Gradient 4' }, { url: c('gradient-2'), title: 'Gradient 2' }, { url: c('gradient-11'), title: 'Gradient 11' },
-      { url: c('gradient-10'), title: 'Gradient 10' }, { url: c('gradient-5'), title: 'Gradient 5' }, { url: c('gradient-3'), title: 'Gradient 3' },
+      { url: c('solid-red'), title: '빨간색' }, { url: c('solid-yellow'), title: '노란색' }, { url: c('solid-blue'), title: '파란색' }, { url: c('solid-beige'), title: '베이지색' },
+      { url: c('gradient-8'), title: '그라데이션 8' }, { url: c('gradient-4'), title: '그라데이션 4' }, { url: c('gradient-2'), title: '그라데이션 2' }, { url: c('gradient-11'), title: '그라데이션 11' },
+      { url: c('gradient-10'), title: '그라데이션 10' }, { url: c('gradient-5'), title: '그라데이션 5' }, { url: c('gradient-3'), title: '그라데이션 3' },
     ],
   },
   {
-    title: 'Textures',
+    title: '텍스처',
     items: [
-      { url: c('texture-frosted-glass'), title: 'Frosted glass' }, { url: c('texture-painted-metal'), title: 'Painted metal' }, { url: c('texture-old-paint'), title: 'Old paint' },
-      { url: c('texture-paint'), title: 'Paint canvas' }, { url: c('texture-rusted-metal'), title: 'Rusted metal' }, { url: c('texture-aged-copper'), title: 'Aged copper' },
-      { url: c('texture-ice'), title: 'Ice' }, { url: c('texture-concrete'), title: 'Concrete' }, { url: c('texture-painted-wood'), title: 'Painted wood' },
-      { url: c('texture-vintage-paper'), title: 'Vintage paper' },
+      { url: c('texture-frosted-glass'), title: '젖빛 유리' }, { url: c('texture-painted-metal'), title: '페인트칠한 금속' }, { url: c('texture-old-paint'), title: '낡은 페인트' },
+      { url: c('texture-paint'), title: '페인트 캔버스' }, { url: c('texture-rusted-metal'), title: '녹슨 금속' }, { url: c('texture-aged-copper'), title: '오래된 구리색' },
+      { url: c('texture-ice'), title: '얼음' }, { url: c('texture-concrete'), title: '콘크리트' }, { url: c('texture-painted-wood'), title: '페인트칠한 나무' },
+      { url: c('texture-vintage-paper'), title: '빈티지 종이' },
     ],
   },
   {
-    title: 'Cosmos',
+    title: '우주',
     items: [
-      { url: c('cosmos-cliffs'), title: 'Nebula' }, { url: c('cosmos-deep-field'), title: 'Deep field' }, { url: c('cosmos-ring'), title: 'Ring nebula' }, { url: c('cosmos-quintet'), title: 'Galaxy cluster' },
+      { url: c('cosmos-cliffs'), title: '성운' }, { url: c('cosmos-deep-field'), title: '딥 필드' }, { url: c('cosmos-ring'), title: '고리 성운' }, { url: c('cosmos-quintet'), title: '은하단' },
     ],
   },
   {
-    title: 'Patterns',
+    title: '패턴',
     items: [
-      { url: c('pattern-dots'), title: 'Dots' }, { url: c('pattern-stripes'), title: 'Stripes' }, { url: c('pattern-grid'), title: 'Grid' },
-      { url: c('pattern-waves'), title: 'Waves' }, { url: c('pattern-checker'), title: 'Checker' }, { url: c('pattern-triangles'), title: 'Triangles' },
+      { url: c('pattern-dots'), title: '점무늬' }, { url: c('pattern-stripes'), title: '줄무늬' }, { url: c('pattern-grid'), title: '격자' },
+      { url: c('pattern-waves'), title: '물결' }, { url: c('pattern-checker'), title: '체크무늬' }, { url: c('pattern-triangles'), title: '삼각형' },
     ],
   },
 ];
@@ -212,7 +212,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
     ['link', t('lp.page.link', 'Link')],
     ['unsplash', 'Unsplash'],
     // Litpage AI: a generated cover, where the workspace can generate images (plan + Settings › Litpage AI)
-    ...aiImageTabs(page).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'Litpage AI')]),
+    ...aiImageTabs(page).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'CoolNotion! AI')]),
   ];
   return (
     <PopoverSurface width={540} maxHeight={485} className="nc-cover-picker lit-media-menu" style={{ height: 485 }}>
@@ -243,7 +243,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
         ))}
         {tab === 'upload' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 4 }}>
-            <div role="button" className="nc-dialog-btn outline nc-upload-btn" style={{ maxWidth: 300 }} onClick={() => fileRef.current?.click()}>{busy ? 'Uploading…' : t('lp.page.upload_file', 'Upload file')}</div>
+            <div role="button" className="nc-dialog-btn outline nc-upload-btn" style={{ maxWidth: 300 }} onClick={() => fileRef.current?.click()}>{busy ? '업로드 중…' : t('lp.page.upload_file', 'Upload file')}</div>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
             <div className="nc-picker-hint" style={{ marginTop: 8 }}>{t('lp.page.or_paste_from_the_clipboard_with', 'or paste from the clipboard with {keyboardShortcut}', { keyboardShortcut: '⌘+V' })}</div>
             <div className="nc-picker-hint" style={{ marginTop: 4 }}>{t('lp.page.for_best_results_use_images_over', 'For best results, use images over {idealImageWidth} pixels wide.', { idealImageWidth: 1500 })}</div>
@@ -300,7 +300,7 @@ function UnsplashTab({ onPick }: { onPick: (url: string) => void }) {
     return () => clearTimeout(h);
   }, [q, key]);
   if (!key) {
-    return <div className="nc-unsplash-note">Unsplash search needs an API access key.<br />Set <code>VITE_UNSPLASH_ACCESS_KEY</code> to enable it — or pick from the Gallery, upload a file, or paste a link.</div>;
+    return <div className="nc-unsplash-note">Unsplash 검색에는 API 액세스 키가 필요합니다.<br />설정 <code>VITE_UNSPLASH_ACCESS_KEY</code> to enable it — or pick from the Gallery, upload a file, or paste a link.</div>;
   }
   return (
     <div>

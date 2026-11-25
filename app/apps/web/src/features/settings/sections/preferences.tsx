@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react';
 import { openMenu } from '../../../components/Menu.tsx';
 import { Icon } from '../../../components/Icon.tsx';
 import { useUI, type Theme } from '../../../lib/store/ui.ts';
-import { t, getLocale } from '../../shell/i18n.ts';
+import { t, getLocale, FORCED_LOCALE } from '../../shell/i18n.ts';
 import { Badge, Button, Dropdown, Group, Row, SectionPage, Switch, msg, rich, openSubDialog, type Option } from '../ui.tsx';
 import {
   applyContrast, prefValue, saveLocale, savePref, savePrefs, savePreferredTheme, usePrefs, viewHistoryAllowed, type Contrast, type DateFormat, type NumberFormat,
@@ -15,28 +15,28 @@ import {
 
 /** Languages offered by the language picker (native name, English name). The UI itself is translated into en-US and ko-KR. */
 export const LANGUAGES: { id: string; native: string; english: string }[] = [
-  { id: 'ar-SA', native: 'العربية', english: 'Arabic' },
-  { id: 'da-DK', native: 'Dansk', english: 'Danish' },
-  { id: 'nl-NL', native: 'Nederlands', english: 'Dutch' },
-  { id: 'en-GB', native: 'English (UK)', english: 'English (UK)' },
-  { id: 'en-US', native: 'English (US)', english: 'English (US)' },
-  { id: 'fi-FI', native: 'Suomi', english: 'Finnish' },
-  { id: 'fr-FR', native: 'Français (France)', english: 'French (France)' },
-  { id: 'de-DE', native: 'Deutsch', english: 'German' },
+  { id: 'ar-SA', native: 'العربية', english: '아랍어' },
+  { id: 'da-DK', native: 'Dansk', english: '덴마크어' },
+  { id: 'nl-NL', native: 'Nederlands', english: '네덜란드어' },
+  { id: 'en-GB', native: 'English (UK)', english: '영어(영국)' },
+  { id: 'en-US', native: 'English (US)', english: '영어(미국)' },
+  { id: 'fi-FI', native: 'Suomi', english: '핀란드어' },
+  { id: 'fr-FR', native: 'Français (France)', english: '프랑스어(프랑스)' },
+  { id: 'de-DE', native: 'Deutsch', english: '독일어' },
   { id: 'he-IL', native: 'עברית', english: 'Hebrew' },
-  { id: 'id-ID', native: 'Bahasa Indonesia', english: 'Indonesian' },
+  { id: 'id-ID', native: 'Bahasa Indonesia', english: '인도네시아어' },
   { id: 'it-IT', native: 'Italiano', english: 'Italian' },
-  { id: 'ja-JP', native: '日本語', english: 'Japanese' },
-  { id: 'ko-KR', native: '한국어', english: 'Korean' },
+  { id: 'ja-JP', native: '日本語', english: '일본어' },
+  { id: 'ko-KR', native: '한국어', english: '한국어' },
   { id: 'nb-NO', native: 'Norsk', english: 'Norwegian' },
-  { id: 'pt-BR', native: 'Português (Brasil)', english: 'Portuguese (Brazil)' },
-  { id: 'zh-CN', native: '简体中文', english: 'Simplified Chinese' },
-  { id: 'es-LA', native: 'Español (Latinoamérica)', english: 'Spanish (Latin American)' },
-  { id: 'es-ES', native: 'Español (España)', english: 'Spanish (Spain)' },
-  { id: 'sv-SE', native: 'Svenska', english: 'Swedish' },
-  { id: 'th-TH', native: 'ภาษาไทย', english: 'Thai' },
-  { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese' },
-  { id: 'vi-VN', native: 'Tiếng Việt', english: 'Vietnamese' },
+  { id: 'pt-BR', native: 'Português (Brasil)', english: '포르투갈어(브라질)' },
+  { id: 'zh-CN', native: '简体中文', english: '중국어(간체)' },
+  { id: 'es-LA', native: 'Español (Latinoamérica)', english: '스페인어(중남미)' },
+  { id: 'es-ES', native: 'Español (España)', english: '스페인어(스페인)' },
+  { id: 'sv-SE', native: 'Svenska', english: '스웨덴어' },
+  { id: 'th-TH', native: 'ภาษาไทย', english: '태국어' },
+  { id: 'zh-TW', native: '繁體中文', english: '중국어(번체)' },
+  { id: 'vi-VN', native: 'Tiếng Việt', english: '베트남어' },
 ];
 
 function dateSamples(): Record<DateFormat, string> {
@@ -44,8 +44,8 @@ function dateSamples(): Record<DateFormat, string> {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return {
-    full: `@${d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`,
-    short: `@${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+    full: `@${d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', year: 'numeric' })}`,
+    short: `@${d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}`,
     mdy: `@${mm}/${dd}/${d.getFullYear()}`,
     dmy: `@${dd}/${mm}/${d.getFullYear()}`,
     ymd: `@${d.getFullYear()}/${mm}/${dd}`,
@@ -138,26 +138,26 @@ export function PreferencesSection() {
     { value: 'last_visited', label: t('lp.settings.last_opened_page', 'Last opened page') },
     { value: 'top_page', label: t('lp.settings.first_sidebar_page', 'First sidebar page') },
     { value: 'library', label: t('lp.settings.library', 'Library') },
-    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'Litpage AI') },
+    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'CoolNotion! AI') },
   ];
   const langOpts: Option[] = LANGUAGES.map((l) => ({ value: l.id, label: l.native, description: l.english }));
   const curLang = LANGUAGES.find((l) => l.id === localeId) ?? LANGUAGES.find((l) => l.id === 'en-US')!;
 
   return (
-    <SectionPage title={t('lp.settings.preferences', 'Preferences')} subtitle={t('lp.settings.set_how_litpage_looks_and_works', 'Set how Litpage looks and works')}>
+    <SectionPage title={t('lp.settings.preferences', 'Preferences')} subtitle={t('lp.settings.set_how_litpage_looks_and_works', 'Set how CoolNotion! looks and works')}>
       <Group title={t('lp.settings.appearance', 'Appearance')}>
         <Row
           id="theme"
           label={t('lp.settings.theme', 'Theme')}
-          description={t('lp.settings.set_litpage_s_appearance_for_this', 'Set Litpage’s appearance for this device')}
-          control={<Dropdown label="Theme" value={theme} options={themeOpts} onChange={(v) => savePreferredTheme(v)} />}
+          description={t('lp.settings.set_litpage_s_appearance_for_this', 'Set CoolNotion!’s appearance for this device')}
+          control={<Dropdown label="테마" value={theme} options={themeOpts} onChange={(v) => savePreferredTheme(v)} />}
         />
         <Row
           id="contrast"
           label={t('lp.settings.high_contrast', 'High contrast')}
           badge={<Badge tone="gray">{t('lp.settings.beta', 'Beta')}</Badge>}
           description={t('lp.settings.boost_contrast_for_easier_reading', 'Boost contrast for easier reading')}
-          control={<Dropdown label="High contrast" value={prefValue(prefs, 'high_contrast')} options={contrastOpts} onChange={(v) => { savePref('high_contrast', v); applyContrast(v); }} />}
+          control={<Dropdown label="고대비" value={prefValue(prefs, 'high_contrast')} options={contrastOpts} onChange={(v) => { savePref('high_contrast', v); applyContrast(v); }} />}
         />
       </Group>
 
@@ -166,18 +166,19 @@ export function PreferencesSection() {
           id="enter"
           label={t('lp.settings.enter_key_inserts_a_line_break', 'Enter key inserts a line break')}
           description={rich(msg('lp.settings.in_chat_comments_and_similar_text', 'In chat, comments, and similar text boxes, <bold>Cmd</bold>/<bold>Ctrl</bold> + <bold>Enter</bold> sends your message.'), {}, { bold: (c) => <strong>{c}</strong> })}
-          control={<Switch label="Press Enter for a new line" checked={prefValue(prefs, 'enter_new_line')} onChange={(v) => savePref('enter_new_line', v)} />}
+          control={<Switch label="Enter 키로 줄바꿈" checked={prefValue(prefs, 'enter_new_line')} onChange={(v) => savePref('enter_new_line', v)} />}
         />
       </Group>
 
       <Group title={t('lp.settings.language_time', 'Language & time')}>
+        {!FORCED_LOCALE && (
         <Row
           id="language"
           label={t('lp.settings.language', 'Language')}
-          description={t('lp.settings.select_the_language_for_litpage', 'Select the language for Litpage')}
+          description={t('lp.settings.select_the_language_for_litpage', 'Select the language for CoolNotion!')}
           control={
             <Dropdown
-              label="Language"
+              label="언어"
               value={curLang.id}
               options={langOpts}
               width={260}
@@ -187,35 +188,36 @@ export function PreferencesSection() {
             />
           }
         />
+        )}
         <Row
           id="number-format"
           label={t('lp.settings.number_format', 'Number format')}
-          description={t('lp.settings.choose_number_and_currency_formats_by', 'Choose number and currency formats. By default, Litpage follows your language.')}
-          control={<Dropdown label="Number format" value={prefValue(prefs, 'number_format')} options={numberOpts} onChange={(v) => savePref('number_format', v)} />}
+          description={t('lp.settings.choose_number_and_currency_formats_by', 'Choose number and currency formats. By default, CoolNotion! follows your language.')}
+          control={<Dropdown label="숫자 형식" value={prefValue(prefs, 'number_format')} options={numberOpts} onChange={(v) => savePref('number_format', v)} />}
         />
         <Row
           id="text-direction"
           label={t('lp.settings.keep_text_direction_controls_visible', 'Keep text direction controls visible')}
           description={t('lp.settings.let_the_editor_offer_left_to', 'Let the editor offer left-to-right or right-to-left text direction, whatever your language')}
-          control={<Switch label="Keep direction controls visible" checked={prefValue(prefs, 'text_direction_controls')} onChange={(v) => savePref('text_direction_controls', v)} />}
+          control={<Switch label="방향 컨트롤 항상 표시" checked={prefValue(prefs, 'text_direction_controls')} onChange={(v) => savePref('text_direction_controls', v)} />}
         />
         <Row
           id="week-start"
           label={t('lp.settings.begin_weeks_on_monday', 'Begin weeks on Monday')}
-          description={t('lp.settings.this_changes_how_calendars_are_shown', 'This changes how calendars are shown in Litpage')}
-          control={<Switch label="Begin weeks on Monday" checked={prefValue(prefs, 'start_day_of_week') === 1} onChange={(v) => savePref('start_day_of_week', v ? 1 : 0)} />}
+          description={t('lp.settings.this_changes_how_calendars_are_shown', 'This changes how calendars are shown in CoolNotion!')}
+          control={<Switch label="한 주를 월요일부터 시작" checked={prefValue(prefs, 'start_day_of_week') === 1} onChange={(v) => savePref('start_day_of_week', v ? 1 : 0)} />}
         />
         <Row
           id="date-format"
           label={t('lp.settings.date_format', 'Date format')}
           description={t('lp.settings.choose_how_new_date_mentions_are', 'Choose how new @date mentions are formatted by default')}
-          control={<Dropdown label="Date format" value={prefValue(prefs, 'date_format')} options={dateOpts} onChange={(v) => savePref('date_format', v)} />}
+          control={<Dropdown label="날짜 형식" value={prefValue(prefs, 'date_format')} options={dateOpts} onChange={(v) => savePref('date_format', v)} />}
         />
         <Row
           id="tz-auto"
           label={t('lp.settings.set_the_time_zone_from_your', 'Set the time zone from your location automatically')}
           description={t('lp.settings.reminders_notifications_and_emails_use_y', 'Reminders, notifications, and emails use your time zone')}
-          control={<Switch label="Set time zone automatically" checked={tzAuto} onChange={(v) => { savePref('time_zone_auto', v); if (!v && !prefs.time_zone) savePref('time_zone', deviceTz); }} />}
+          control={<Switch label="시간대 자동 설정" checked={tzAuto} onChange={(v) => { savePref('time_zone_auto', v); if (!v && !prefs.time_zone) savePref('time_zone', deviceTz); }} />}
         />
         <Row
           id="time-zone"
@@ -230,17 +232,17 @@ export function PreferencesSection() {
           id="desktop-links"
           label={t('lp.settings.use_the_desktop_app_for_links', 'Use the desktop app for links')}
           description={rich(
-            msg('lp.settings.open_litpage_links_in_the_desktop', 'Open Litpage links in the desktop app. This is automatic when the <desktopAppLink>{platform} app</desktopAppLink> is installed.'),
+            msg('lp.settings.open_litpage_links_in_the_desktop', 'Open CoolNotion! links in the desktop app. This is automatic when the <desktopAppLink>{platform} app</desktopAppLink> is installed.'),
             { platform: /Mac/.test(navigator.platform) ? 'macOS' : 'Windows' },
             { desktopAppLink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c },
           )}
-          control={<Switch label="Open links in the desktop app" checked={prefValue(prefs, 'open_links_desktop')} onChange={(v) => savePref('open_links_desktop', v)} />}
+          control={<Switch label="데스크톱 앱에서 링크 열기" checked={prefValue(prefs, 'open_links_desktop')} onChange={(v) => savePref('open_links_desktop', v)} />}
         />
         <Row
           id="desktop-browser"
           label=""
           description={rich(
-            msg('lp.settings.to_use_your_browser_for_links', 'To use your browser for links instead, open the desktop app’s <bold>Settings</bold> and enable <bold>Open Litpage links in browser</bold>.'),
+            msg('lp.settings.to_use_your_browser_for_links', 'To use your browser for links instead, open the desktop app’s <bold>설정</bold> and enable <bold>브라우저에서 CoolNotion! 링크 열기</bold>.'),
             {},
             { bold: (c) => <strong>{c}</strong> },
           )}
@@ -249,8 +251,8 @@ export function PreferencesSection() {
         <Row
           id="start-page"
           label={t('lp.settings.open_at_startup', 'Open at startup')}
-          description={t('lp.settings.choose_the_page_that_opens_when', 'Choose the page that opens when Litpage starts or you change workspaces')}
-          control={<Dropdown label="Launch on startup" value={prefValue(prefs, 'start_page')} options={startOpts} onChange={(v) => savePref('start_page', v)} />}
+          description={t('lp.settings.choose_the_page_that_opens_when', 'Choose the page that opens when CoolNotion! starts or you change workspaces')}
+          control={<Dropdown label="시작 시 열 페이지" value={prefValue(prefs, 'start_page')} options={startOpts} onChange={(v) => savePref('start_page', v)} />}
         />
       </Group>
 
@@ -258,7 +260,7 @@ export function PreferencesSection() {
         <Row
           id="cookies"
           label={t('lp.settings.cookie_settings', 'Cookie settings')}
-          description={rich(msg('lp.settings.read_the_cookie_notice_for_details', 'Read the <cookielink>Cookie Notice</cookielink> for details'), {}, {
+          description={rich(msg('lp.settings.read_the_cookie_notice_for_details', 'Read the <cookielink>쿠키 안내</cookielink> for details'), {}, {
             cookielink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           })}
           control={
@@ -271,18 +273,18 @@ export function PreferencesSection() {
         <Row
           id="view-history"
           label={t('lp.settings.share_my_page_views', 'Share my page views')}
-          description={rich(msg('lp.settings.your_page_views_are_visible_to', 'Your page views are visible to people who have edit or full access. <inlinelink>Learn more</inlinelink>'), {}, {
+          description={rich(msg('lp.settings.your_page_views_are_visible_to', 'Your page views are visible to people who have edit or full access. <inlinelink>자세히 알아보기</inlinelink>'), {}, {
             inlinelink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           })}
-          control={<Switch label="Show my page history" checked={viewHistoryAllowed(prefs)} onChange={(v) => savePrefs({ page_view_history: v ? 'allow' : 'deny', view_history: v })} />}
+          control={<Switch label="내 페이지 기록 표시" checked={viewHistoryAllowed(prefs)} onChange={(v) => savePrefs({ page_view_history: v ? 'allow' : 'deny', view_history: v })} />}
         />
         <Row
           id="discoverability"
           label={t('lp.settings.profile_discoverability', 'Profile discoverability')}
-          description={rich(msg('lp.settings.when_someone_who_knows_your_email', 'When someone who knows your email invites you to a workspace, they’ll see your Litpage name and profile photo. <inlinelink>Learn more</inlinelink>'), {}, {
+          description={rich(msg('lp.settings.when_someone_who_knows_your_email', 'When someone who knows your email invites you to a workspace, they’ll see your CoolNotion! name and profile photo. <inlinelink>자세히 알아보기</inlinelink>'), {}, {
             inlinelink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           })}
-          control={<Switch label="Profile discoverability" checked={prefValue(prefs, 'profile_discoverable')} onChange={(v) => savePref('profile_discoverable', v)} />}
+          control={<Switch label="프로필 검색 허용" checked={prefValue(prefs, 'profile_discoverable')} onChange={(v) => savePref('profile_discoverable', v)} />}
         />
       </Group>
     </SectionPage>

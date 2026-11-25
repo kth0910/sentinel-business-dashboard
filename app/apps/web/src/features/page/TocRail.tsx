@@ -91,7 +91,7 @@ export function TableOfContentsRail({ pageId, scroller }: { pageId: string; scro
           onMouseLeave={() => setHover(false)}
         >
           {hover ? (
-            <div className="nc-toc-panel" role="navigation" aria-label="Contents list">
+            <div className="nc-toc-panel" role="navigation" aria-label="목차">
               <div className="nc-toc-panel-list">
               {headings.map((h) => (
                 <div
@@ -101,7 +101,7 @@ export function TableOfContentsRail({ pageId, scroller }: { pageId: string; scro
                   style={{ paddingInlineStart: 10 + 12 * level(h.type) }}
                   onClick={() => go(h.id)}
                 >
-                  {toPlainText(h.properties?.title) || 'Untitled'}
+                  {toPlainText(h.properties?.title) || '제목 없음'}
                 </div>
               ))}
               </div>

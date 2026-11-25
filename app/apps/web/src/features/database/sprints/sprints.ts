@@ -63,7 +63,7 @@ export function turnOnSprints(tasks: CollectionRecord, settings: Partial<SprintS
     const ptr = (id: string) => ({ id, table: 'collection', spaceId: tasks.space_id });
     tx.update('collection', sc, ['schema', 'title'], { name: 'Sprint name' });
     tx.set('collection', sc, ['schema', statusPid], {
-      name: 'Sprint status', type: 'select', description: 'Track whether a sprint is active.',
+      name: 'Sprint status', type: 'select', description: '스프린트 진행 여부를 추적합니다.',
       options: [
         { id: newId(), value: 'Current', color: 'blue' }, { id: newId(), value: 'Next', color: 'green' }, { id: newId(), value: 'Last', color: 'gray' },
         { id: newId(), value: 'Past', color: 'default' }, { id: newId(), value: 'Future', color: 'purple' },
@@ -88,7 +88,7 @@ export function turnOnSprints(tasks: CollectionRecord, settings: Partial<SprintS
     const start = nextWeekday(dayIndex(todayStr()) - 6, s.start_day);
     ['Current', 'Next', 'Future'].forEach((st, i) => {
       const span = sprintSpan(start + i * s.duration_weeks * 7, s);
-      createBlockIn(tx, { type: 'page', parentId: sc, parentTable: 'collection', title: [[`Sprint ${i + 1}`]], properties: { [statusPid]: [[st]], [datesPid]: encodeDateRange(span.start, span.end), [idPid]: [[String(i + 1)]] }, list: null });
+      createBlockIn(tx, { type: 'page', parentId: sc, parentTable: 'collection', title: [[`스프린트 ${i + 1}`]], properties: { [statusPid]: [[st]], [datesPid]: encodeDateRange(span.start, span.end), [idPid]: [[String(i + 1)]] }, list: null });
     });
     // --- Tasks database: Sprint role + settings
     const boardId = newId();
@@ -97,7 +97,7 @@ export function turnOnSprints(tasks: CollectionRecord, settings: Partial<SprintS
       sprint_settings: { ...s, sprints_collection_id: sc, board_block_id: boardId },
     });
     // --- Sprint board page with linked Tasks views
-    createBlockIn(tx, { id: boardId, type: 'page', parentId: spot.parentId, parentTable: spot.parentTable, after: db.blockId, title: [['Sprint board']], format: { page_icon: '🏃' }, list: spot.list ? { ...spot.list } : undefined });
+    createBlockIn(tx, { id: boardId, type: 'page', parentId: spot.parentId, parentTable: spot.parentTable, after: db.blockId, title: [['스프린트 보드']], format: { page_icon: '🏃' }, list: spot.list ? { ...spot.list } : undefined });
     const linkedId = newId();
     const pointer = ptr(tasks.id);
     createBlockIn(tx, { id: linkedId, type: 'collection_view', parentId: boardId, parentTable: 'block', format: { collection_pointer: pointer } as never, extra: { collection_id: tasks.id, view_ids: [] } });
@@ -123,7 +123,7 @@ export function turnOnSprints(tasks: CollectionRecord, settings: Partial<SprintS
     for (const v of [current, planning, backlog]) tx.listAfter('block', linkedId, ['view_ids'], v);
     out = { sprintsCollectionId: sc, boardId };
   });
-  if (out) useUI.getState().toast('Sprints turned on · Sprint board and Sprints database added');
+  if (out) useUI.getState().toast('스프린트를 켰습니다 · 스프린트 보드와 스프린트 데이터베이스를 추가했습니다');
   return out;
 }
 

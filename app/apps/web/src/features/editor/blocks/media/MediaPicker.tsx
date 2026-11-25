@@ -167,11 +167,11 @@ export async function uploadInto(block: BlockRecord, file: File) {
   const spaceId = useSession.getState().spaceId ?? undefined;
   const limit = 50 * 1024 * 1024;
   if (file.size > limit) {
-    toast('The maximum size per file is 50 MB.');
+    toast('파일당 최대 크기는 50MB입니다.');
     return;
   }
   if (block.type === 'image' && !file.type.startsWith('image/') && !isImageFile(file.name)) {
-    toast('This file type isn’t supported.');
+    toast('지원하지 않는 파일 형식입니다.');
     return;
   }
   useUploads.getState().set(block.id, { name: file.name, progress: 0 });
@@ -179,7 +179,7 @@ export async function uploadInto(block: BlockRecord, file: File) {
     const res = await uploadFile(file, file.name, spaceId, block.id);
     await setMediaSource(block.id, res.url, { name: res.name, size: res.size, id: res.id, mime: res.mime });
   } catch (e) {
-    toast((e as Error).message || 'Upload failed');
+    toast((e as Error).message || '업로드 실패');
   } finally {
     useUploads.getState().set(block.id, null);
   }
@@ -203,22 +203,22 @@ function configFor(b: BlockRecord): PickerConfig {
   const provider = providerByName(b.format?.embed_provider as string | undefined) ?? (b.type !== 'embed' ? providerForType(b.type) : undefined);
   switch (b.type) {
     case 'image':
-      return { width: 540, tabs: ['upload', 'link', 'unsplash', 'giphy', ...aiImageTabs(b)], accept: 'image/*', uploadLabel: 'Upload file', uploadStyle: 'outline', linkPlaceholder: 'Paste an image URL…', linkButton: 'Embed image', linkCaption: 'Accepts image URLs from the web' };
+      return { width: 540, tabs: ['upload', 'link', 'unsplash', 'giphy', ...aiImageTabs(b)], accept: 'image/*', uploadLabel: '파일 업로드', uploadStyle: 'outline', linkPlaceholder: '이미지 링크 붙여넣기…', linkButton: '이미지 임베드', linkCaption: '웹의 이미지 URL을 사용할 수 있습니다' };
     case 'video':
-      return { width: 300, tabs: ['upload', 'link'], accept: 'video/*', uploadLabel: 'Choose a video', uploadStyle: 'primary', linkPlaceholder: 'Paste a video URL…', linkButton: 'Embed video', linkCaption: 'Supports YouTube, Vimeo, and other sites' };
+      return { width: 300, tabs: ['upload', 'link'], accept: 'video/*', uploadLabel: '동영상 선택', uploadStyle: 'primary', linkPlaceholder: '동영상 링크 붙여넣기…', linkButton: '동영상 임베드', linkCaption: 'YouTube, Vimeo 등을 지원합니다' };
     case 'audio':
-      return { width: 300, tabs: ['upload', 'link'], accept: 'audio/*', uploadLabel: 'Choose a file', uploadStyle: 'primary', linkPlaceholder: 'Paste the audio link…', linkButton: 'Embed audio', linkCaption: 'Supports MP3, WAV, and OGG audio' };
+      return { width: 300, tabs: ['upload', 'link'], accept: 'audio/*', uploadLabel: '파일 선택', uploadStyle: 'primary', linkPlaceholder: '오디오 링크 붙여넣기…', linkButton: '오디오 임베드', linkCaption: 'MP3, WAV, OGG 오디오를 지원합니다' };
     case 'file':
-      return { width: 300, tabs: ['upload', 'link'], uploadLabel: 'Choose a file', uploadStyle: 'primary', linkPlaceholder: 'Paste a file URL…', linkButton: 'Embed link', linkCaption: 'Supports PDF, Drive, Maps, CodePen, and more' };
+      return { width: 300, tabs: ['upload', 'link'], uploadLabel: '파일 선택', uploadStyle: 'primary', linkPlaceholder: '파일 링크 붙여넣기…', linkButton: '링크 임베드', linkCaption: 'PDF, Drive, Maps, CodePen 등을 지원합니다' };
     case 'pdf':
-      return { width: 300, tabs: ['upload', 'link'], accept: 'application/pdf', uploadLabel: 'Choose a file', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed PDF', linkCaption: 'Add a PDF embed' };
+      return { width: 300, tabs: ['upload', 'link'], accept: 'application/pdf', uploadLabel: '파일 선택', uploadStyle: 'primary', linkPlaceholder: '링크 붙여넣기…', linkButton: 'PDF 임베드', linkCaption: 'PDF 임베드 추가' };
     case 'bookmark':
-      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Create bookmark', linkCaption: 'Make a visual link card.' };
+      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'URL 붙여넣기…', linkButton: '북마크 만들기', linkCaption: '시각적인 링크 카드를 만듭니다.' };
     case 'embed':
-      if (provider && provider.type === 'embed') return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: `Works with ${provider.name} links` };
-      return { width: 300, tabs: ['link', 'upload'], uploadLabel: 'Choose a file', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: 'Supports PDF, Drive, Maps, CodePen, and more' };
+      if (provider && provider.type === 'embed') return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'URL 붙여넣기…', linkButton: '링크 임베드', linkCaption: `${provider.name} 링크 지원` };
+      return { width: 300, tabs: ['link', 'upload'], uploadLabel: '파일 선택', uploadStyle: 'primary', linkPlaceholder: 'URL 붙여넣기…', linkButton: '링크 임베드', linkCaption: 'PDF, Drive, Maps, CodePen 등 지원' };
     default:
-      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'Paste a URL…', linkButton: 'Embed link', linkCaption: provider ? `Works with ${provider.name} links` : 'Supports PDF, Drive, Maps, CodePen, and more' };
+      return { width: 300, tabs: [], uploadLabel: '', uploadStyle: 'primary', linkPlaceholder: 'URL 붙여넣기…', linkButton: '링크 임베드', linkCaption: provider ? `${provider.name} 링크를 지원합니다` : 'PDF, Drive, Maps, CodePen 등 지원' };
   }
 }
 
@@ -227,7 +227,7 @@ export function openMediaPicker(block: BlockRecord, anchor: HTMLElement, opts?: 
   return openOverlay((close) => <MediaPicker blockId={block.id} close={close} replace={opts?.replace} />, { anchor, placement: 'bottom', offset: 0 });
 }
 
-const TAB_LABEL: Record<Tab, string> = { upload: 'Upload', link: 'Link', unsplash: 'Unsplash', giphy: 'GIPHY', embed: 'Embed link', add: 'Add', ai: 'Litpage AI' };
+const TAB_LABEL: Record<Tab, string> = { upload: '업로드', link: '링크', unsplash: 'Unsplash', giphy: 'GIPHY', embed: '링크 임베드', add: '추가', ai: 'CoolNotion! AI' };
 
 export function PickerTabs({ tabs, tab, setTab, right }: { tabs: Tab[]; tab: Tab; setTab: (t: Tab) => void; right?: ReactNode }) {
   return (
@@ -259,7 +259,7 @@ function MediaPicker({ blockId, close, replace }: { blockId: string; close: () =
   const submitLink = () => {
     const v = url.trim();
     if (!v || !isValidUrl(v)) {
-      setError(block.type === 'bookmark' ? 'Enter a valid URL' : 'Enter a valid URL.');
+      setError(block.type === 'bookmark' ? '올바른 URL을 입력하세요' : '올바른 URL을 입력하세요.');
       return;
     }
     close();
@@ -323,7 +323,7 @@ function StockTab({ kind, onPick }: { kind: 'unsplash' | 'giphy'; onPick: (url: 
   return (
     <div className="nc-stock">
       <div className="nc-input">
-        <input autoFocus placeholder={kind === 'unsplash' ? 'Find an image…' : 'Search GIPHY…'} value={q} onChange={(e) => setQ(e.target.value)} />
+        <input autoFocus placeholder={kind === 'unsplash' ? '이미지 찾기…' : 'GIPHY 검색…'} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="nc-stock-grid">
         {items.map((it) => (

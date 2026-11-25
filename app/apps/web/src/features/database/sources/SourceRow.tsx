@@ -17,13 +17,13 @@ export function SourceRow({ block: blockIn, view, collection, readOnly, allowLin
   const { owned, linked } = blockSources(block);
   const choices = [...owned, ...linked].filter((c) => view.type !== 'form' || c.parent_id === block.id);
   const enabled = !readOnly && (choices.length > 1 || !!allowLink) && view.type !== 'form';
-  const name = sourceName(collection) || 'Untitled';
-  if (!enabled) return <Row icon="pathRoundEnds" label="Source" value={name} chevron={false} disabled />;
+  const name = sourceName(collection) || '제목 없음';
+  if (!enabled) return <Row icon="pathRoundEnds" label="위치" value={name} chevron={false} disabled />;
   const current = sourceIdOfView(view, block);
   return (
     <Row
       icon="pathRoundEnds"
-      label="Source"
+      label="위치"
       value={name}
       testid="view-source-row"
       onClick={(e) => {
@@ -31,8 +31,8 @@ export function SourceRow({ block: blockIn, view, collection, readOnly, allowLin
         openMenu(anchor, {
           width: 260,
           sections: [
-            { title: 'Data sources', items: choices.map((c) => ({ id: c.id, label: sourceName(c) || 'Untitled', icon: 'collection', checked: c.id === current, onSelect: () => setViewSource(view, records.get<BlockRecord>('block', block.id) ?? block, c) })) },
-            { items: [{ id: 'link', label: 'Link an existing dataset', icon: <Icon name="arrowDiagonalUpRight" size={16} />, onSelect: () => {
+            { title: '데이터 소스', items: choices.map((c) => ({ id: c.id, label: sourceName(c) || '제목 없음', icon: 'collection', checked: c.id === current, onSelect: () => setViewSource(view, records.get<BlockRecord>('block', block.id) ?? block, c) })) },
+            { items: [{ id: 'link', label: '기존 데이터 소스 연결', icon: <Icon name="arrowDiagonalUpRight" size={16} />, onSelect: () => {
               setTimeout(() => openLinkedSourcePicker(anchor, {
                 skipViewStep: true,
                 exclude: choices.map((c) => c.id),

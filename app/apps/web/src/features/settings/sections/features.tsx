@@ -53,7 +53,7 @@ export function ImportSection() {
   return (
     <SectionPage
       title={t('lp.settings.import', 'Import')}
-      subtitle={t('lp.settings.pull_files_and_content_from_other', 'Pull files and content from other tools into Litpage')}
+      subtitle={t('lp.settings.pull_files_and_content_from_other', 'Pull files and content from other tools into CoolNotion!')}
     >
       <ImportPanel onDone={closeSettings} />
     </SectionPage>
@@ -63,14 +63,14 @@ export function ImportSection() {
 // ---------------------------------------------------------------------------------------------- Litpage AI
 
 const AI_CONNECTORS: { id: string; name: string; color: string; desc: string }[] = [
-  { id: 'slack', name: 'Slack', color: '#4a154b', desc: 'Search messages and channels' },
-  { id: 'google-drive', name: 'Google Drive', color: '#1a73e8', desc: 'Search docs, sheets and slides' },
-  { id: 'github', name: 'GitHub', color: '#1f2328', desc: 'Search issues, pull requests and code' },
-  { id: 'jira', name: 'Jira', color: '#0c66e4', desc: 'Search issues and projects' },
-  { id: 'microsoft-teams', name: 'Microsoft Teams', color: '#5059c9', desc: 'Search chats and channels' },
-  { id: 'sharepoint', name: 'SharePoint & OneDrive', color: '#036c70', desc: 'Search files and sites' },
-  { id: 'gmail', name: 'Gmail', color: '#ea4335', desc: 'Search your inbox' },
-  { id: 'linear', name: 'Linear', color: '#5e6ad2', desc: 'Search issues and projects' },
+  { id: 'slack', name: 'Slack', color: '#4a154b', desc: '메시지와 채널 검색' },
+  { id: 'google-drive', name: 'Google Drive', color: '#1a73e8', desc: '문서, 스프레드시트, 슬라이드 검색' },
+  { id: 'github', name: 'GitHub', color: '#1f2328', desc: '이슈, 풀 리퀘스트, 코드 검색' },
+  { id: 'jira', name: 'Jira', color: '#0c66e4', desc: '이슈와 프로젝트 검색' },
+  { id: 'microsoft-teams', name: 'Microsoft Teams', color: '#5059c9', desc: '채팅과 채널 검색' },
+  { id: 'sharepoint', name: 'SharePoint & OneDrive', color: '#036c70', desc: '파일과 사이트 검색' },
+  { id: 'gmail', name: 'Gmail', color: '#ea4335', desc: '받은편지함 검색' },
+  { id: 'linear', name: 'Linear', color: '#5e6ad2', desc: '이슈와 프로젝트 검색' },
 ];
 
 export function LitAISection() {
@@ -96,7 +96,7 @@ export function LitAISection() {
   };
 
   return (
-    <SectionPage title={t('lp.settings.litpage_ai', 'Litpage AI')} subtitle={t('lp.settings.configure_ai_features_to_suit_you', 'Configure AI features to suit you and manage connectors')}>
+    <SectionPage title={t('lp.settings.litpage_ai', 'CoolNotion! AI')} subtitle={t('lp.settings.configure_ai_features_to_suit_you', 'Configure AI features to suit you and manage connectors')}>
       {/* tab pills, then the tab body 44px below */}
       <div className="nc-set-ai-sec">
       <Pills
@@ -126,7 +126,7 @@ export function LitAISection() {
           <div className="nc-set-ai-personal">
             <div className="col">
               <div className="ttl">{t('lp.settings.personalization', 'Personalization')}</div>
-              <div className="desc">{t('lp.settings.choose_a_name_for_your_litpage', 'Choose a name for your Litpage AI')}</div>
+              <div className="desc">{t('lp.settings.choose_a_name_for_your_litpage', 'Choose a name for your CoolNotion! AI')}</div>
               <div style={{ marginTop: 6 }}>
                 <Button icon="pencilSmall" onClick={() => openSubDialog((close) => <PersonalizeBody close={close} prefs={prefs} />)}>{t('lp.settings.personalize', 'Personalize')}</Button>
               </div>
@@ -147,7 +147,7 @@ export function LitAISection() {
                 <Icon name="page" size={18} />
                 <div className="main">
                   <div className="ttl">{titleOf(page)}</div>
-                  <div className="sub">{t('lp.settings.guidance_litpage_agent_keeps_in_mind', 'Guidance Litpage Agent keeps in mind while helping you')}</div>
+                  <div className="sub">{t('lp.settings.guidance_litpage_agent_keeps_in_mind', 'Guidance CoolNotion! Agent keeps in mind while helping you')}</div>
                 </div>
                 <Button small onClick={() => { closeSettings(); openPage(page.id); }}>{t('lp.settings.open_page', 'Open page')}</Button>
                 <span role="button" className="nc-set-icon-btn" aria-label={t('lp.settings.choose_another_page', 'Choose another page')} onClick={(e) => openMenu(e.currentTarget as HTMLElement, {
@@ -233,8 +233,8 @@ function PersonalizeBody({ close, prefs }: { close: () => void; prefs: UserPrefs
     <>
       <h3>{t('lp.settings.personalization', 'Personalization')}</h3>
       <div>
-        <label className="nc-set-label">{t('lp.settings.name', 'Name')} · {t('lp.settings.pick_what_litpage_agent_calls_itself', 'Pick what Litpage Agent calls itself')}</label>
-        <div className="nc-set-input"><input autoFocus maxLength={40} placeholder={t('lp.settings.name_your_litpage_agent', 'Name your Litpage agent')} value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <label className="nc-set-label">{t('lp.settings.name', 'Name')} · {t('lp.settings.pick_what_litpage_agent_calls_itself', 'Pick what CoolNotion! Agent calls itself')}</label>
+        <div className="nc-set-input"><input autoFocus maxLength={40} placeholder={t('lp.settings.name_your_litpage_agent', 'Name your CoolNotion! agent')} value={name} onChange={(e) => setName(e.target.value)} /></div>
       </div>
       <div className="actions">
         <Button variant="primary" onClick={() => { savePrefs({ ai_name: name.trim() }); close(); }}>{t('lp.settings.save', 'Save')}</Button>
@@ -300,13 +300,13 @@ export function MeetingNotesSection() {
           id="meeting-notes-enabled"
           label={t('lp.settings.turn_on_meeting_notes_for_the', 'Turn on meeting notes for the workspace')}
           description={t('lp.settings.make_ai_meeting_notes_available_to', 'Make AI meeting notes available to everyone in the workspace.')}
-          control={<span data-tooltip={lockTip}><Switch label="Turn on meeting notes for this workspace" disabled={!admin} checked={spaceSetting(space, 'meeting_notes_enabled', true)} onChange={(v) => set({ meeting_notes_enabled: v })} /></span>}
+          control={<span data-tooltip={lockTip}><Switch label="이 워크스페이스에서 회의록 사용" disabled={!admin} checked={spaceSetting(space, 'meeting_notes_enabled', true)} onChange={(v) => set({ meeting_notes_enabled: v })} /></span>}
         />
         <Row
           id="store-audio-locally"
           label={t('lp.settings.save_audio_on_this_device', 'Save audio on this device')}
           description={t('lp.settings.allow_members_to_temporarily_store_a', 'Allow members to temporarily store a local, on-device copy of their meeting audio for added reliability.')}
-          control={<span data-tooltip={lockTip}><Switch label="Keep audio on this device" disabled={!admin} checked={spaceSetting(space, 'meeting_store_audio_locally', false)} onChange={(v) => set({ meeting_store_audio_locally: v })} /></span>}
+          control={<span data-tooltip={lockTip}><Switch label="오디오를 이 기기에 보관" disabled={!admin} checked={spaceSetting(space, 'meeting_store_audio_locally', false)} onChange={(v) => set({ meeting_store_audio_locally: v })} /></span>}
         />
         <Row
           id="transcript-deletion"
@@ -314,8 +314,8 @@ export function MeetingNotesSection() {
           description={!planAtLeast(plan, 'enterprise')
             ? <Upsell
                 text={admin
-                  ? msg('lp.settings.upgrade_to_choose_when_transcripts_are', '<highlight>Upgrade</highlight> to choose when transcripts are deleted automatically.')
-                  : msg('lp.settings.request_access_to_choose_when_transcript', '<highlight>Request access</highlight> to choose when transcripts are deleted automatically')}
+                  ? msg('lp.settings.upgrade_to_choose_when_transcripts_are', '<highlight>업그레이드</highlight> to choose when transcripts are deleted automatically.')
+                  : msg('lp.settings.request_access_to_choose_when_transcript', '<highlight>액세스 요청</highlight> to choose when transcripts are deleted automatically')}
                 onClick={admin ? undefined : () => void requestUpgrade(space.id, 'enterprise')}
               />
             : undefined}
@@ -339,7 +339,7 @@ export function MeetingNotesSection() {
           id="enforce-consent"
           label={t('lp.settings.require_consent_from_every_workspace_mem', 'Require consent from every workspace member')}
           description={t('lp.settings.require_every_transcription_by_a_workspa', 'Require every transcription by a workspace member to open with an audio consent message')}
-          control={<span data-tooltip={lockTip}><Switch label="Require consent from every workspace member" disabled={!admin} checked={enforce} onChange={(v) => set({ meeting_enforce_consent: v })} /></span>}
+          control={<span data-tooltip={lockTip}><Switch label="모든 워크스페이스 멤버의 동의 필요" disabled={!admin} checked={enforce} onChange={(v) => set({ meeting_enforce_consent: v })} /></span>}
         />
       </Group>
       <Group plain title={t('lp.settings.personal_preferences', 'Personal preferences')}>
@@ -347,7 +347,7 @@ export function MeetingNotesSection() {
           id="meeting-auto-share"
           label={t('lp.settings.share_automatically_with_internal_calend', 'Share automatically with internal calendar attendees')}
           description={t('lp.settings.workspace_members_invited_to_a_calendar', 'Workspace members invited to a calendar event automatically get access to its AI meeting notes. Notes without a linked calendar event aren’t affected.')}
-          control={<Switch label="Share automatically with internal calendar guests" checked={prefValue(prefs, 'meeting_auto_share')} onChange={(v) => savePref('meeting_auto_share', v)} />}
+          control={<Switch label="내부 캘린더 참석자에게 자동 공유" checked={prefValue(prefs, 'meeting_auto_share')} onChange={(v) => savePref('meeting_auto_share', v)} />}
         />
         <Row
           id="meeting-hide-tab"
@@ -369,7 +369,7 @@ export function MeetingNotesSection() {
           id="meeting-auto-consent"
           label={t('lp.settings.open_each_transcription_with_a_consent', 'Open each transcription with a consent message')}
           description={t('lp.settings.every_transcription_starts_by_playing_an', 'Every transcription starts by playing an audio consent message automatically.')}
-          control={<Switch label="Play the consent message when starting" disabled={enforce} checked={enforce || prefValue(prefs, 'meeting_auto_consent')} onChange={(v) => savePref('meeting_auto_consent', v)} />}
+          control={<Switch label="시작할 때 동의 안내 메시지 재생" disabled={enforce} checked={enforce || prefValue(prefs, 'meeting_auto_consent')} onChange={(v) => savePref('meeting_auto_consent', v)} />}
         />
         <Row
           id="meeting-default-db"
@@ -411,24 +411,24 @@ export function MeetingNotesSection() {
 interface McpClient { id: string; name: string; caption: string; color: string; letter: string; custom?: boolean; url?: string }
 
 function mcpCatalog(): McpClient[] {
-  const fallback = (appName: string) => t('lp.settings.link_with_your_litpage_workspace', 'Link {appName} with your Litpage workspace', { appName });
+  const fallback = (appName: string) => t('lp.settings.link_with_your_litpage_workspace', 'Link {appName} with your CoolNotion! workspace', { appName });
   return [
-    { id: 'chatgpt', name: 'ChatGPT', caption: t('lp.settings.let_chatgpt_deep_research_pull_in', 'Let ChatGPT Deep Research pull in context from Litpage'), color: '#000000', letter: 'C' },
+    { id: 'chatgpt', name: 'ChatGPT', caption: t('lp.settings.let_chatgpt_deep_research_pull_in', 'Let ChatGPT Deep Research pull in context from CoolNotion!'), color: '#000000', letter: 'C' },
     { id: 'claude', name: 'Claude', caption: t('lp.settings.have_claude_collaborate_with_you_in', 'Have Claude collaborate with you in Litpage.'), color: '#d97757', letter: 'C' },
-    { id: 'composio', name: 'Composio', caption: t('lp.settings.create_composio_workflows_with_litpage_a', 'Create Composio workflows with Litpage access'), color: '#2b2b2b', letter: 'C' },
-    { id: 'cursor', name: 'Cursor', caption: t('lp.settings.find_and_cite_litpage_docs_and', 'Find and cite Litpage docs and tasks without leaving your editor'), color: '#111111', letter: 'C' },
-    { id: 'devin', name: 'Devin', caption: t('lp.settings.let_devin_tap_into_your_litpage', 'Let Devin tap into your Litpage workspace while building'), color: '#1a7f64', letter: 'D' },
-    { id: 'figma', name: 'Figma', caption: t('lp.settings.prototype_from_your_litpage_prds_by', 'Prototype from your Litpage PRDs by linking them to Figma.'), color: '#a259ff', letter: 'F' },
-    { id: 'github', name: 'GitHub', caption: t('lp.settings.track_github_issues_and_pull_requests', 'Track GitHub issues and pull requests as connected tasks in Litpage'), color: '#1f2328', letter: 'G' },
-    { id: 'glass', name: 'Glass', caption: t('lp.settings.give_glass_litpage_context_for_everyday', 'Give Glass Litpage context for everyday work.'), color: '#e8e05a', letter: 'G' },
+    { id: 'composio', name: 'Composio', caption: t('lp.settings.create_composio_workflows_with_litpage_a', 'Create Composio workflows with CoolNotion! access'), color: '#2b2b2b', letter: 'C' },
+    { id: 'cursor', name: 'Cursor', caption: t('lp.settings.find_and_cite_litpage_docs_and', 'Find and cite CoolNotion! docs and tasks without leaving your editor'), color: '#111111', letter: 'C' },
+    { id: 'devin', name: 'Devin', caption: t('lp.settings.let_devin_tap_into_your_litpage', 'Let Devin tap into your CoolNotion! workspace while building'), color: '#1a7f64', letter: 'D' },
+    { id: 'figma', name: 'Figma', caption: t('lp.settings.prototype_from_your_litpage_prds_by', 'Prototype from your CoolNotion! PRDs by linking them to Figma.'), color: '#a259ff', letter: 'F' },
+    { id: 'github', name: 'GitHub', caption: t('lp.settings.track_github_issues_and_pull_requests', 'Track GitHub issues and pull requests as connected tasks in CoolNotion!'), color: '#1f2328', letter: 'G' },
+    { id: 'glass', name: 'Glass', caption: t('lp.settings.give_glass_litpage_context_for_everyday', 'Give Glass CoolNotion! context for everyday work.'), color: '#e8e05a', letter: 'G' },
     { id: 'grok', name: 'Grok Bot', caption: fallback('Grok Bot'), color: '#000000', letter: 'X' },
-    { id: 'hubspot', name: 'HubSpot', caption: t('lp.settings.keep_hubspot_account_notes_alongside_lit', 'Keep HubSpot account notes alongside Litpage work.'), color: '#ff7a59', letter: 'H' },
-    { id: 'make', name: 'Make', caption: t('lp.settings.use_make_to_automate_work_in', 'Use Make to automate work in Litpage'), color: '#6d00cc', letter: 'M' },
+    { id: 'hubspot', name: 'HubSpot', caption: t('lp.settings.keep_hubspot_account_notes_alongside_lit', 'Keep HubSpot account notes alongside CoolNotion! work.'), color: '#ff7a59', letter: 'H' },
+    { id: 'make', name: 'Make', caption: t('lp.settings.use_make_to_automate_work_in', 'Use Make to automate work in CoolNotion!'), color: '#6d00cc', letter: 'M' },
     { id: 'mistral', name: 'Mistral', caption: t('lp.settings.draft_plans_and_database_entries_in', 'Draft plans and database entries in Litpage.'), color: '#fa520f', letter: 'M' },
     { id: 'muse', name: 'Muse', caption: fallback('Muse'), color: '#3d3d3d', letter: 'M' },
-    { id: 'poke', name: 'Poke', caption: t('lp.settings.let_poke_use_your_litpage_workspace', 'Let Poke use your Litpage workspace'), color: '#ff4f81', letter: 'P' },
-    { id: 'vscode', name: 'VS Code', caption: t('lp.settings.bring_litpage_context_into_your_code', 'Bring Litpage context into your code by linking your IDE.'), color: '#007acc', letter: 'V' },
-    { id: 'zapier', name: 'Zapier', caption: t('lp.settings.connect_litpage_to_zapier_automations', 'Connect Litpage to Zapier automations.'), color: '#ff4f00', letter: 'Z' },
+    { id: 'poke', name: 'Poke', caption: t('lp.settings.let_poke_use_your_litpage_workspace', 'Let Poke use your CoolNotion! workspace'), color: '#ff4f81', letter: 'P' },
+    { id: 'vscode', name: 'VS Code', caption: t('lp.settings.bring_litpage_context_into_your_code', 'Bring CoolNotion! context into your code by linking your IDE.'), color: '#007acc', letter: 'V' },
+    { id: 'zapier', name: 'Zapier', caption: t('lp.settings.connect_litpage_to_zapier_automations', 'Connect CoolNotion! to Zapier automations.'), color: '#ff4f00', letter: 'Z' },
   ];
 }
 
@@ -483,8 +483,8 @@ export function LitMcpSection() {
 
   return (
     <SectionPage
-      title={t('lp.settings.litpage_mcp', 'Litpage MCP')}
-      subtitle={t('lp.settings.work_in_litpage_from_other_apps', 'Work in Litpage from other apps. The Litpage MCP server lets agents, apps, and tools act on this workspace.')}
+      title={t('lp.settings.litpage_mcp', 'CoolNotion! MCP')}
+      subtitle={t('lp.settings.work_in_litpage_from_other_apps', 'Work in CoolNotion! from other apps. The CoolNotion! MCP server lets agents, apps, and tools act on this workspace.')}
     >
       <Group plain title={t('lp.settings.enabled_clients', 'Enabled clients ({count})', { count: enabledClients.length })}>
         {enabledClients.length ? (
@@ -506,7 +506,7 @@ export function LitMcpSection() {
       </Group>
       <Group>
         <div className="nc-set-mcp-head">
-          <div className="nc-set-group-title plain inline">{t('lp.settings.mcp_clients_for_litpage', 'MCP clients for Litpage')}</div>
+          <div className="nc-set-group-title plain inline">{t('lp.settings.mcp_clients_for_litpage', 'MCP clients for CoolNotion!')}</div>
           <div className="nc-set-people-actions">
             {searching ? (
               <div className="nc-set-input nc-set-people-search">
@@ -546,7 +546,7 @@ export function LitMcpSection() {
           </div>
         )}
         <div className="nc-set-crosslink">
-          {rich(msg('lp.settings.need_github_prs_slack_or_google', 'Need GitHub PRs, Slack, or Google Drive content in Litpage? <nowrap><link>Connections</link></nowrap>'), {}, {
+          {rich(msg('lp.settings.need_github_prs_slack_or_google', 'Need GitHub PRs, Slack, or Google Drive content in CoolNotion!? <nowrap><link>연결</link></nowrap>'), {}, {
             nowrap: (c) => <span style={{ whiteSpace: 'nowrap' }}>{c}</span>,
           }).map((n) => n)}
           {' '}
@@ -556,7 +556,7 @@ export function LitMcpSection() {
           </span>
         </div>
       </Group>
-      {/* Litpage MCP server: access tokens and owner governance. */}
+      {/* CoolNotion! MCP server: access tokens and owner governance. */}
       <LitMcpAccess />
     </SectionPage>
   );
@@ -571,7 +571,7 @@ function AddMcpClientBody({ close, onAdd }: { close: () => void; onAdd: (c: McpC
       <h3>{t('lp.settings.connect_a_new_mcp_client', 'Connect a new MCP client')}</h3>
       <div>
         <label className="nc-set-label">{t('lp.settings.name', 'Name')}</label>
-        <div className="nc-set-input"><input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="My agent" /></div>
+        <div className="nc-set-input"><input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="내 에이전트" /></div>
       </div>
       <div>
         <label className="nc-set-label">{t('lp.settings.client_url', 'Client URL')}</label>
@@ -676,7 +676,7 @@ export function PublicPagesSection() {
           {tile('site', t('lp.settings.published_sites', 'Published sites'), of('site'), t('lp.settings.no_sites_published', 'No sites published'))}
           {tile('form', t('lp.settings.public_forms', 'Public forms'), of('form'), t('lp.settings.no_public_forms_yet', 'No public forms yet'))}
           {tile('link', t('lp.settings.anyone_who_has_the_link', 'Anyone who has the link'), of('link'), t('lp.settings.no_links_shared_publicly', 'No links shared publicly'))}
-          {tile('chats', t('lp.settings.ai_chats_shared', 'AI chats shared'), (sharedChats ?? []).map((c) => ({ blockId: c.id, kind: 'link' as const, title: c.title || 'Untitled chat' })), t('lp.settings.no_chats_are_shared', 'No chats are shared'))}
+          {tile('chats', t('lp.settings.ai_chats_shared', 'AI chats shared'), (sharedChats ?? []).map((c) => ({ blockId: c.id, kind: 'link' as const, title: c.title || '제목 없는 채팅' })), t('lp.settings.no_chats_are_shared', 'No chats are shared'))}
         </div>
         {open === 'chats' && sharedChats && sharedChats.length > 0 && <SharedChatsTable chats={sharedChats} onClose={closeSettings} />}
         {open && open !== 'chats' && rows.length > 0 && (
@@ -763,7 +763,7 @@ function DomainsGroup({ space, admin, sites }: { space: SpaceRecord; admin: bool
       <div className="nc-set-domains-head">
         <div>
           <div className="ttl">{t('lp.settings.domains', 'Domains')}</div>
-          <div className="sub">{t('lp.settings.domains_where_your_litpage_sites_can', 'Domains where your Litpage sites can be published')}</div>
+          <div className="sub">{t('lp.settings.domains_where_your_litpage_sites_can', 'Domains where your CoolNotion! sites can be published')}</div>
         </div>
         <span data-tooltip={t('lp.settings.this_workspace_can_have_only_litpage', 'This workspace can have only {maximumDomains} .litpage.site domains', { maximumDomains: 1 })}>
           <Button disabled>{t('lp.settings.new_domain', 'New domain')}</Button>
@@ -846,7 +846,7 @@ function DomainBody({ space, close }: { space: SpaceRecord; close: () => void })
   return (
     <>
       <h3>{t('lp.settings.change_the_domain_name', 'Change the domain name')}</h3>
-      <div className="desc">{t('lp.settings.give_your_litpage_site_its_own', 'Give your Litpage site its own domain')}</div>
+      <div className="desc">{t('lp.settings.give_your_litpage_site_its_own', 'Give your CoolNotion! site its own domain')}</div>
       <div className="nc-set-input nc-set-domain-input">
         <input autoFocus value={v} placeholder={t('lp.settings.yourdomain', 'yourdomain')} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && state?.ok) void save(); }} />
         <span className="suffix">.litpage.site</span>
@@ -901,7 +901,7 @@ export function DeveloperSection() {
           id="developer-mode"
           label={t('lp.settings.turn_on_developer_features', 'Turn on developer features')}
           description={t('lp.settings.turn_on_the_developer_ui_including', 'Turn on the developer UI, including the toolbar, menu, and quick links to developer tools.')}
-          control={<Switch label="Turn on developer tools" checked={devOn} onChange={(v) => useDeveloperMode.getState().setOn(v)} />}
+          control={<Switch label="개발자 도구 켜기" checked={devOn} onChange={(v) => useDeveloperMode.getState().setOn(v)} />}
         />
       </Group>
       <Group plain title={t('lp.settings.personal_access_tokens_pats', 'Access tokens (PATs)')}>
@@ -912,7 +912,7 @@ export function DeveloperSection() {
               {t('lp.settings.generate_your_own_api_access_token', 'Generate your own API access token')}
             </>
           )}
-          description={rich(msg('lp.settings.create_a_personal_access_token_for', 'Create a personal access token for Litpage API requests. <manageTokens>Manage your tokens</manageTokens>.'), {}, {
+          description={rich(msg('lp.settings.create_a_personal_access_token_for', 'Create a personal access token for CoolNotion! API requests. <manageTokens>토큰 관리</manageTokens>.'), {}, {
             manageTokens: (c) => <a href="#" onClick={(e) => { e.preventDefault(); setShow(true); }}>{c}</a>,
           })}
           control={<Button disabled={!space} onClick={() => space && openSubDialog((close) => <NewTokenBody spaceId={space.id} close={close} onCreated={() => { load(); setShow(true); }} />)}>{t('lp.settings.new_token', 'New token')}</Button>}
@@ -964,7 +964,7 @@ function NewTokenBody({ spaceId, close, onCreated }: { spaceId: string; close: (
       setToken(r.token);
       onCreated();
     } catch (e: any) {
-      setErr(e?.status === 403 ? t('lp.settings.creating_tokens_is_turned_off_a', 'Creating tokens is turned off. A workspace owner can turn it on for you.') : (e?.message ?? 'Error'));
+      setErr(e?.status === 403 ? t('lp.settings.creating_tokens_is_turned_off_a', 'Creating tokens is turned off. A workspace owner can turn it on for you.') : (e?.message ?? '오류'));
     } finally {
       setBusy(false);
     }

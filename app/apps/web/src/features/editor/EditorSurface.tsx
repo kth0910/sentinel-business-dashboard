@@ -715,10 +715,10 @@ export function EditorSurface({ pageId, readOnly, children, scroller }: { pageId
       {gutter && !readOnly && (!selected.length || menuFor === gutter.blockId) && (
         // DOM order handle → "+"; row-reverse keeps "+" on the left
         <div className="nc-block-gutter" style={{ top: gutter.top, left: gutter.left - 52 }}>
-          <div role="button" className={`nc-block-handle nc-gutter-btn ${menuFor === gutter.blockId ? 'pressed' : ''}`} aria-label="Drag to reposition, click for options" data-tooltip="Drag to reposition" data-tooltip-sub="Click or ⌘/ to open menu" onPointerDown={(e) => { e.preventDefault(); startDrag(e, gutter.blockId); }}>
+          <div role="button" className={`nc-block-handle nc-gutter-btn ${menuFor === gutter.blockId ? 'pressed' : ''}`} aria-label="드래그하여 이동, 클릭하여 옵션 보기" data-tooltip="드래그해서 이동" data-tooltip-sub="클릭하거나 ⌘/를 눌러 메뉴 열기" onPointerDown={(e) => { e.preventDefault(); startDrag(e, gutter.blockId); }}>
             <Icon name="dragHandle" size={14} />
           </div>
-          <div role="button" className="lit-block-add-button nc-gutter-btn" aria-label="Click to insert below. Option-click inserts above" data-tooltip="Click to insert below" data-tooltip-sub="Option-click inserts above" onMouseDown={(e) => e.preventDefault()} onClick={(e) => plusClick(e, gutter.blockId)}>
+          <div role="button" className="lit-block-add-button nc-gutter-btn" aria-label="클릭하면 아래에 삽입합니다. Option 키를 누르고 클릭하면 위에 삽입합니다" data-tooltip="클릭하여 아래에 삽입" data-tooltip-sub="Option 키를 누른 채 클릭하면 위에 삽입" onMouseDown={(e) => e.preventDefault()} onClick={(e) => plusClick(e, gutter.blockId)}>
             <Plus size={16} aria-hidden className="nc-gutter-plus" />
           </div>
         </div>

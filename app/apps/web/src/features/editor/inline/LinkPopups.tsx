@@ -131,11 +131,11 @@ function LinkPopup({ r, close }: { r: TextRange; close: () => void }) {
   };
   const options: Option[] = useMemo(() => {
     const out: Option[] = [];
-    if (isUrl) out.push({ key: 'url', icon: <Icon name="globe" size={20} />, title: q.trim(), sub: 'Web page link', run: () => done(normalizeUrl(q)) });
+    if (isUrl) out.push({ key: 'url', icon: <Icon name="globe" size={20} />, title: q.trim(), sub: '웹 페이지 링크', run: () => done(normalizeUrl(q)) });
     if (!isUrl) {
       for (const id of hits.ids) {
         const b = pageOrNull(id) as BlockRecord | undefined;
-        out.push({ key: id, icon: <PageIcon block={b} size={20} />, title: pageTitle(b) || 'New page', sub: breadcrumbOf(id) || undefined, run: () => done(pageUrl(id)) });
+        out.push({ key: id, icon: <PageIcon block={b} size={20} />, title: pageTitle(b) || '새 페이지', sub: breadcrumbOf(id) || undefined, run: () => done(pageUrl(id)) });
       }
     }
     return out;
@@ -148,7 +148,7 @@ function LinkPopup({ r, close }: { r: TextRange; close: () => void }) {
         <div className="nc-link-input focused">
           <input
             autoFocus
-            placeholder="Paste a link or find pages"
+            placeholder="링크를 붙여 넣거나 페이지를 검색하세요"
             value={q}
             role="combobox"
             onChange={(e) => setQ(e.target.value)}
@@ -168,8 +168,8 @@ function LinkPopup({ r, close }: { r: TextRange; close: () => void }) {
       {options.length > 0 && (
         <div className="lit-scroller vertical nc-menu-scroll" role="listbox">
           <div className="nc-menu-section">
-            {!q && <MenuSectionTitle>Recents</MenuSectionTitle>}
-            {q && !isUrl && <MenuSectionTitle>Page link</MenuSectionTitle>}
+            {!q && <MenuSectionTitle>최근 항목</MenuSectionTitle>}
+            {q && !isUrl && <MenuSectionTitle>페이지 링크</MenuSectionTitle>}
             {options.map((o, i) => (
               <div key={o.key} role="option" aria-selected={i === active} className={`nc-menu-item ${i === active ? 'active' : ''}`} onMouseMove={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={o.run}>
                 <div className={`nc-menu-item-inner nc-mi${o.sub ? ' has-desc' : ''}`}>
@@ -268,9 +268,9 @@ function LinkEdit({ r, href, close }: { r: TextRange; href: string; close: () =>
   return (
     <PopoverSurface width={330} className="nc-link-edit">
       <div className="nc-link-edit-section">
-        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>Page or URL</div>
+        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>페이지 또는 URL</div>
         <div className="nc-link-input">
-          <input placeholder="Edit link or find pages" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={onKey} />
+          <input placeholder="링크 편집 또는 페이지 찾기" value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={onKey} />
         </div>
         {urlIsPage && hits.ids.length > 0 && (
           <div className="nc-link-edit-results">
@@ -278,7 +278,7 @@ function LinkEdit({ r, href, close }: { r: TextRange; href: string; close: () =>
               const b = pageOrNull(id) as BlockRecord | undefined;
               return (
                 <div key={id} className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={() => apply(pageUrl(id))}>
-                  <div className="nc-menu-item-inner"><div className="nc-menu-icon"><PageIcon block={b} size={20} /></div><div className="nc-menu-label nc-ellipsis">{pageTitle(b) || 'New page'}</div></div>
+                  <div className="nc-menu-item-inner"><div className="nc-menu-icon"><PageIcon block={b} size={20} /></div><div className="nc-menu-label nc-ellipsis">{pageTitle(b) || '새 페이지'}</div></div>
                 </div>
               );
             })}
@@ -286,14 +286,14 @@ function LinkEdit({ r, href, close }: { r: TextRange; href: string; close: () =>
         )}
       </div>
       <div className="nc-link-edit-section" style={{ paddingBottom: 8 }}>
-        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>Link title</div>
+        <div className="nc-menu-section-title" style={{ margin: '6px 0 4px', padding: 0 }}>링크 제목</div>
         <div className="nc-link-input focused">
           <input ref={titleRef} value={title} onChange={(e) => setTitle(e.target.value)} onKeyDown={onKey} />
         </div>
       </div>
       <div className="nc-menu-section" style={{ borderTop: '1px solid var(--lp-border-secondary)' }}>
         <div role="option" className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={remove}>
-          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">Remove link</div></div>
+          <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="trash" size={20} /></div><div className="nc-menu-label">링크 제거</div></div>
         </div>
       </div>
     </PopoverSurface>
@@ -376,12 +376,12 @@ export function LinkHoverPill() {
       </div>
       <div
         role="button"
-        aria-label="Copy link"
+        aria-label="링크 복사"
         className="nc-link-pill-btn icon"
-        data-tooltip="Copy link"
+        data-tooltip="링크 복사"
         onClick={() => {
           void navigator.clipboard?.writeText(pid ? new URL(hover.href, location.origin).href : hover.href);
-          useUI.getState().toast('Link copied');
+          useUI.getState().toast('링크를 복사했습니다');
         }}
       >
         <Icon name="docOnDoc" size={16} />

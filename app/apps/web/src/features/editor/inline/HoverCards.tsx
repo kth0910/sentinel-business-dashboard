@@ -51,8 +51,8 @@ export function PageMentionCard() {
       <div style={{ height: 36 }} />
       <div className="nc-page-hover-icon"><PageIcon block={page} size={26} /></div>
       <div className="nc-page-hover-body">
-        {parent && <div className="nc-page-hover-parent nc-ellipsis">{pageTitle(parent) || 'Untitled'}</div>}
-        <div className="nc-page-hover-title">{page ? pageTitle(page) || 'New page' : 'No access'}</div>
+        {parent && <div className="nc-page-hover-parent nc-ellipsis">{pageTitle(parent) || '제목 없음'}</div>}
+        <div className="nc-page-hover-title">{page ? pageTitle(page) || '새 페이지' : '접근 권한 없음'}</div>
         <div style={{ height: 24 }} />
       </div>
     </div>
@@ -104,17 +104,17 @@ export function LinkMentionCard() {
         <div className="nc-lm-hover-url nc-ellipsis">{v.href}</div>
       </div>
       <div className="nc-lm-hover-actions">
-        <div role="button" className="nc-lm-hover-btn" aria-label="Copy link" onClick={() => { void navigator.clipboard?.writeText(v.href); useUI.getState().toast('Link copied'); close(); }}>
-          <Icon name="docOnDoc" size={14} />Copy link
+        <div role="button" className="nc-lm-hover-btn" aria-label="링크 복사" onClick={() => { void navigator.clipboard?.writeText(v.href); useUI.getState().toast('링크를 복사했습니다'); close(); }}>
+          <Icon name="docOnDoc" size={14} />링크 복사
         </div>
         {hover.editable && (
-          <div role="button" className="nc-lm-hover-btn" aria-label="Reload mention" onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.refreshLinkMention(range.blockId, range.property, range.start, v.href)); }}>
-            <Icon name="refresh" size={14} />Reload mention
+          <div role="button" className="nc-lm-hover-btn" aria-label="멘션 새로고침" onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.refreshLinkMention(range.blockId, range.property, range.start, v.href)); }}>
+            <Icon name="refresh" size={14} />멘션 새로고침
           </div>
         )}
         {hover.editable && (
-          <div role="button" className="nc-lm-hover-btn" aria-label="Change to preview" onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.replaceRangeWithBlock(range, 'bookmark', undefined, v.href)); }}>
-            <Icon name="bookmark" size={14} />Change to preview
+          <div role="button" className="nc-lm-hover-btn" aria-label="미리보기로 전환" onClick={() => { close(); void import('./PasteMenu.tsx').then((m) => m.replaceRangeWithBlock(range, 'bookmark', undefined, v.href)); }}>
+            <Icon name="bookmark" size={14} />미리보기로 바꾸기
           </div>
         )}
       </div>
@@ -133,8 +133,8 @@ export function GroupMentionCard() {
   return (
     <div role="dialog" className="nc-group-hover-card" style={{ position: 'fixed', left: hover.rect.left, top: hover.rect.bottom + 6, zIndex: 998 }} onMouseEnter={cancelGroup} onMouseLeave={hideGroupSoon}>
       <div className="nc-group-hover-head">
-        <div className="nc-group-hover-name nc-ellipsis">{g?.name || 'Deleted group'}</div>
-        <div className="nc-group-hover-count">{n === 1 ? '1 member' : `${n} members`}</div>
+        <div className="nc-group-hover-name nc-ellipsis">{g?.name || '삭제된 그룹'}</div>
+        <div className="nc-group-hover-count">{n === 1 ? '멤버 1명' : `멤버 ${n}명`}</div>
       </div>
       {members.slice(0, 10).map((u) => (
         <div key={u.id} className="nc-group-hover-member"><Avatar user={u} size={20} /><span className="nc-ellipsis">{u.name || u.email}</span></div>

@@ -88,7 +88,7 @@ export function groupFilterNodes(propId: string, prop: PropertySchema | undefine
 function saveAsView(o: DrilldownOptions, pageId: string, nodes: FilterNode[]): boolean {
   const page = records.get<BlockRecord>('block', pageId);
   if (!page || !roleAtLeast(records.role('block', pageId), 'read_and_write')) {
-    useUI.getState().toast('You don’t have permission to edit that page');
+    useUI.getState().toast('해당 페이지를 편집할 권한이 없습니다');
     return false;
   }
   const v = effectiveView(o.view);
@@ -109,7 +109,7 @@ function saveAsView(o: DrilldownOptions, pageId: string, nodes: FilterNode[]): b
     });
     tx.listAfter('block', blockId, ['view_ids'], viewId);
   });
-  useUI.getState().toast(`Saved view in ${toPlainText(page.properties?.title as never) || 'Untitled'}`);
+  useUI.getState().toast(`${toPlainText(page.properties?.title as never) || 'Untitled'}에 보기를 저장했습니다`);
   return true;
 }
 
@@ -122,16 +122,16 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
   const schema = collection.schema;
   const cols = drilldownColumns(cfg, schema);
   const rows = point.rows.slice(0, MAX_ROWS);
-  const dbName = toPlainText(collection.name as never) || 'Untitled';
+  const dbName = toPlainText(collection.name as never) || '제목 없음';
   const xProp = cfg.dataConfig.type === 'groups_reducer' ? cfg.dataConfig.groupBy.property : undefined;
   const nodes = xProp ? groupFilterNodes(xProp, schema[xProp], point) : null;
   const more = (anchor: HTMLElement) => openMenu(anchor, {
     width: 240,
     sections: [{
       items: [
-        { id: 'open', label: `Open ${dbName}`, icon: 'openAsPage', onSelect: () => { close(); openPage(collection.parent_id); } },
+        { id: 'open', label: `${dbName} 열기`, icon: 'openAsPage', onSelect: () => { close(); openPage(collection.parent_id); } },
         ...(nodes ? [{
-          id: 'save', label: 'Store layout in…', icon: 'plus', onSelect: () => {
+          id: 'save', label: '레이아웃 저장 위치…', icon: 'plus', onSelect: () => {
             // opened once this menu has closed (menus close the overlays stacked above them)
             setTimeout(() => openPagePicker(anchor, { onPick: (pageId) => { if (saveAsView(o, pageId, nodes)) close(); } }), 0);
           },
@@ -146,8 +146,8 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
         <span className="nc-chart-drill-title">{point.label}</span>
         <span className="nc-chart-drill-count">{point.rows.length}</span>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-icon-btn" aria-label="More" data-tooltip="More" onClick={(e) => more(e.currentTarget)}><Icon name="ellipsis" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label="더 보기" data-tooltip="더 보기" onClick={(e) => more(e.currentTarget)}><Icon name="ellipsis" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label="닫기" onClick={close}><Icon name="xMarkSmall" size={18} /></div>
       </div>
       <div className="nc-chart-drill-body lit-scroller vertical">
         <div className="nc-chart-drill-table" style={{ gridTemplateColumns: cols.map((c) => (c === 'title' ? 'minmax(200px, 2fr)' : 'minmax(120px, 1fr)')).join(' ') }}>
@@ -159,7 +159,7 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
               {c === 'title' ? (
                 <span role="link" className="nc-chart-drill-open" onClick={() => { close(); o.openRow(r.id); }}>
                   <PageIcon block={r} size={16} fallback="page" />
-                  <span className="nc-chart-drill-name">{titleOf(r) || 'Untitled'}</span>
+                  <span className="nc-chart-drill-name">{titleOf(r) || '제목 없음'}</span>
                 </span>
               ) : (
                 <PropertyCell row={r} schema={schema} propId={c} readOnly noEdit />
@@ -167,7 +167,7 @@ function Drilldown({ close, ...o }: DrilldownOptions & { close: () => void }) {
             </div>
           )))}
         </div>
-        {point.rows.length > MAX_ROWS && <div className="nc-chart-drill-more">{`Showing the first ${MAX_ROWS} pages`}</div>}
+        {point.rows.length > MAX_ROWS && <div className="nc-chart-drill-more">{`처음 ${MAX_ROWS}개 페이지만 표시합니다`}</div>}
       </div>
     </div>
   );

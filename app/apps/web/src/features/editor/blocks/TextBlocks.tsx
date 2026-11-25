@@ -25,17 +25,17 @@ import './icons.tsx';
 import './blocks.css';
 
 const PLACEHOLDER: Record<string, string> = {
-  text: TRIM.ai ? 'Press ‘/’ to open commands' : 'Press ‘space’ for AI or ‘/’ to open commands',
-  header: 'Heading 1',
-  sub_header: 'Heading 2',
-  sub_sub_header: 'Heading 3',
-  header_4: 'Heading 4',
-  bulleted_list: 'List',
-  numbered_list: 'List',
+  text: TRIM.ai ? '‘/’를 눌러 명령 열기' : 'AI는 ‘스페이스’, 명령어는 ‘/’ 키를 누르세요',
+  header: '제목 1',
+  sub_header: '제목 2',
+  sub_sub_header: '제목 3',
+  header_4: '제목 4',
+  bulleted_list: '목록',
+  numbered_list: '글머리 기호 목록',
   to_do: 'To-do',
-  toggle: 'Toggle',
-  quote: 'Empty quote',
-  callout: 'Type something…',
+  toggle: '토글',
+  quote: '빈 인용',
+  callout: '내용을 입력하세요…',
 };
 
 const HEADING_TAG: Record<string, 'h2' | 'h3' | 'h4' | 'h5'> = { header: 'h2', sub_header: 'h3', sub_sub_header: 'h4', header_4: 'h5' };
@@ -116,7 +116,7 @@ export function ToggleTriangle({ open, onToggle, lineHeight, empty }: { open: bo
       <div
         role="button"
         tabIndex={0}
-        aria-label={open ? 'Close' : 'Open'}
+        aria-label={open ? '닫기' : '열기'}
         aria-expanded={open}
         className="nc-toggle-btn nc-toggle-caret"
         onMouseDown={(e) => e.preventDefault()}
@@ -143,7 +143,7 @@ export function EmptyToggle({ blockId, readOnly, heading, label }: { blockId: st
           useEditor.getState().requestFocus(id, 0);
         }}
       >
-        {label ?? 'Empty toggle. Click or drop blocks here.'}
+        {label ?? '비어 있는 토글입니다. 클릭하거나 블록을 끌어다 놓으세요.'}
       </div>
     </div>
   );
@@ -172,14 +172,14 @@ function listFormatItem(block: BlockRecord): MenuItemDef {
   const first = runStart(block.id, block.type);
   const cur = (getBlock(first)?.format?.list_format as string | undefined) ?? '';
   const options: [string, string][] = numbered
-    ? [['numbers', 'Numbers'], ['letters', 'Letters'], ['roman', 'Roman numerals']]
-    : [['disc', 'Disc'], ['circle', 'Circle'], ['square', 'Square']];
+    ? [['numbers', '숫자'], ['letters', '문자'], ['roman', '로마 숫자']]
+    : [['disc', '채워진 원'], ['circle', '원형'], ['square', '사각형']];
   return {
-    label: 'List format', icon: numbered ? 'listNumber' : 'listBullet',
+    label: '목록 형식', icon: numbered ? 'listNumber' : 'listBullet',
     submenu: () => ({
       width: 200, role: 'menu',
       sections: [{ items: [
-        { label: 'Default', checked: !cur, onSelect: () => run('blockActions.listFormat', (tx) => setFormat(tx, first, { list_format: undefined } as any)) },
+        { label: '기본', checked: !cur, onSelect: () => run('blockActions.listFormat', (tx) => setFormat(tx, first, { list_format: undefined } as any)) },
         ...options.map(([v, label]) => ({ label, checked: cur === v, onSelect: () => run('blockActions.listFormat', (tx) => setFormat(tx, first, { list_format: v } as any)) })),
       ] }],
     }),
@@ -307,12 +307,12 @@ registerBlockMenu(['quote'], ({ ids, block, turnInto, color }) => [
   turnInto,
   color,
   {
-    label: 'Quote size', icon: 'quoteText',
+    label: '인용 크기', icon: 'quoteText',
     submenu: () => ({
       width: 220,
       sections: [{
         items: (['default', 'large'] as const).map((s) => ({
-          label: s === 'default' ? 'Default' : 'Large',
+          label: s === 'default' ? '기본' : '크게',
           checked: (block.format?.quote_size ?? 'default') === s,
           onSelect: () => {
             run('actionRegistry.createQuoteSizeAction', (tx) => { for (const id of ids) setFormat(tx, id, { quote_size: s === 'large' ? 'large' : undefined }); });

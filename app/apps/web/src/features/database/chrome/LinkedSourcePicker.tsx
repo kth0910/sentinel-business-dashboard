@@ -67,7 +67,7 @@ function SourceRow({ r, active, onHover, onClick }: { r: Result; active: boolean
         <span className="nc-link-source-icon">{host?.format?.page_icon ? <PageIcon block={host} size={20} /> : <Icon name="collection" size={20} />}</span>
         <div className="nc-menu-label">
           <div className="nc-ellipsis">{r.name}</div>
-          {parent && <div className="nc-link-source-path">{toPlainText(parent.properties?.title) || 'Untitled'}</div>}
+          {parent && <div className="nc-link-source-path">{toPlainText(parent.properties?.title) || '제목 없음'}</div>}
         </div>
       </div>
     </div>
@@ -81,20 +81,20 @@ export function ViewStep({ source, onChoose, onBack, close }: { source: Collecti
   const all = useMemo(() => viewsOfSource(source), [source]);
   const list = all.filter((v) => !q || (v.name || viewTypeMeta(v.type).label).toLowerCase().includes(q.toLowerCase()));
   const shown = q || more ? list : list.slice(0, 7);
-  const name = toPlainText(source.name as never) || 'Untitled';
+  const name = toPlainText(source.name as never) || '제목 없음';
   return (
     <>
       <div className="nc-vs-header link">
-        {onBack && <span role="button" className="nc-vs-back" aria-label="Back" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>}
-        <span className="nc-vs-title">New view</span>
-        {close && <span role="button" className="nc-panel-close" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={14} /></span>}
+        {onBack && <span role="button" className="nc-vs-back" aria-label="뒤로" onClick={onBack}><Icon name="arrowStraightLeftSmall" size={16} /></span>}
+        <span className="nc-vs-title">새 보기</span>
+        {close && <span role="button" className="nc-panel-close" aria-label="닫기" onClick={close}><Icon name="xMarkSmall" size={14} /></span>}
       </div>
-      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="Find a layout…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
+      <div className="nc-vs-search" data-menu-keys="ignore"><div className="nc-input focused"><input autoFocus placeholder="레이아웃 찾기…" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
       <div className="lit-scroller vertical nc-menu-scroll">
         {!q && (
           <div className="nc-menu-section">
             <div role="menuitem" className="nc-menu-item nc-link-new-view" onClick={() => onChoose({ type: 'table' })}>
-              <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={20} /></div><div className="nc-menu-label">New table view</div></div>
+              <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="plus" size={20} /></div><div className="nc-menu-label">새 표 보기</div></div>
             </div>
           </div>
         )}
@@ -108,12 +108,12 @@ export function ViewStep({ source, onChoose, onBack, close }: { source: Collecti
             ))}
             {!q && !more && list.length > 7 && (
               <div role="menuitem" className="nc-menu-item nc-new-db-row muted" onClick={() => setMore(true)}>
-                <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="ellipsis" size={20} /></div><div className="nc-menu-label">Show {list.length - 7} more</div></div>
+                <div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="ellipsis" size={20} /></div><div className="nc-menu-label">{list.length - 7}개 더 보기</div></div>
               </div>
             )}
           </div>
         )}
-        {q && !list.length && <div className="nc-menu-empty">No results</div>}
+        {q && !list.length && <div className="nc-menu-empty">결과 없음</div>}
       </div>
     </>
   );
@@ -152,7 +152,7 @@ function Picker({ opts, close }: { opts: LinkedPickerOptions; close: () => void 
         <div className="nc-input focused">
           <input
             autoFocus
-            placeholder={opts.onCreate ? 'Create or link a dataset…' : 'Choose a dataset…'}
+            placeholder={opts.onCreate ? '데이터 소스 만들기 또는 연결…' : '데이터 소스 선택…'}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
@@ -167,19 +167,19 @@ function Picker({ opts, close }: { opts: LinkedPickerOptions; close: () => void 
         {opts.onCreate && !q && (
           <div className="nc-menu-section">
             <div role="menuitem" className="nc-menu-item nc-new-db-row tall" onClick={() => create('')}>
-              <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{opts.createLabel ?? 'New blank dataset'}</div></div>
+              <div className="nc-menu-item-inner"><span className="nc-new-db-tile"><Icon name="plusSmall" size={16} /></span><div className="nc-menu-label">{opts.createLabel ?? '새 빈 데이터 소스'}</div></div>
             </div>
           </div>
         )}
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">Available datasets</div>
+          <div className="nc-menu-section-title">사용 가능한 데이터 소스</div>
           {shown.map((r, i) => <SourceRow key={r.collectionId} r={r} active={i === active} onHover={() => setActive(i)} onClick={() => choose(r)} />)}
           {!q && !showAll && results.length > 4 && (
             <div role="menuitem" className="nc-menu-item nc-new-db-row muted" onClick={() => setShowAll(true)}>
-              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">Show more</div></div>
+              <div className="nc-menu-item-inner"><span className="nc-new-db-icon"><Icon name="ellipsis" size={20} /></span><div className="nc-menu-label">더 보기</div></div>
             </div>
           )}
-          {!results.length && <div className="nc-menu-empty">No datasets found</div>}
+          {!results.length && <div className="nc-menu-empty">데이터 소스를 찾을 수 없습니다</div>}
         </div>
         {opts.onCreate && q.trim() && (
           <div className="nc-menu-section with-divider">

@@ -33,10 +33,10 @@ registerIcons({
 
 type CropStyle = 'freeform' | 'rectangle' | 'square' | 'circle';
 const STYLES: { id: CropStyle; label: string; icon: string; ratio: number | null }[] = [
-  { id: 'freeform', label: 'Freeform', icon: 'cropStyleFreeform', ratio: null },
-  { id: 'rectangle', label: 'Rectangle', icon: 'cropStyleRectangle', ratio: 16 / 9 },
-  { id: 'square', label: 'Square', icon: 'cropStyleSquare', ratio: 1 },
-  { id: 'circle', label: 'Circle', icon: 'cropStyleCircle', ratio: 1 },
+  { id: 'freeform', label: '자유 형식', icon: 'cropStyleFreeform', ratio: null },
+  { id: 'rectangle', label: '직사각형', icon: 'cropStyleRectangle', ratio: 16 / 9 },
+  { id: 'square', label: '정사각형', icon: 'cropStyleSquare', ratio: 1 },
+  { id: 'circle', label: '원형', icon: 'cropStyleCircle', ratio: 1 },
 ];
 
 interface Crop { x: number; y: number; w: number; h: number } // fractions of the oriented image
@@ -241,7 +241,7 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
       });
       close();
     } catch {
-      useUI.getState().toast('Image crop failed.');
+      useUI.getState().toast('이미지를 자르지 못했습니다.');
       setSaving(false);
     }
   };
@@ -270,13 +270,13 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
   const cur = STYLES.find((s) => s.id === style)!;
   const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
   return (
-    <div className="nc-image-editor" role="dialog" aria-label="Crop image">
+    <div className="nc-image-editor" role="dialog" aria-label="이미지 자르기">
       <div className="nc-image-editor-head">
         <div
           role="button"
           className="nc-image-editor-style"
-          aria-label="Aspect ratio"
-          data-tooltip="Aspect ratio"
+          aria-label="가로세로 비율"
+          data-tooltip="가로세로 비율"
           onClick={(e) => {
             // only this menu closes (Menu closes every overlay unless onSelect returns false — the editor stays)
             let closeMenu: () => void = () => {};
@@ -286,18 +286,18 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
           <Icon name={cur.icon} size={18} />
           <Icon name="chevronDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
         </div>
-        <div className="nc-image-editor-title">Crop image</div>
+        <div className="nc-image-editor-title">이미지 자르기</div>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-icon-btn" aria-label="Rotate left" data-tooltip="Rotate left" onClick={() => rotate(-1)}><Icon name="rotateLeft" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Rotate right" data-tooltip="Rotate right" onClick={() => rotate(1)}><Icon name="rotateRight" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Flip horizontal" data-tooltip="Flip horizontal" onClick={() => setFlipH(!flipH)}><Icon name="flipHorizontal" size={18} /></div>
-        <div role="button" className="nc-icon-btn" aria-label="Flip vertical" data-tooltip="Flip vertical" onClick={() => setFlipV(!flipV)}><Icon name="flipVertical" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label="왼쪽으로 회전" data-tooltip="왼쪽으로 회전" onClick={() => rotate(-1)}><Icon name="rotateLeft" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label="오른쪽으로 회전" data-tooltip="오른쪽으로 회전" onClick={() => rotate(1)}><Icon name="rotateRight" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label="좌우 반전" data-tooltip="좌우 반전" onClick={() => setFlipH(!flipH)}><Icon name="flipHorizontal" size={18} /></div>
+        <div role="button" className="nc-icon-btn" aria-label="상하 반전" data-tooltip="상하 반전" onClick={() => setFlipV(!flipV)}><Icon name="flipVertical" size={18} /></div>
       </div>
       <div className="nc-image-editor-stage" ref={stageRef}>
-        {failed && <div className="nc-image-editor-error">The image could not be loaded.</div>}
+        {failed && <div className="nc-image-editor-error">이미지를 불러올 수 없습니다.</div>}
         {img && (
           <div className="nc-image-editor-canvas" style={{ width: box.w, height: box.h }}>
-            <canvas ref={previewRef} style={{ width: box.w, height: box.h }} aria-label="Source image" />
+            <canvas ref={previewRef} style={{ width: box.w, height: box.h }} aria-label="원본 이미지" />
             <div
               className={`nc-crop-box ${style === 'circle' ? 'circle' : ''}`}
               style={{ left: crop.x * box.w, top: crop.y * box.h, width: crop.w * box.w, height: crop.h * box.h }}
@@ -311,10 +311,10 @@ function ImageEditor({ blockId, close }: { blockId: string; close: () => void })
         )}
       </div>
       <div className="nc-image-editor-foot">
-        {original && <div role="button" className="nc-dialog-btn" onClick={revert}><Icon name="revertImage" size={16} />Restore original</div>}
+        {original && <div role="button" className="nc-dialog-btn" onClick={revert}><Icon name="revertImage" size={16} />원본 복원</div>}
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-dialog-btn" onClick={close}>Cancel</div>
-        <div role="button" className={`nc-dialog-btn primary ${!img || saving ? 'disabled' : ''}`} aria-disabled={!img || saving} onClick={() => void save()}>{saving ? 'Saving…' : 'Save'}</div>
+        <div role="button" className="nc-dialog-btn" onClick={close}>취소</div>
+        <div role="button" className={`nc-dialog-btn primary ${!img || saving ? 'disabled' : ''}`} aria-disabled={!img || saving} onClick={() => void save()}>{saving ? '저장 중…' : '저장'}</div>
       </div>
     </div>
   );
@@ -339,10 +339,10 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
   const hits = usePageSearch(isUrl ? '' : q, { limit: 8 });
   const rows = useMemo(() => {
     const out: { key: string; label: string; sub?: string; pageId?: string; href: string }[] = [];
-    if (isUrl) out.push({ key: 'url', label: q.trim(), sub: 'Web page link', href: normalizeUrl(q) });
+    if (isUrl) out.push({ key: 'url', label: q.trim(), sub: '웹 페이지 링크', href: normalizeUrl(q) });
     else for (const id of hits.ids) {
       const p = pageOrNull(id);
-      if (p) out.push({ key: id, label: pageTitle(p) || 'Untitled', sub: breadcrumbOf(id), pageId: id, href: pageUrl(id) });
+      if (p) out.push({ key: id, label: pageTitle(p) || '제목 없음', sub: breadcrumbOf(id), pageId: id, href: pageUrl(id) });
     }
     return out;
   }, [isUrl, q, hits.ids]);
@@ -357,7 +357,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
         <div className="nc-input">
           <input
             autoFocus
-            placeholder="Paste a link or find pages"
+            placeholder="링크를 붙여 넣거나 페이지를 검색하세요"
             value={q}
             onChange={(e) => { setQ(e.target.value); setActive(0); }}
             onKeyDown={(e) => {
@@ -373,7 +373,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
         </div>
       </div>
       <div className="nc-image-link-list" role="listbox">
-        {!isUrl && !q.trim() && rows.length > 0 && <div className="nc-image-link-section">Recents</div>}
+        {!isUrl && !q.trim() && rows.length > 0 && <div className="nc-image-link-section">최근 항목</div>}
         {rows.map((r, i) => (
           <div key={r.key} role="option" aria-selected={i === active} className={`nc-menu-item ${i === active ? 'active' : ''}`} onMouseMove={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => pick(r.href)}>
             <div className="nc-menu-item-inner nc-mi">
@@ -389,7 +389,7 @@ function ImageLinkPopover({ blockId, close }: { blockId: string; close: () => vo
           <div role="option" aria-selected={false} className="nc-menu-item" onMouseDown={(e) => e.preventDefault()} onClick={() => { setImageLink(blockId, null); close(); }}>
             <div className="nc-menu-item-inner nc-mi">
               <div className="nc-menu-icon"><Icon name="trash" size={18} /></div>
-              <div className="nc-menu-label"><div className="nc-ellipsis">Remove link</div></div>
+              <div className="nc-menu-label"><div className="nc-ellipsis">링크 제거</div></div>
             </div>
           </div>
         )}

@@ -47,7 +47,7 @@ function PanelResizer({ width, setWidth }: { width: number; setWidth: (w: number
     <div
       role="separator"
       aria-orientation="vertical"
-      aria-label="Resize with the arrow keys"
+      aria-label="방향키로 크기 조절"
       tabIndex={0}
       className="nc-right-panel-resizer"
       onPointerDown={(e) => {
@@ -137,10 +137,10 @@ function PanelTopbar({ pageId, close }: { pageId: string; close: () => void }) {
         <TopbarFacepile pageId={pageId} />
         <ShareButton pageId={pageId} />
         <TopbarCommentsButton pageId={pageId} />
-        <div role="button" aria-label="Favorite" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? 'Remove from favorites' : 'Add to favorites'} onClick={() => toggleFavorite(pageId)}>
+        <div role="button" aria-label="즐겨찾기" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? '즐겨찾기에서 제거' : '즐겨찾기에 추가'} onClick={() => toggleFavorite(pageId)}>
           <Icon name="star" size={18} style={{ color: fav ? '#78350f' : 'var(--lp-icon-primary)', fill: fav ? '#78350f' : 'none' }} />
         </div>
-        <div ref={moreRef} role="button" aria-label="Actions" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="Style, export, and more…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+        <div ref={moreRef} role="button" aria-label="작업" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="스타일, 내보내기 등…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
           <Icon name="ellipsis" size={22} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
       </div>
@@ -196,8 +196,8 @@ function UpdatesAndAnalytics({ pageId }: { pageId: string }) {
 /** "14 seconds ago", "7 minutes ago", "1 hour ago", "3 days ago", then the date. */
 export function longAgo(ms: number): string {
   const s = Math.max(0, Math.floor((Date.now() - ms) / 1000));
-  const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'} ago`;
-  if (s < 5) return 'Just now';
+  const plural = (n: number, unit: string) => `${n}${unit} 전`;
+  if (s < 5) return '방금';
   if (s < 60) return plural(s, 'second');
   const m = Math.floor(s / 60);
   if (m < 60) return plural(m, 'minute');
@@ -205,7 +205,7 @@ export function longAgo(ms: number): string {
   if (h < 24) return plural(h, 'hour');
   const d = Math.floor(h / 24);
   if (d < 30) return plural(d, 'day');
-  return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(ms).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -264,7 +264,7 @@ function UpdateCard({ pageId, item: it }: { pageId: string; item: UpdateItem }) 
   const me = useSession((s) => s.userId);
   const u = useRecord<UserRecord>('lit_user', it.userId);
   const page = useBlock(pageId);
-  const who = it.userId === me ? 'You' : userName(u);
+  const who = it.userId === me ? '나' : userName(u);
   const verb = it.kind === 'created' ? 'created' : it.kind === 'edited' ? 'edited' : it.kind === 'commented' ? 'commented in' : 'replied in';
   const comment = it.kind === 'commented' || it.kind === 'replied';
   return (
@@ -298,9 +298,9 @@ function UpdateCard({ pageId, item: it }: { pageId: string; item: UpdateItem }) 
 }
 
 const PROP_LABEL: Record<string, [string, string]> = {
-  title: ['Title', 'text'],
-  icon: ['Page icon', 'emojiFace'],
-  cover: ['Cover', 'image'],
+  title: ['제목', 'text'],
+  icon: ['페이지 아이콘', 'emojiFace'],
+  cover: ['커버', 'image'],
 };
 
 function iconValue(v: unknown): ReactNode {
@@ -329,9 +329,9 @@ function UpdateDiff({ pageId, item: it }: { pageId: string; item: UpdateItem }) 
             {p.key === 'icon' ? (
               <>{iconValue(p.before)}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{iconValue(p.after)}</>
             ) : p.key === 'cover' ? (
-              <>{p.before ? <img className="cover" src={String(p.before)} alt="" /> : <span className="none">Empty</span>}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{p.after ? <img className="cover" src={String(p.after)} alt="" /> : <span className="none">Empty</span>}</>
+              <>{p.before ? <img className="cover" src={String(p.before)} alt="" /> : <span className="none">하위 페이지 없음</span>}<Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />{p.after ? <img className="cover" src={String(p.after)} alt="" /> : <span className="none">하위 페이지 없음</span>}</>
             ) : (
-              <><span className="removed-text">{String(p.before || 'Untitled')}</span><Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} /><span className="added-text">{String(p.after || 'Untitled')}</span></>
+              <><span className="removed-text">{String(p.before || '제목 없음')}</span><Icon name="chevronRight" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} /><span className="added-text">{String(p.after || '제목 없음')}</span></>
             )}
           </div>
         </div>
@@ -378,7 +378,7 @@ interface AnalyticsData {
   analyticsDisabled?: boolean;
 }
 
-const RANGES: [number, string][] = [[7, 'Last 7 Days'], [28, 'Last 28 Days'], [90, 'Last 90 Days']];
+const RANGES: [number, string][] = [[7, '최근 7일'], [28, '최근 28일'], [90, '최근 90일']];
 
 function Analytics({ pageId }: { pageId: string }) {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -395,7 +395,7 @@ function Analytics({ pageId }: { pageId: string }) {
   }, [pageId, span, nonce]);
   if (!data) return <div className="nc-panel-empty" />;
   const me = useSession.getState().userId;
-  const rangeLabel = RANGES.find(([d]) => d === span)?.[1] ?? `Last ${span} Days`;
+  const rangeLabel = RANGES.find(([d]) => d === span)?.[1] ?? `최근 ${span}일`;
   // "Page editors can see your view history for this page": a per-page choice; Settings › Preferences ›
   // "Show my view history" stays the default for every other page
   const setHistory = (allow: boolean) => {
@@ -450,10 +450,10 @@ function Analytics({ pageId }: { pageId: string }) {
         </div>
         <div role="button" className="nc-dialog-btn outline small nc-analytics-allow"
           onClick={(e) => openMenu(e.currentTarget, { width: 180, sections: [{ items: [
-            { label: 'Allow', checked: data.showViewHistory !== false, onSelect: () => setHistory(true) },
-            { label: "Don't allow", checked: data.showViewHistory === false, onSelect: () => setHistory(false) },
+            { label: '허용', checked: data.showViewHistory !== false, onSelect: () => setHistory(true) },
+            { label: "허용 안 함", checked: data.showViewHistory === false, onSelect: () => setHistory(false) },
           ] }] }, { placement: 'bottom-end' })}>
-          <span>{data.showViewHistory === false ? "Don't allow" : 'Allow'}</span>
+          <span>{data.showViewHistory === false ? "허용 안 함" : '허용'}</span>
           <Icon name="chevronDown" size={12} />
         </div>
       </div>
@@ -519,12 +519,12 @@ function ViewsChart({ days, createdTime }: { days: AnalyticsData['days']; create
   const bw = single ? 1 : Math.max(2, Math.min(10, slot * 0.5));
   const xOf = (i: number) => (single ? (left + right) / 2 : left + slot * (i + 0.5));
   const y = (v: number) => axisY - (v / topV) * plotH;
-  const fmt = (ms: number) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const fmt = (ms: number) => new Date(ms).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
   const labelIdx = series.length <= 7 ? series.map((_, i) => i) : [0, Math.floor(series.length / 2), series.length - 1];
   const h = hover !== null ? series[hover] : null;
   return (
     <div className="nc-analytics-chart" ref={boxRef}>
-      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Page views" onMouseLeave={() => setHover(null)}>
+      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="페이지 조회수" onMouseLeave={() => setHover(null)}>
         {ticks.map((v) => (
           <g key={v}>
             <text x={left - 13} y={y(v) + 4} textAnchor="end" className="tick">{v}</text>

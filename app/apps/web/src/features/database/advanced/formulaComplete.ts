@@ -139,7 +139,7 @@ export function buildItems(ctx: CaretContext, schema: Record<string, PropertySch
   const props = Object.entries(schema).filter(([id, p]) => id !== selfPropId && FORMULA_PROPERTY_TYPES.has(p.type));
   
   props.sort((a, b) => (a[0] === 'title' ? 1 : 0) - (b[0] === 'title' ? 1 : 0));
-  for (const [id, p] of props) if (matches(p.name, ctx.prefix)) items.push({ kind: 'property', key: `prop:${id}`, label: p.name, section: 'Properties', icon: propertyIconFor(p.type), propId: id, prop: p });
+  for (const [id, p] of props) if (matches(p.name, ctx.prefix)) items.push({ kind: 'property', key: `prop:${id}`, label: p.name, section: '속성', icon: propertyIconFor(p.type), propId: id, prop: p });
   for (const v of ctx.variables) if (matches(v, ctx.prefix)) items.push({ kind: 'variable', key: `var:${v}`, label: v, section: 'Variables', icon: 'formula' });
   for (const b of ['not', 'true', 'false']) if (matches(b, ctx.prefix)) items.push({ kind: 'builtin', key: `kw:${b}`, label: b, section: 'Built-ins', icon: 'checkboxChecked' });
   functionItems();

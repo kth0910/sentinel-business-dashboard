@@ -47,14 +47,14 @@ function openShownPropertiesMenu(anchor: HTMLElement, collectionId: string, prop
     };
     const row = (id: string, on: boolean): MenuItemDef => ({
       id, label: target.schema[id].name, icon: <PropertyIcon prop={target.schema[id]} size={16} />, disabled: !canEdit,
-      right: <span className="nc-relpick-eye" aria-label="Switch field visibility"><Icon name={on ? 'eye' : 'eyeOff'} size={14} /></span>,
+      right: <span className="nc-relpick-eye" aria-label="속성 표시 전환"><Icon name={on ? 'eye' : 'eyeOff'} size={14} /></span>,
       onSelect: () => toggle(id, !on),
     });
     return {
       width: 260,
       sections: [
-        { title: 'Visible in linked records', items: shown.length ? shown.map((id) => row(id, true)) : [{ id: 'none-shown', label: 'No properties', disabled: true }] },
-        { title: 'Hidden in linked records', items: others.length ? others.map(([id]) => row(id, false)) : [{ id: 'none-hidden', label: 'No properties', disabled: true }] },
+        { title: '연결된 항목에서 표시', items: shown.length ? shown.map((id) => row(id, true)) : [{ id: 'none-shown', label: '속성 없음', disabled: true }] },
+        { title: '연결된 항목에서 숨김', items: others.length ? others.map(([id]) => row(id, false)) : [{ id: 'none-hidden', label: '속성 없음', disabled: true }] },
       ],
     };
   };
@@ -66,10 +66,10 @@ function PageRow({ page, selected, active, onClick, onRemove, target, shown = []
   return (
     <div role="button" className={`nc-relpick-row ${active ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={onClick}>
       <span className="nc-relpick-icon">{icon && !/^(https?:|\/)/.test(icon) && !icon.includes(':') ? icon : <Icon name="page" size={18} color="var(--lp-icon-secondary)" />}</span>
-      <span className="nc-relpick-title">{titleOf(page) || 'Untitled'}</span>
+      <span className="nc-relpick-title">{titleOf(page) || '제목 없음'}</span>
       {target && <ShownValues page={page} target={target} shown={shown} />}
       {selected && onRemove && (
-        <span role="button" className="nc-relpick-remove" aria-label="Remove" onClick={(e) => { e.stopPropagation(); onRemove(); }}><Icon name="dashLong" size={14} /></span>
+        <span role="button" className="nc-relpick-remove" aria-label="제거" onClick={(e) => { e.stopPropagation(); onRemove(); }}><Icon name="dashLong" size={14} /></span>
       )}
       {!selected && <span className="nc-relpick-add"><Icon name="plus" size={14} /></span>}
     </div>
@@ -102,7 +102,7 @@ function RelationPicker({ rowIds, propId, collectionId, close }: { rowIds: strin
     return all.filter((b) => !selectedIds.includes(b.id) && (!qq || titleOf(b).toLowerCase().includes(qq))).reverse();
   }, [target, q, selectedIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!col || !ps || !target) return <div className="nc-relpick"><div className="nc-rel-sub" style={{ padding: 12 }}>Select a data source for this relation first.</div></div>;
+  if (!col || !ps || !target) return <div className="nc-relpick"><div className="nc-rel-sub" style={{ padding: 12 }}>먼저 이 관계형에 사용할 데이터 소스를 선택하세요.</div></div>;
   const shown = relationShownProperties(ps, target);
   const limitOne = ps.limit === 1;
   const write = (ids: string[]) => {
@@ -138,17 +138,17 @@ function RelationPicker({ rowIds, propId, collectionId, close }: { rowIds: strin
       }
     }}>
       <div className="nc-relpick-head">
-        <input autoFocus placeholder="Link or create an entry…" value={q} onChange={(e) => { setQ(e.target.value); setActive(0); }} />
-        <span className="nc-relpick-in">In</span>
+        <input autoFocus placeholder="항목 연결 또는 만들기…" value={q} onChange={(e) => { setQ(e.target.value); setActive(0); }} />
+        <span className="nc-relpick-in">위치</span>
         <span role="link" className="nc-relpick-ds" onClick={() => { const host = records.get<BlockRecord>('block', target.parent_id); if (host) openPeek(host.id, 'center_peek'); }}>
           <Icon name="databaseEmbed" size={14} color="var(--lp-icon-secondary)" />{collectionName(target)}
         </span>
         <span
           role="button"
           className="nc-relpick-customize"
-          aria-label="Adjust visible fields"
+          aria-label="표시할 필드 조정"
           data-testid="relation-customize"
-          data-tooltip={access.canEditStructure ? 'Adjust visible fields' : 'You need edit access to change this'}
+          data-tooltip={access.canEditStructure ? '표시할 필드 조정' : '변경하려면 편집 권한이 필요합니다'}
           onMouseDown={(e) => e.preventDefault()}
           onClick={(e) => openShownPropertiesMenu(e.currentTarget, collectionId, propId, target, access.canEditStructure)}
         >
@@ -158,19 +158,19 @@ function RelationPicker({ rowIds, propId, collectionId, close }: { rowIds: strin
       <div className="nc-relpick-body lit-scroller vertical">
         {selected.length > 0 && (
           <>
-            <div className="nc-relpick-section">{selected.length} selected</div>
+            <div className="nc-relpick-section">{selected.length}개 선택됨</div>
             {selected.map((p) => <PageRow key={p.id} page={p} selected target={target} shown={shown} onClick={() => openPeek(p.id, 'side_peek')} onRemove={() => remove(p.id)} />)}
           </>
         )}
-        {(candidates.length > 0 || showCreate) && <div className="nc-relpick-section">{selected.length ? 'Select more' : 'Select a page'}</div>}
+        {(candidates.length > 0 || showCreate) && <div className="nc-relpick-section">{selected.length ? '더 선택' : '페이지 선택'}</div>}
         {candidates.map((p, i) => <PageRow key={p.id} page={p} active={i === active} target={target} shown={shown} onClick={() => add(p.id)} />)}
         {showCreate && (
           <div role="button" className={`nc-relpick-row ${active === flat.length - 1 ? 'active' : ''}`} onMouseDown={(e) => e.preventDefault()} onClick={create}>
             <span className="nc-relpick-icon"><Icon name="plus" size={16} color="var(--lp-icon-secondary)" /></span>
-            <span className="nc-relpick-title" style={{ borderBottom: 'none' }}>New page <b style={{ fontWeight: 500 }}>“{q.trim()}”</b> in {collectionName(target)}</span>
+            <span className="nc-relpick-title" style={{ borderBottom: 'none' }}>새 페이지 <b style={{ fontWeight: 500 }}>“{q.trim()}”</b> in {collectionName(target)}</span>
           </div>
         )}
-        {!candidates.length && !selected.length && !showCreate && <div className="nc-rel-sub" style={{ padding: '8px 12px' }}>No pages</div>}
+        {!candidates.length && !selected.length && !showCreate && <div className="nc-rel-sub" style={{ padding: '8px 12px' }}>페이지 없음</div>}
       </div>
     </div>
   );

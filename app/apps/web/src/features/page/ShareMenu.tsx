@@ -183,7 +183,7 @@ function ShareMenu({ pageId, close, initialTab }: { pageId: string; close: () =>
       records.mergeRecordMap(res.recordMap);
       setModel(res);
     } catch (e: any) {
-      setError(e?.message ?? 'Failed to load sharing settings');
+      setError(e?.message ?? '공유 설정을 불러오지 못했습니다.');
     }
   }, [pageId]);
   // reload whenever the page's permissions change (own edits, other clients)
@@ -300,14 +300,14 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
 
   const roleMenu = (anchor: HTMLElement, cur: string, onPick: (r: PageRole | 'remove') => void, opts?: { remove?: boolean; current?: string; allowed?: PageRole[]; extra?: MenuSectionDef[] }) => {
     const sections = [];
-    if (opts?.current) sections.push({ title: 'Current access', items: [{ label: ROLE_LABEL[cur] ?? cur, description: opts.current, disabled: true, render: () => (
+    if (opts?.current) sections.push({ title: '현재 액세스 권한', items: [{ label: ROLE_LABEL[cur] ?? cur, description: opts.current, disabled: true, render: () => (
       <div className="nc-menu-item-inner" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 2, cursor: 'default' }}>
         <div style={{ fontSize: 14 }}>{ROLE_LABEL[cur]}</div>
         <div style={{ fontSize: 12, color: 'var(--lp-text-secondary)' }} dangerouslySetInnerHTML={{ __html: opts.current! }} />
       </div>
     ) }] as MenuItemDef[] });
     sections.push({
-      title: opts?.current ? 'User access' : undefined,
+      title: opts?.current ? '사용자 권한' : undefined,
       items: (opts?.allowed ?? (rolesForPage(page) as PageRole[])).map((r) => ({ label: ROLE_LABEL[r], description: ROLE_CAPTION[r] || undefined, checked: r === cur, onSelect: () => onPick(r) })) as MenuItemDef[],
     });
     if (opts?.extra) sections.push(...opts.extra);
@@ -325,7 +325,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
   const gaKind = ga.kind === 'team' ? 'workspace' : ga.kind;
   const gaCur = gaItems.find((g) => g.kind === gaKind)!;
   const gaInheritedFrom = ga.sourceId && ga.sourceId !== pageId ? getBlock(ga.sourceId) : undefined;
-  const expiryLabel = ga.kind === 'public' && ga.expiry ? (ga.expired ? 'Expired' : `Expires ${new Date(ga.expiry).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`) : t('lp.page.never', 'Never');
+  const expiryLabel = ga.kind === 'public' && ga.expiry ? (ga.expired ? '만료됨' : `Expires ${new Date(ga.expiry).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`) : t('lp.page.never', 'Never');
   const plan = (records.get<SpaceRecord>('space', model.space.id)?.plan_type ?? 'free') as string;
 
   return (
@@ -443,7 +443,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
               <span>{ga.kind === 'team' ? t('lp.page.people_in', 'People in {teamName}', { teamName: ga.teamName ?? '' }) : gaCur.label}</span>
               <Icon name="chevronDown" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
             </div>
-            {gaInheritedFrom && <div className="email">From {pageTitle(gaInheritedFrom) || 'Untitled'}</div>}
+            {gaInheritedFrom && <div className="email">From {pageTitle(gaInheritedFrom) || '제목 없음'}</div>}
             {ga.kind === 'public' && <div className="email">{t('lp.page.whoever_has_the_link_sees_the', 'Whoever has the link sees the content along with contributor names.')}</div>}
           </div>
           {gaKind !== 'private' && ga.kind !== 'team' && (
@@ -458,7 +458,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
           <div className="nc-share-row sub">
             <div className="label">{t('lp.page.link_expires', 'Link expires')}{plan === 'free' && <span className="nc-plan-badge">Plus</span>}</div>
             <div role="button" className={`nc-share-role ${model.canManage && plan !== 'free' ? '' : 'disabled'}`}
-              data-tooltip={plan === 'free' ? 'Upgrade to Plus to set link expiration' : undefined}
+              data-tooltip={plan === 'free' ? '링크 만료를 설정하려면 Plus로 업그레이드하세요' : undefined}
               onClick={(e) => model.canManage && plan !== 'free' && expiryMenu(e.currentTarget, setLinkExpiry)}>
               <span>{expiryLabel}</span>
               <Icon name="chevronDown" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
@@ -579,7 +579,7 @@ function updatePublished(pageId: string, patch: Partial<Permission>) {
 
 function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | undefined }) {
   const pageId = model.pageId;
-  const title = pageTitle(page) || 'Untitled';
+  const title = pageTitle(page) || '제목 없음';
   const pub = model.published;
   const creator = useRecord<UserRecord>('lit_user', page?.created_by_id);
   void creator;
@@ -614,8 +614,8 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
         <div className="nc-publish-heading">
           <div className="nc-publish-title">{t('lp.page.publish_to_the_web', 'Publish to the web')}</div>
           <div className="nc-publish-sub">
-            {t('lp.page.build_your_own_site_on_litpage', 'Build your own site on Litpage')}
-            {HELP_URL && <a role="button" aria-label={t('lp.page.how_litpage_sites_work', 'How Litpage sites work')} href={HELP_URL} target="_blank" rel="noreferrer" className="nc-publish-help">
+            {t('lp.page.build_your_own_site_on_litpage', 'Build your own site on CoolNotion!')}
+            {HELP_URL && <a role="button" aria-label={t('lp.page.how_litpage_sites_work', 'How CoolNotion! sites work')} href={HELP_URL} target="_blank" rel="noreferrer" className="nc-publish-help">
               <Icon name="questionMark" size={14} style={{ color: 'var(--lp-icon-tertiary)' }} />
             </a>}
           </div>
@@ -628,7 +628,7 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
             <span style={{ flex: 1 }} />
             <Icon name="search" size={12} />
             <Icon name="ellipsis" size={12} />
-            <span className="pill">{t('lp.page.get_litpage_for_free', 'Get Litpage for free')}</span>
+            <span className="pill">{t('lp.page.get_litpage_for_free', 'Get CoolNotion! for free')}</span>
           </div>
           <div className="sep" />
           <div style={{ height: 62 }} />
@@ -649,12 +649,12 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
   const plan = (records.get<SpaceRecord>('space', model.space.id)?.plan_type ?? 'plus') as string;
   return (
     <div className="nc-publish-body">
-      {pub.inherited && <div className="nc-publish-inherited">{t('lp.page.sharing_and_publishing_here_are_managed', 'Sharing and publishing here are managed on {pageTitle}.', { pageTitle: pub.sourceTitle || 'Untitled' })}</div>}
+      {pub.inherited && <div className="nc-publish-inherited">{t('lp.page.sharing_and_publishing_here_are_managed', 'Sharing and publishing here are managed on {pageTitle}.', { pageTitle: pub.sourceTitle || '제목 없음' })}</div>}
       <div className="nc-publish-url">
         <Icon name="globe" size={16} style={{ color: 'var(--lp-icon-secondary)', flexShrink: 0 }} />
         <a className="nc-ellipsis" href={url} target="_blank" rel="noreferrer">{url.replace(/^https?:\/\//, '')}</a>
         <div role="button" className="nc-icon-btn" aria-label={t('lp.page.copy_the_site_link', 'Copy the site link')} data-tooltip={t('lp.page.copy_the_site_link', 'Copy the site link')}
-          onClick={() => { void navigator.clipboard?.writeText(url); useUI.getState().toast('Link copied'); }}>
+          onClick={() => { void navigator.clipboard?.writeText(url); useUI.getState().toast('링크를 복사했습니다'); }}>
           <Icon name="link" size={16} />
         </div>
       </div>
@@ -662,7 +662,7 @@ function PublishTab({ model, page }: { model: SharingModel; page: BlockRecord | 
         <div className="nc-setting-row">
           <div className="label">{t('lp.page.link_expires', 'Link expires')}</div>
           <div role="button" className="nc-select-btn" onClick={(e) => expiryMenu(e.currentTarget, (ms) => updatePublished(pub.pageId, { expiry_time: ms ?? undefined }))}>
-            {expiry ? expiry.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : t('lp.page.never', 'Never')}
+            {expiry ? expiry.toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : t('lp.page.never', 'Never')}
             <Icon name="chevronDown" size={14} />
           </div>
         </div>

@@ -47,13 +47,13 @@ function openMaxSelection(anchor: HTMLElement, q: FormQuestion, set: (n: number 
     <div className="nc-form-maxsel" data-menu-keys="ignore">
       <input
         className="nc-form-maxsel-input"
-        placeholder="Custom"
+        placeholder="사용자 지정"
         defaultValue={q.config.maxSelection && ![1, 2, 3, 4, 5].includes(q.config.maxSelection) ? String(q.config.maxSelection) : ''}
         onKeyDown={(e) => {
           if (e.key !== 'Enter') return;
           const n = Number((e.target as HTMLInputElement).value);
           if (!Number.isInteger(n) || n < 1) {
-            useUI.getState().toast('Enter a number.');
+            useUI.getState().toast('숫자를 입력하세요.');
             return;
           }
           set(n);
@@ -64,9 +64,9 @@ function openMaxSelection(anchor: HTMLElement, q: FormQuestion, set: (n: number 
   );
   close = openNestedMenu(anchor, {
     width: 200,
-    header: <div className="nc-form-add-head">Max selection</div>,
+    header: <div className="nc-form-add-head">최대 선택 수</div>,
     sections: [{ items: [
-      { id: 'none', label: 'No limit', checked: !q.config.maxSelection, onSelect: () => set(undefined) },
+      { id: 'none', label: '제한 없음', checked: !q.config.maxSelection, onSelect: () => set(undefined) },
       ...[1, 2, 3, 4, 5].map((n) => ({ id: String(n), label: String(n), checked: q.config.maxSelection === n, onSelect: () => set(n) })),
     ] }],
     footer: custom,
@@ -112,20 +112,20 @@ function ConditionHeader({ q, trigger, prop, readOnly, onChange, onDelete, onAdd
     const opts = prop.options ?? [];
     openNestedMenu(e.currentTarget, { width: 220, sections: [{ items: opts.map((o) => ({ id: o.id, label: <OptionPill option={o} />, text: o.value, checked: c.values.includes(o.value), onSelect: () => { onChange({ ...c, values: c.values.includes(o.value) ? c.values.filter((v) => v !== o.value) : [...c.values, o.value] }); return false; } })) }] }, { placement: 'bottom-start' });
   };
-  const valuesLabel = c.values.length ? c.values.join(', ') : 'Select';
+  const valuesLabel = c.values.length ? c.values.join(', ') : '선택';
   return (
     <div className="nc-form-cond-head" data-testid="form-condition">
       <Icon name="ncBranch" size={14} />
       {prop.type === 'checkbox' ? (
-        <span>If <span role="button" className="nc-form-cond-chip" onClick={pick}>{questionName(trigger, {})} {c.values[0] ?? 'checked'}</span></span>
+        <span>만약 <span role="button" className="nc-form-cond-chip" onClick={pick}>{questionName(trigger, {})} {c.values[0] ?? 'checked'}</span></span>
       ) : prop.type === 'multi_select' ? (
-        <span>If <span role="button" className="nc-form-cond-chip" onClick={(e) => !readOnly && openNestedMenu(e.currentTarget, { width: 160, sections: [{ items: (['any', 'all'] as const).map((op) => ({ id: op, label: op, checked: c.operator === op, onSelect: () => onChange({ ...c, operator: op }) })) }] }, { placement: 'bottom-start' })}>{c.operator}</span> of <span role="button" className="nc-form-cond-chip" onClick={pick}>{valuesLabel}</span> is selected</span>
+        <span>만약 <span role="button" className="nc-form-cond-chip" onClick={(e) => !readOnly && openNestedMenu(e.currentTarget, { width: 160, sections: [{ items: (['any', 'all'] as const).map((op) => ({ id: op, label: op, checked: c.operator === op, onSelect: () => onChange({ ...c, operator: op }) })) }] }, { placement: 'bottom-start' })}>{c.operator}</span> of <span role="button" className="nc-form-cond-chip" onClick={pick}>{valuesLabel}</span> is selected</span>
       ) : (
-        <span>If <span role="button" className="nc-form-cond-chip" onClick={pick}>{valuesLabel}</span> is selected</span>
+        <span>만약 <span role="button" className="nc-form-cond-chip" onClick={pick}>{valuesLabel}</span> is selected</span>
       )}
       <span style={{ flex: 1 }} />
-      {!readOnly && <span role="button" className="nc-form-cond-btn" onClick={onAddMore}>Create more questions</span>}
-      {!readOnly && <span role="button" className="nc-form-cond-btn icon" aria-label="Delete condition" data-tooltip="Delete condition" onClick={onDelete}><Icon name="trash" size={14} /></span>}
+      {!readOnly && <span role="button" className="nc-form-cond-btn" onClick={onAddMore}>질문 더 만들기</span>}
+      {!readOnly && <span role="button" className="nc-form-cond-btn icon" aria-label="조건 삭제" data-tooltip="조건 삭제" onClick={onDelete}><Icon name="trash" size={14} /></span>}
     </div>
   );
 }
@@ -190,7 +190,7 @@ function AnswerPreview({ q, prop, onCheckboxLabel, readOnly, collectionId }: { q
       return (
         <div className="nc-form-b-checkbox">
           <span className="nc-form-checkbox-box" />
-          <PlainEditable value={q.config.checkboxLabel ?? ''} placeholder="Checkbox text (optional)" className="nc-form-b-cblabel" onCommit={onCheckboxLabel} readOnly={readOnly} />
+          <PlainEditable value={q.config.checkboxLabel ?? ''} placeholder="체크박스 문구(선택)" className="nc-form-b-cblabel" onCommit={onCheckboxLabel} readOnly={readOnly} />
         </div>
       );
     case 'select':
@@ -205,7 +205,7 @@ function AnswerPreview({ q, prop, onCheckboxLabel, readOnly, collectionId }: { q
       };
       return (
         <div className="nc-form-b-options">
-          {q.config.displayMode === 'dropdown' && <div className="nc-form-b-input dropdown">These options appear in the menu<Icon name="chevronDown" size={14} color="var(--lp-icon-tertiary)" /></div>}
+          {q.config.displayMode === 'dropdown' && <div className="nc-form-b-input dropdown">이 옵션이 메뉴에 표시됩니다<Icon name="chevronDown" size={14} color="var(--lp-icon-tertiary)" /></div>}
           {opts.map((o) => (
             <div key={o.id} className="nc-form-b-option">
               <span className={`nc-form-option-mark ${multi ? 'square' : 'round'}`} />
@@ -215,7 +215,7 @@ function AnswerPreview({ q, prop, onCheckboxLabel, readOnly, collectionId }: { q
           {!readOnly && (
             <div className="nc-form-b-option add">
               <span className={`nc-form-option-mark ${multi ? 'square' : 'round'}`} />
-              <input className="nc-form-b-addopt" placeholder="Add option" onKeyDown={(e) => { if (e.key === 'Enter') { addOption((e.target as HTMLInputElement).value); (e.target as HTMLInputElement).value = ''; } }} onBlur={(e) => { addOption(e.target.value); e.target.value = ''; }} />
+              <input className="nc-form-b-addopt" placeholder="옵션 추가" onKeyDown={(e) => { if (e.key === 'Enter') { addOption((e.target as HTMLInputElement).value); (e.target as HTMLInputElement).value = ''; } }} onBlur={(e) => { addOption(e.target.value); e.target.value = ''; }} />
             </div>
           )}
           {multi && <div className="nc-form-hint">(Respondents can choose any number of options)</div>}
@@ -223,12 +223,12 @@ function AnswerPreview({ q, prop, onCheckboxLabel, readOnly, collectionId }: { q
       );
     }
     case 'file':
-      return <div className="nc-form-b-upload"><Icon name="upload" size={14} />Upload</div>;
+      return <div className="nc-form-b-upload"><Icon name="upload" size={14} />업로드</div>;
     default: {
       const icon = prop.type === 'date' ? 'calendar' : prop.type === 'person' ? 'person' : prop.type === 'relation' ? 'relation' : null;
       return (
         <div className={`nc-form-b-input ${q.config.isLongAnswer ? 'long' : ''}`}>
-          <span>Respondent’s answer</span>
+          <span>응답자의 답변</span>
           {icon && <Icon name={icon} size={16} color="var(--lp-icon-tertiary)" />}
         </div>
       );
@@ -257,48 +257,48 @@ function QuestionOptions({ viewId, collectionId, questionId, close }: { viewId: 
   };
   return (
     <div className="nc-form-qopts" data-testid="form-question-options">
-      <div className="nc-form-qopts-head"><span>Question options</span><span role="button" className="nc-panel-close" aria-label="Close" onClick={close}><Icon name="close" size={14} /></span></div>
+      <div className="nc-form-qopts-head"><span>질문 옵션</span><span role="button" className="nc-panel-close" aria-label="닫기" onClick={close}><Icon name="close" size={14} /></span></div>
       <div className="nc-menu-section">
-        <ToggleRowSmall icon="ncAsterisk" label="Required" on={!!q.config.isRequired} onChange={(v) => updateQuestion(q.id, { isRequired: v })} />
-        <ToggleRowSmall icon="alignLeft" label="Description" on={!!q.config.hasDescription} onChange={(v) => updateQuestion(q.id, { hasDescription: v })} />
-        {prop && TEXT_LIKE.has(prop.type) && <ToggleRowSmall icon="fullWidth" label="Long answer" on={!!q.config.isLongAnswer} onChange={(v) => updateQuestion(q.id, { isLongAnswer: v })} />}
+        <ToggleRowSmall icon="ncAsterisk" label="필수" on={!!q.config.isRequired} onChange={(v) => updateQuestion(q.id, { isRequired: v })} />
+        <ToggleRowSmall icon="alignLeft" label="설명" on={!!q.config.hasDescription} onChange={(v) => updateQuestion(q.id, { hasDescription: v })} />
+        {prop && TEXT_LIKE.has(prop.type) && <ToggleRowSmall icon="fullWidth" label="장문 답변" on={!!q.config.isLongAnswer} onChange={(v) => updateQuestion(q.id, { isLongAnswer: v })} />}
       </div>
       <div className="nc-menu-section with-divider">
         {/* Question type = the linked property's type; the title question keeps Title */}
-        <SettingsRow icon="squareGrid2X2" label="Question type" value={prop ? QUESTION_TYPE_LABEL[prop.type] ?? prop.type : 'Not Found'} chevron={!!prop && prop.type !== 'title'} disabled={!prop || prop.type === 'title'} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <SettingsRow icon="squareGrid2X2" label="질문 유형" value={prop ? QUESTION_TYPE_LABEL[prop.type] ?? prop.type : 'Not Found'} chevron={!!prop && prop.type !== 'title'} disabled={!prop || prop.type === 'title'} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 220, sections: [{ items: FORM_QUESTION_TYPES.filter((t) => t !== 'title').map((t) => ({ id: t, label: QUESTION_TYPE_LABEL[t] ?? t, icon: <PropertyIcon prop={{ type: t }} size={16} />, checked: prop?.type === t, onSelect: () => changePropertyType(collectionId, q.config.propertyId, t as PropertyType) })) }],
         }, { placement: 'right-start' })} />
         {/* Max selection: multi-select, person and relation questions */}
         {prop && (prop.type === 'multi_select' || prop.type === 'person' || prop.type === 'relation') && (
-          <SettingsRow icon="number" label="Max selection" value={q.config.maxSelection ? String(q.config.maxSelection) : 'No limit'} disabled={prop.type === 'relation' && (prop as { limit?: number }).limit === 1} onClick={(e) => openMaxSelection(e.currentTarget, q, (n) => updateQuestion(q.id, { maxSelection: n }))} />
+          <SettingsRow icon="number" label="최대 선택 수" value={q.config.maxSelection ? String(q.config.maxSelection) : '제한 없음'} disabled={prop.type === 'relation' && (prop as { limit?: number }).limit === 1} onClick={(e) => openMaxSelection(e.currentTarget, q, (n) => updateQuestion(q.id, { maxSelection: n }))} />
         )}
         {prop && (prop.type === 'select' || prop.type === 'multi_select') && (
-          <SettingsRow icon="listDash" label="Display options as" value={q.config.displayMode === 'dropdown' ? 'Dropdown' : 'List view'} onClick={(e) => openNestedMenu(e.currentTarget, {
+          <SettingsRow icon="listDash" label="옵션 표시 방식" value={q.config.displayMode === 'dropdown' ? '드롭다운' : '목록 보기'} onClick={(e) => openNestedMenu(e.currentTarget, {
             width: 200, sections: [{ items: [
-              { id: 'dropdown', label: 'Dropdown', checked: q.config.displayMode === 'dropdown', onSelect: () => updateQuestion(q.id, { displayMode: 'dropdown' }) },
-              { id: 'list', label: 'List view', checked: q.config.displayMode !== 'dropdown', onSelect: () => updateQuestion(q.id, { displayMode: 'list' }) },
+              { id: 'dropdown', label: '드롭다운', checked: q.config.displayMode === 'dropdown', onSelect: () => updateQuestion(q.id, { displayMode: 'dropdown' }) },
+              { id: 'list', label: '목록 보기', checked: q.config.displayMode !== 'dropdown', onSelect: () => updateQuestion(q.id, { displayMode: 'list' }) },
             ] }],
           }, { placement: 'right-start' })} />
         )}
-        <SettingsRow icon="databaseEmbed" label="Open linked field" disabled={!prop} onClick={(e) => openEditPropertyPopover(e.currentTarget, collectionId, q.config.propertyId, view, { placement: 'right-start' })} />
-        <ToggleRowSmall icon="ncSync" label="Sync with the field name" on={q.config.shouldSyncQuestionNameToPropertyName !== false} onChange={(v) => updateQuestion(q.id, { shouldSyncQuestionNameToPropertyName: v, name: v ? undefined : questionName(q, schema) })} />
+        <SettingsRow icon="databaseEmbed" label="연결된 필드 열기" disabled={!prop} onClick={(e) => openEditPropertyPopover(e.currentTarget, collectionId, q.config.propertyId, view, { placement: 'right-start' })} />
+        <ToggleRowSmall icon="ncSync" label="필드 이름과 동기화" on={q.config.shouldSyncQuestionNameToPropertyName !== false} onChange={(v) => updateQuestion(q.id, { shouldSyncQuestionNameToPropertyName: v, name: v ? undefined : questionName(q, schema) })} />
         {/* Create a condition: select, multi-select and checkbox questions branch to follow-up questions */}
         {prop && ['select', 'multi_select', 'checkbox'].includes(prop.type) && !q.config.condition && (
-          <SettingsRow icon="ncBranch" label="Create a condition" chevron={false} onClick={() => { close(); addConditionalGroup(view.id, collectionId, q.id); }} />
+          <SettingsRow icon="ncBranch" label="조건 만들기" chevron={false} onClick={() => { close(); addConditionalGroup(view.id, collectionId, q.id); }} />
         )}
-        {q.config.condition && <SettingsRow icon="ncBranch" label="Remove from the condition group" chevron={false} onClick={() => updateQuestion(q.id, { condition: undefined })} />}
+        {q.config.condition && <SettingsRow icon="ncBranch" label="조건 그룹에서 제거" chevron={false} onClick={() => updateQuestion(q.id, { condition: undefined })} />}
       </div>
       <div className="nc-menu-section with-divider">
-        <SettingsRow icon="ncMove" label="Move question" onClick={(e) => openNestedMenu(e.currentTarget, {
+        <SettingsRow icon="ncMove" label="질문 이동" onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 220, sections: [{ items: [
-            { id: 'up', label: 'Move up', disabled: idx === 0, onSelect: () => move(idx - 1) },
-            { id: 'down', label: 'Move down', disabled: idx === cfg.questions.length - 1, onSelect: () => move(idx + 1) },
-            { id: 'top', label: 'Send to the top of the group', disabled: idx === 0, onSelect: () => move(0) },
-            { id: 'bottom', label: 'Send to the bottom of the group', disabled: idx === cfg.questions.length - 1, onSelect: () => move(cfg.questions.length) },
+            { id: 'up', label: '위로 이동', disabled: idx === 0, onSelect: () => move(idx - 1) },
+            { id: 'down', label: '아래로 이동', disabled: idx === cfg.questions.length - 1, onSelect: () => move(idx + 1) },
+            { id: 'top', label: '그룹 맨 위로 이동', disabled: idx === 0, onSelect: () => move(0) },
+            { id: 'bottom', label: '그룹 맨 아래로 이동', disabled: idx === cfg.questions.length - 1, onSelect: () => move(cfg.questions.length) },
           ] }],
         }, { placement: 'right-start' })} />
         {/* Duplicate question: a copy of the linked property + the question's settings, right below */}
-        {prop && prop.type !== 'title' && <SettingsRow icon="duplicate" label="Duplicate question" chevron={false} onClick={() => {
+        {prop && prop.type !== 'title' && <SettingsRow icon="duplicate" label="질문 복제" chevron={false} onClick={() => {
           const pid = duplicateProperty(collectionId, q.config.propertyId);
           if (!pid) return;
           const latest = records.get<CollectionViewRecord>('collection_view', viewId);
@@ -309,7 +309,7 @@ function QuestionOptions({ viewId, collectionId, questionId, close }: { viewId: 
           setFormat(latest ?? view, { form_config: { ...cur, questions: list } }, 'formQuestionEditSettings.duplicateQuestion');
           close();
         }} />}
-        <SettingsRow icon="trash" label="Delete question" chevron={false} onClick={() => {
+        <SettingsRow icon="trash" label="질문 삭제" chevron={false} onClick={() => {
           // questions that branched off this one leave the conditional group with it
           setQuestions(cfg.questions.filter((x) => x.id !== q.id).map((x) => (x.config.condition?.questionId === q.id ? { ...x, config: { ...x.config, condition: undefined } } : x)), 'formQuestionEditSettings.deleteQuestion');
           close();
@@ -327,32 +327,32 @@ function ShareMenu({ viewId, collectionId }: { viewId: string; collectionId: str
   if (!view || !col) return null;
   const { cfg, save } = formOps(view, col.schema);
   const perm: FormPermission = cfg.permission ?? 'space';
-  const accessLabel: Record<SubmissionAccess, string> = { none: 'No access', reader: 'Can view', comment_only: 'Can comment', read_and_write: 'Can edit', editor: 'Full access' };
-  const permLabel: Record<FormPermission, string> = { space: `Anyone on ${spaceName()} with the link`, public: 'Anyone online with the link', closed: 'No access' };
+  const accessLabel: Record<SubmissionAccess, string> = { none: '권한 없음', reader: '보기 가능', comment_only: '댓글 가능', read_and_write: '편집 가능', editor: '전체 권한' };
+  const permLabel: Record<FormPermission, string> = { space: `링크가 있는 ${spaceName()} 구성원 누구나`, public: '링크가 있는 모든 사용자', closed: '접근 권한 없음' };
   const copy = () => {
     void navigator.clipboard?.writeText(formLink(viewId));
     setCopied(true);
-    useUI.getState().toast('Form link copied');
+    useUI.getState().toast('폼 링크를 복사했습니다');
   };
   return (
     <div className="nc-form-share" data-testid="form-share-menu">
-      <div className="nc-form-share-title">Share form</div>
+      <div className="nc-form-share-title">폼 공유</div>
       <div className="nc-menu-section">
-        <SettingsRow icon={perm === 'public' ? 'ncGlobe' : 'ncLock'} label="Who can submit" value={<span className="nc-form-share-val">{permLabel[perm]}{perm === 'public' && <span className="nc-form-badge">Public</span>}{perm === 'closed' && <span className="nc-form-badge gray">Closed</span>}</span>} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <SettingsRow icon={perm === 'public' ? 'ncGlobe' : 'ncLock'} label="제출 가능한 사람" value={<span className="nc-form-share-val">{permLabel[perm]}{perm === 'public' && <span className="nc-form-badge">공개</span>}{perm === 'closed' && <span className="nc-form-badge gray">폐쇄형</span>}</span>} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 300, sections: [{ items: (['space', 'public', 'closed'] as FormPermission[]).map((p) => ({
             id: p, label: permLabel[p], checked: perm === p,
-            description: p === 'space' ? 'Team members with the link can open and submit.' : p === 'public' ? 'Anyone with the link can open and submit without signing in.' : 'No one can open or submit this form.',
+            description: p === 'space' ? '링크가 있는 팀 구성원은 폼을 열고 제출할 수 있습니다.' : p === 'public' ? '링크가 있으면 누구나 로그인 없이 열고 제출할 수 있습니다.' : '아무도 이 폼을 열거나 제출할 수 없습니다.',
             onSelect: () => save({ ...cfg, permission: p, anonymous: p === 'public' ? true : cfg.anonymous }, 'FormShareMenu.setPermission'),
           })) }],
         }, { placement: 'bottom-end' })} />
-        <SettingsRow icon="userPlus" label="Submission access" value={perm === 'public' || cfg.anonymous ? 'No access' : accessLabel[cfg.submissionAccess ?? 'none']} disabled={perm === 'public' || !!cfg.anonymous} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <SettingsRow icon="userPlus" label="제출 권한" value={perm === 'public' || cfg.anonymous ? '접근 권한 없음' : accessLabel[cfg.submissionAccess ?? 'none']} disabled={perm === 'public' || !!cfg.anonymous} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 260, sections: [{ items: (['none', 'reader', 'comment_only', 'read_and_write', 'editor'] as SubmissionAccess[]).map((a) => ({ id: a, label: accessLabel[a], checked: (cfg.submissionAccess ?? 'none') === a, onSelect: () => save({ ...cfg, submissionAccess: a }, 'FormShareMenu.setSubmissionAccess') })) }],
         }, { placement: 'bottom-end' })} />
-        <SettingsRow icon="user" label="Anonymous submissions" chevron={false} disabled={perm === 'public'} right={<Toggle on={perm === 'public' || !!cfg.anonymous} disabled={perm === 'public'} onChange={(v) => save({ ...cfg, anonymous: v }, 'FormShareMenu.setAnonymous')} />} onClick={() => perm !== 'public' && save({ ...cfg, anonymous: !cfg.anonymous }, 'FormShareMenu.setAnonymous')} />
+        <SettingsRow icon="user" label="익명 제출" chevron={false} disabled={perm === 'public'} right={<Toggle on={perm === 'public' || !!cfg.anonymous} disabled={perm === 'public'} onChange={(v) => save({ ...cfg, anonymous: v }, 'FormShareMenu.setAnonymous')} />} onClick={() => perm !== 'public' && save({ ...cfg, anonymous: !cfg.anonymous }, 'FormShareMenu.setAnonymous')} />
       </div>
       <div className="nc-form-share-link">
-        <input readOnly value={formLink(viewId)} onFocus={(e) => e.currentTarget.select()} aria-label="Form link" />
-        <div role="button" className="nc-form-btn primary small" data-testid="copy-form-link" onClick={copy}>{copied ? 'Copied' : 'Copy the form link'}</div>
+        <input readOnly value={formLink(viewId)} onFocus={(e) => e.currentTarget.select()} aria-label="폼 링크" />
+        <div role="button" className="nc-form-btn primary small" data-testid="copy-form-link" onClick={copy}>{copied ? '복사됨' : '폼 링크 복사'}</div>
       </div>
     </div>
   );
@@ -363,15 +363,15 @@ function PreviewModal({ viewId, close }: { viewId: string; close: () => void }) 
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
     api<{ status: string; form?: PublicForm }>('getPublicForm', { viewId, preview: true })
-      .then((r) => (r.form ? setForm(r.form) : setErr('This form is closed or no longer available.')))
+      .then((r) => (r.form ? setForm(r.form) : setErr('이 폼은 마감되었거나 더 이상 사용할 수 없습니다.')))
       .catch((e) => setErr((e as Error).message));
   }, [viewId]);
   return (
-    <div className="nc-form-preview" role="dialog" aria-label="Form preview" data-testid="form-preview">
+    <div className="nc-form-preview" role="dialog" aria-label="폼 미리보기" data-testid="form-preview">
       <div className="nc-form-preview-actions">
-        <span role="button" aria-label="Edit form" data-tooltip="Edit form" onClick={close}><Icon name="pencil" size={16} /></span>
-        <span role="button" aria-label="Copy the form link" data-tooltip="Copy the form link" onClick={() => { void navigator.clipboard?.writeText(formLink(viewId)); useUI.getState().toast('Form link copied'); }}><Icon name="link" size={16} /></span>
-        <span role="button" aria-label="Open form" data-tooltip="Open form" onClick={() => { close(); window.open(formLink(viewId), '_blank', 'noopener'); }}><Icon name="arrowDiagonalUpRight" size={16} /></span>
+        <span role="button" aria-label="폼 편집" data-tooltip="폼 편집" onClick={close}><Icon name="pencil" size={16} /></span>
+        <span role="button" aria-label="폼 링크 복사" data-tooltip="폼 링크 복사" onClick={() => { void navigator.clipboard?.writeText(formLink(viewId)); useUI.getState().toast('폼 링크를 복사했습니다'); }}><Icon name="link" size={16} /></span>
+        <span role="button" aria-label="폼 열기" data-tooltip="폼 열기" onClick={() => { close(); window.open(formLink(viewId), '_blank', 'noopener'); }}><Icon name="arrowDiagonalUpRight" size={16} /></span>
       </div>
       <div className="nc-form-preview-scroll lit-scroller vertical">
         {form ? <FormRenderer form={form} preview /> : <div className="nc-form-state-sub" style={{ padding: 48 }}>{err ?? ''}</div>}
@@ -386,12 +386,12 @@ export function openFormPreview(viewId: string) {
 
 function AutoCreateDialog({ count, onAll, onScratch }: { count: number; onAll: () => void; onScratch: () => void }) {
   return (
-    <div className="nc-form-autocreate" role="dialog" aria-label="Auto-create form questions" data-testid="form-autocreate">
+    <div className="nc-form-autocreate" role="dialog" aria-label="폼 질문 자동 생성" data-testid="form-autocreate">
       <div className="nc-form-autocreate-art"><Icon name="viewTable" size={36} color="var(--lp-icon-secondary)" /><Icon name="arrowRight" size={22} color="var(--lp-icon-secondary)" /><Icon name="inlineBlockDouble" size={36} color="var(--lp-icon-secondary)" /></div>
-      <div className="nc-form-autocreate-title">Create form questions from existing fields?</div>
-      <div className="nc-form-autocreate-sub">Only supported field types create questions.</div>
-      <div role="button" className="nc-form-btn primary wide" onClick={onAll}>{count === 1 ? 'Create 1 question' : `Create ${count} questions`}</div>
-      <div role="button" className="nc-form-autocreate-scratch" onClick={onScratch}>Start with a blank form</div>
+      <div className="nc-form-autocreate-title">기존 속성으로 폼 질문을 만들까요?</div>
+      <div className="nc-form-autocreate-sub">지원되는 속성 유형만 질문으로 만들어집니다.</div>
+      <div role="button" className="nc-form-btn primary wide" onClick={onAll}>{count === 1 ? '질문 1개 만들기' : `질문 ${count}개 만들기`}</div>
+      <div role="button" className="nc-form-autocreate-scratch" onClick={onScratch}>빈 폼으로 시작</div>
     </div>
   );
 }
@@ -433,14 +433,14 @@ function FormView(props: ViewProps) {
   const addQuestion = (e: React.MouseEvent<HTMLElement>) => openAddQuestionMenu(e.currentTarget, view.id, collection.id, setSelected);
 
   const perm: FormPermission = cfg.permission ?? 'space';
-  const banner = perm === 'public' ? 'This form is open. Anyone with the link can send a submission.'
-    : perm === 'closed' ? 'This form is closed. New submissions are blocked.' : `Only ${spaceName()} members can submit this form.`;
+  const banner = perm === 'public' ? '이 폼은 공개되어 있습니다. 링크가 있으면 누구나 응답을 제출할 수 있습니다.'
+    : perm === 'closed' ? '이 폼은 마감되었습니다. 새 응답을 받을 수 없습니다.' : `${spaceName()} 멤버만 이 양식을 제출할 수 있습니다.`;
 
   return (
     <div className="nc-form-b lit-form-view" style={{ paddingInlineStart: bleed.left, paddingInlineEnd: bleed.right }} onPointerDown={(e) => { if (!(e.target as HTMLElement).closest('.nc-form-b-q, .nc-overlay')) setSelected(null); }}>
       {cfg.cover && (
         <div className="nc-form-b-cover" style={{ background: cfg.cover }}>
-          {!readOnly && <div role="button" className="nc-form-b-cover-btn" onClick={() => save({ ...cfg, cover: undefined }, 'formEditor.removeCover')}>Remove cover</div>}
+          {!readOnly && <div role="button" className="nc-form-b-cover-btn" onClick={() => save({ ...cfg, cover: undefined }, 'formEditor.removeCover')}>커버 제거</div>}
         </div>
       )}
       <div className="nc-form-b-col">
@@ -448,16 +448,16 @@ function FormView(props: ViewProps) {
           {cfg.icon && <div role="button" className="nc-form-b-icon" onClick={(e) => !readOnly && openIconPicker(e.currentTarget, { current: cfg.icon, onPick: (v) => save({ ...cfg, icon: v ?? undefined }, 'formEditor.setIcon') })}>{cfg.icon}</div>}
           {!readOnly && (
             <div className="nc-form-b-controls" style={{ opacity: hoverHead || (!cfg.icon && !cfg.cover && !cfg.title) ? 1 : 0 }}>
-              {!cfg.icon && <div role="button" className="nc-form-b-ctl" onClick={(e) => openIconPicker(e.currentTarget, { onPick: (v) => save({ ...cfg, icon: v ?? undefined }, 'formEditor.setIcon') })}><Icon name="ncFormIcon" size={14} />Form icon</div>}
-              {!cfg.cover && <div role="button" className="nc-form-b-ctl" onClick={() => save({ ...cfg, cover: COVERS[Math.floor(Math.random() * COVERS.length)] }, 'formEditor.setCover')}><Icon name="ncFormCover" size={14} />Form cover</div>}
+              {!cfg.icon && <div role="button" className="nc-form-b-ctl" onClick={(e) => openIconPicker(e.currentTarget, { onPick: (v) => save({ ...cfg, icon: v ?? undefined }, 'formEditor.setIcon') })}><Icon name="ncFormIcon" size={14} />폼 아이콘</div>}
+              {!cfg.cover && <div role="button" className="nc-form-b-ctl" onClick={() => save({ ...cfg, cover: COVERS[Math.floor(Math.random() * COVERS.length)] }, 'formEditor.setCover')}><Icon name="ncFormCover" size={14} />폼 커버</div>}
             </div>
           )}
-          <PlainEditable testId="form-title" value={cfg.title ?? ''} placeholder="Form title" className="nc-form-b-title" readOnly={readOnly} onCommit={(t) => save({ ...cfg, title: t || undefined }, 'formTitle.update')} />
-          <PlainEditable value={cfg.description ?? ''} placeholder="Description (optional)" className="nc-form-b-desc" readOnly={readOnly} onCommit={(t) => save({ ...cfg, description: t || undefined }, 'formTitle.updateDescription')} />
+          <PlainEditable testId="form-title" value={cfg.title ?? ''} placeholder="폼 제목" className="nc-form-b-title" readOnly={readOnly} onCommit={(t) => save({ ...cfg, title: t || undefined }, 'formTitle.update')} />
+          <PlainEditable value={cfg.description ?? ''} placeholder="설명(선택)" className="nc-form-b-desc" readOnly={readOnly} onCommit={(t) => save({ ...cfg, description: t || undefined }, 'formTitle.updateDescription')} />
         </div>
         <div className="nc-form-b-banner" data-testid="form-access-banner">
           <span className="nc-form-b-banner-text"><Icon name={perm === 'public' ? 'ncGlobe' : 'ncLock'} size={16} />{banner}</span>
-          {!readOnly && <div role="button" className="nc-form-b-banner-btn" onClick={(e) => openShareMenu(e.currentTarget, view.id, collection.id)}>Change</div>}
+          {!readOnly && <div role="button" className="nc-form-b-banner-btn" onClick={(e) => openShareMenu(e.currentTarget, view.id, collection.id)}>변경</div>}
         </div>
         {cfg.questions.map((q, qi) => {
           const prop = schema[q.config.propertyId];
@@ -480,7 +480,7 @@ function FormView(props: ViewProps) {
               onDelete={() => setQuestions(cfg.questions.map((x) => (sameGroup(x) ? { ...x, config: { ...x.config, condition: undefined } } : x)), 'FormConditionalLogic.deleteCondition')}
               onAddMore={(e) => {
                 const others = cfg.questions.filter((x) => x.id !== cond!.questionId && !x.config.condition && x.id !== q.id && supportsQuestion(schema[x.config.propertyId]));
-                openMenu(e.currentTarget, { width: 260, header: <div className="nc-form-add-head">Create or choose questions</div>, sections: [{ items: others.map((x) => ({ id: x.id, label: questionName(x, schema), icon: <PropertyIcon prop={schema[x.config.propertyId]} size={16} />, onSelect: () => {
+                openMenu(e.currentTarget, { width: 260, header: <div className="nc-form-add-head">질문 만들기 또는 선택</div>, sections: [{ items: others.map((x) => ({ id: x.id, label: questionName(x, schema), icon: <PropertyIcon prop={schema[x.config.propertyId]} size={16} />, onSelect: () => {
                   // moved right after the group's last question
                   const rest = cfg.questions.filter((y) => y.id !== x.id);
                   let last = -1;
@@ -496,19 +496,19 @@ function FormView(props: ViewProps) {
             {header}
             <div className={`nc-form-b-q layout-content ${isSel ? 'selected' : ''}`} data-question-id={q.id} onPointerDown={() => setSelected(q.id)}>
               {!prop ? (
-                <div className="nc-form-b-missing">The linked field could not be found.</div>
+                <div className="nc-form-b-missing">연결된 필드를 찾을 수 없습니다.</div>
               ) : (
                 <>
                   <div className="form-question-title">
-                    <PlainEditable value={questionName(q, schema)} placeholder="Question name" className="nc-form-b-qtitle" readOnly={readOnly} onCommit={(t) => renameQuestion(q, t)} />
+                    <PlainEditable value={questionName(q, schema)} placeholder="질문 이름" className="nc-form-b-qtitle" readOnly={readOnly} onCommit={(t) => renameQuestion(q, t)} />
                     {q.config.isRequired && <span className="nc-form-req">*</span>}
                   </div>
-                  {q.config.hasDescription && <PlainEditable value={q.config.description ?? ''} placeholder="Add description" className="nc-form-b-qdesc" readOnly={readOnly} onCommit={(t) => updateQuestion(q.id, { description: t })} />}
+                  {q.config.hasDescription && <PlainEditable value={q.config.description ?? ''} placeholder="설명 추가" className="nc-form-b-qdesc" readOnly={readOnly} onCommit={(t) => updateQuestion(q.id, { description: t })} />}
                   <AnswerPreview q={q} prop={prop} readOnly={readOnly} collectionId={collection.id} onCheckboxLabel={(v) => updateQuestion(q.id, { checkboxLabel: v || undefined })} />
                 </>
               )}
               {!readOnly && (
-                <div role="button" className="nc-form-b-qmore" aria-label="Edit question" data-tooltip="Edit question" onClick={(e) => {
+                <div role="button" className="nc-form-b-qmore" aria-label="질문 편집" data-tooltip="질문 편집" onClick={(e) => {
                   e.stopPropagation();
                   setSelected(q.id);
                   openOverlay((close) => <PopoverSurface width={300}><QuestionOptions viewId={view.id} collectionId={collection.id} questionId={q.id} close={close} /></PopoverSurface>, { anchor: e.currentTarget, placement: 'left-start', backdrop: 'transparent' });
@@ -520,7 +520,7 @@ function FormView(props: ViewProps) {
         })}
         {!readOnly && (
           <div className="nc-form-b-add-wrap">
-            <div role="button" className="nc-form-b-add" aria-label="Add question" data-tooltip="Add question" onClick={addQuestion}><Icon name="plus" size={18} /></div>
+            <div role="button" className="nc-form-b-add" aria-label="질문 추가" data-tooltip="질문 추가" onClick={addQuestion}><Icon name="plus" size={18} /></div>
           </div>
         )}
       </div>
@@ -553,14 +553,14 @@ function openAddQuestionMenu(anchor: HTMLElement, viewId: string, collectionId: 
       if (pid) append(questionFor(pid), 'formQuestionCreateSettings.newQuestion');
     },
   }));
-  const sections = [{ title: 'New question', items }];
+  const sections = [{ title: '새 질문', items }];
   if (existing.length) {
     sections.push({
-      title: 'Existing properties',
+      title: '기존 속성',
       items: existing.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, onSelect: () => append(questionFor(id), 'formQuestionCreateSettings.existingProperty') })),
     });
   }
-  openMenu(anchor, { width: 260, search: 'Search for a question type…', header: <div className="nc-form-add-head">Select type</div>, sections }, { placement });
+  openMenu(anchor, { width: 260, search: '질문 유형 검색…', header: <div className="nc-form-add-head">유형 선택</div>, sections }, { placement });
 }
 
 function openShareMenu(anchor: HTMLElement, viewId: string, collectionId: string) {
@@ -570,8 +570,8 @@ function openShareMenu(anchor: HTMLElement, viewId: string, collectionId: string
 function FormToolbar({ view, collection, readOnly }: ToolbarExtraProps) {
   return (
     <div className="nc-form-toolbar">
-      <div role="button" className="nc-form-tb-preview" data-testid="form-preview-button" onClick={() => openFormPreview(view.id)}><Icon name="ncEye" size={16} />Preview</div>
-      {!readOnly && <div role="button" className="nc-form-tb-share" data-testid="form-share-button" onClick={(e) => openShareMenu(e.currentTarget, view.id, collection.id)}>Share form</div>}
+      <div role="button" className="nc-form-tb-preview" data-testid="form-preview-button" onClick={() => openFormPreview(view.id)}><Icon name="ncEye" size={16} />미리보기</div>
+      {!readOnly && <div role="button" className="nc-form-tb-share" data-testid="form-share-button" onClick={(e) => openShareMenu(e.currentTarget, view.id, collection.id)}>폼 공유</div>}
     </div>
   );
 }
@@ -585,32 +585,32 @@ function SubmitScreenSettings({ cfg, save, readOnly, onBack }: { cfg: FormConfig
   const color = ss.submitButtonColor ?? 'blue';
   return (
     <div className="nc-form-settings" data-testid="form-submit-screen">
-      <div role="menuitem" className="nc-menu-item nc-vs-row" onClick={onBack}><div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="arrowStraightLeftSmall" size={16} /></div><div className="nc-menu-label">Submit screen</div></div></div>
+      <div role="menuitem" className="nc-menu-item nc-vs-row" onClick={onBack}><div className="nc-menu-item-inner"><div className="nc-menu-icon"><Icon name="arrowStraightLeftSmall" size={16} /></div><div className="nc-menu-label">제출 완료 화면</div></div></div>
       <div className="nc-menu-section">
-        <div className="nc-menu-section-title">Submit button</div>
-        <SettingsRow icon="paintRoller" label="Color" value={<span className="nc-form-color-val"><ColorSwatch color={color === 'blue' ? 'blue' : color} />{COLOR_LABELS[color as keyof typeof COLOR_LABELS] ?? color}</span>} disabled={readOnly} onClick={(e) => openNestedMenu(e.currentTarget, {
+        <div className="nc-menu-section-title">제출 버튼</div>
+        <SettingsRow icon="paintRoller" label="색상" value={<span className="nc-form-color-val"><ColorSwatch color={color === 'blue' ? 'blue' : color} />{COLOR_LABELS[color as keyof typeof COLOR_LABELS] ?? color}</span>} disabled={readOnly} onClick={(e) => openNestedMenu(e.currentTarget, {
           width: 200, sections: [{ items: SUBMIT_COLOR_NAMES.map((c) => ({ id: c, label: COLOR_LABELS[c] ?? c, icon: <ColorSwatch color={c === 'default' ? 'blue' : c} />, checked: color === (c === 'default' ? 'blue' : c), onSelect: () => set({ submitButtonColor: c === 'default' ? undefined : c }) })) }],
         }, { placement: 'right-start' })} />
         <div className="nc-form-settings-field" data-menu-keys="ignore">
-          <label>Text</label>
-          <input disabled={readOnly} placeholder="Submit" defaultValue={ss.submitButtonText ?? ''} onBlur={(e) => set({ submitButtonText: e.target.value.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+          <label>텍스트</label>
+          <input disabled={readOnly} placeholder="제출" defaultValue={ss.submitButtonText ?? ''} onBlur={(e) => set({ submitButtonText: e.target.value.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
         </div>
       </div>
       <div className="nc-menu-section with-divider">
         <div className="nc-form-settings-field" data-menu-keys="ignore">
-          <label>Confirmation title</label>
-          <input disabled={readOnly} placeholder="Thank you!" defaultValue={ss.confirmationTitle ?? ''} onBlur={(e) => set({ confirmationTitle: e.target.value.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+          <label>확인 화면 제목</label>
+          <input disabled={readOnly} placeholder="감사합니다!" defaultValue={ss.confirmationTitle ?? ''} onBlur={(e) => set({ confirmationTitle: e.target.value.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
         </div>
         <div className="nc-form-settings-field" data-menu-keys="ignore">
-          <label>Confirmation body</label>
-          <textarea disabled={readOnly} rows={3} placeholder="Your submission was sent successfully." defaultValue={ss.confirmationBody ?? ''} onBlur={(e) => set({ confirmationBody: e.target.value.trim() || undefined })} />
+          <label>확인 메시지 본문</label>
+          <textarea disabled={readOnly} rows={3} placeholder="응답이 제출되었습니다." defaultValue={ss.confirmationBody ?? ''} onBlur={(e) => set({ confirmationBody: e.target.value.trim() || undefined })} />
         </div>
       </div>
       <div className="nc-menu-section with-divider">
-        <div className="nc-menu-section-title">More buttons</div>
-        <ToggleRowSmall icon="plus" label="Submit another" on={ss.allowSubmitAnotherResponse !== false} disabled={readOnly} onChange={(v) => set({ allowSubmitAnotherResponse: v })} />
-        <ToggleRowSmall icon="ncEye" label="Open my submission" on={!!ss.allowViewResponse} disabled={readOnly} onChange={(v) => set({ allowViewResponse: v })} />
-        <ToggleRowSmall icon="mail" label="Email me a copy" on={!!ss.allowEmailResponse} disabled={readOnly} onChange={(v) => set({ allowEmailResponse: v })} />
+        <div className="nc-menu-section-title">버튼 더 보기</div>
+        <ToggleRowSmall icon="plus" label="다른 응답 제출" on={ss.allowSubmitAnotherResponse !== false} disabled={readOnly} onChange={(v) => set({ allowSubmitAnotherResponse: v })} />
+        <ToggleRowSmall icon="ncEye" label="내 제출 내용 열기" on={!!ss.allowViewResponse} disabled={readOnly} onChange={(v) => set({ allowViewResponse: v })} />
+        <ToggleRowSmall icon="mail" label="내 이메일로 사본 받기" on={!!ss.allowEmailResponse} disabled={readOnly} onChange={(v) => set({ allowEmailResponse: v })} />
       </div>
     </div>
   );
@@ -625,36 +625,36 @@ function FormSettingsMain({ block, view, collection, readOnly, close }: ViewSett
   const templates = collectionTemplates(collection);
   const template = templates.find((t) => t.id === cfg.templateId);
   const perm: FormPermission = cfg.permission ?? 'space';
-  const permLabel: Record<FormPermission, string> = { space: `Anyone on ${spaceName()} with the link`, public: 'Anyone online with the link', closed: 'No access' };
+  const permLabel: Record<FormPermission, string> = { space: `링크가 있는 ${spaceName()} 구성원 누구나`, public: '링크가 있는 모든 사용자', closed: '접근 권한 없음' };
   return (
     <div className="nc-form-settings" data-testid="form-settings">
       <div className="nc-menu-section">
-        {!readOnly && <SettingsRow icon="plus" label="New question" onClick={(e) => openAddQuestionMenu(e.currentTarget, view.id, collection.id, undefined, 'right-start')} />}
-        <SettingsRow icon="checkmarkSquare" label="Submit screen" onClick={() => setPage('submit')} />
-        <SettingsRow icon="template" label="Select template" value={template ? toTitle(template) : 'None'} disabled={readOnly} onClick={(e) => openNestedMenu(e.currentTarget, {
-          width: 260, header: <div className="nc-form-add-head">Choose a template for submissions</div>, sections: [{ items: [
-            { id: 'none', label: 'None', checked: !template, onSelect: () => save({ ...cfg, templateId: undefined }, 'formSelectTemplateSettings.select') },
+        {!readOnly && <SettingsRow icon="plus" label="새 질문" onClick={(e) => openAddQuestionMenu(e.currentTarget, view.id, collection.id, undefined, 'right-start')} />}
+        <SettingsRow icon="checkmarkSquare" label="제출 완료 화면" onClick={() => setPage('submit')} />
+        <SettingsRow icon="template" label="템플릿 선택" value={template ? toTitle(template) : '없음'} disabled={readOnly} onClick={(e) => openNestedMenu(e.currentTarget, {
+          width: 260, header: <div className="nc-form-add-head">제출용 템플릿 선택</div>, sections: [{ items: [
+            { id: 'none', label: '없음', checked: !template, onSelect: () => save({ ...cfg, templateId: undefined }, 'formSelectTemplateSettings.select') },
             ...templates.map((t) => ({ id: t.id, label: toTitle(t), icon: 'page', checked: t.id === cfg.templateId, onSelect: () => save({ ...cfg, templateId: t.id }, 'formSelectTemplateSettings.select') })),
           ] }],
         }, { placement: 'right-start' })} />
-        <SettingsRow icon={perm === 'public' ? 'ncGlobe' : 'ncLock'} label="Who can submit" value={permLabel[perm]} disabled={readOnly} onClick={(e) => openShareMenu(e.currentTarget, view.id, collection.id)} />
-        <SettingsRow icon="dbLightning" label="Automations" disabled={readOnly} onClick={(e) => { const a = e.currentTarget; close(); void import('../../automations/list.tsx').then((m) => m.openAutomations(collection, a)); }} />
+        <SettingsRow icon={perm === 'public' ? 'ncGlobe' : 'ncLock'} label="제출 가능한 사람" value={permLabel[perm]} disabled={readOnly} onClick={(e) => openShareMenu(e.currentTarget, view.id, collection.id)} />
+        <SettingsRow icon="dbLightning" label="자동화" disabled={readOnly} onClick={(e) => { const a = e.currentTarget; close(); void import('../../automations/list.tsx').then((m) => m.openAutomations(collection, a)); }} />
       </div>
       <div className="nc-menu-section with-divider">
-        {!readOnly && <SettingsRow icon="trash" label="Delete form" chevron={false} onClick={async () => {
-          const ok = await confirmDialog({ message: `Permanently delete ${view.name || 'Form'}?`, description: 'Nobody will be able to submit this form anymore. Responses already received stay as they are.', confirmLabel: 'Delete form' });
+        {!readOnly && <SettingsRow icon="trash" label="폼 삭제" chevron={false} onClick={async () => {
+          const ok = await confirmDialog({ message: `${view.name || 'Form'}을(를) 영구 삭제할까요?`, description: '더 이상 이 폼을 제출할 수 없게 됩니다. 이미 받은 응답은 그대로 유지됩니다.', confirmLabel: '폼 삭제' });
           if (!ok) return;
           close();
           deleteView(records.get<BlockRecord>('block', block.id) ?? block, view.id);
         }} />}
-        {HELP_URL && <SettingsRow icon="questionMarkCircle" label="Explore forms" chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
+        {HELP_URL && <SettingsRow icon="questionMarkCircle" label="폼 알아보기" chevron={false} onClick={() => window.open(HELP_URL!, '_blank', 'noopener')} />}
       </div>
     </div>
   );
 }
 
 function toTitle(b: BlockRecord): string {
-  return (b.properties?.title ?? []).map((d) => String(d[0])).join('') || 'Untitled';
+  return (b.properties?.title ?? []).map((d) => String(d[0])).join('') || '제목 없음';
 }
 
 registerView('form', FormView);

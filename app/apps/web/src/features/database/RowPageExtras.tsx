@@ -26,12 +26,12 @@ export function RowComments({ pageId, canComment }: { pageId: string; canComment
   const rootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const box = rootRef.current?.querySelector<HTMLElement>('.nc-comment-composer [role="textbox"]');
-    if (box && !box.getAttribute('aria-label')) box.setAttribute('aria-label', box.getAttribute('placeholder') ?? 'Add a comment…');
+    if (box && !box.getAttribute('aria-label')) box.setAttribute('aria-label', box.getAttribute('placeholder') ?? '댓글 추가…');
   });
   return (
     <div ref={rootRef} className="layout-content nc-row-comments">
       <div className="nc-row-comments-inner">
-        <div className="nc-row-comments-title">Comments</div>
+        <div className="nc-row-comments-title">댓글</div>
         <div className="lit-page-view-discussion nc-row-comments-body">
           {page && <PostReactionPills row={page} />}
           {open.map((d) => (

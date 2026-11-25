@@ -53,8 +53,8 @@ function GalleryView({ view, collection, readOnly }: ViewProps) {
               <CardBody row={row} view={view} collection={collection} props={props} showTitle={showTitle} readOnly={readOnly} editing={db?.editingTitle === row.id} onDoneEditing={() => db?.setEditingTitle(null)} />
               {!readOnly && (
                 <div className="nc-card-hover-pill" onClick={(e) => e.stopPropagation()}>
-                  <span role="button" className="nc-card-pill-btn" data-tooltip="Edit" onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
-                  <span role="button" className="nc-card-pill-btn" data-tooltip="Rename, remove, send, and more…" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
+                  <span role="button" className="nc-card-pill-btn" data-tooltip="편집" onClick={() => db?.setEditingTitle(row.id)}><Icon name="pencilLine" size={14} /></span>
+                  <span role="button" className="nc-card-pill-btn" data-tooltip="이름 변경, 제거, 보내기 등…" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: [row.id], collection, view })}><Icon name="ellipsisSmall" size={14} /></span>
                 </div>
               )}
             </div>
@@ -63,14 +63,14 @@ function GalleryView({ view, collection, readOnly }: ViewProps) {
         {!readOnly && (
           <div role="button" className="nc-gallery-new" onClick={() => db?.addRow({ group: group ?? null, position: 'end', editTitle: true })}>
             <Icon name="plus" size={15} />
-            <span>New page</span>
+            <span>새 페이지</span>
           </div>
         )}
       </div>
       {rows.length > limit && (
         <div role="button" className="nc-gallery-load-more" onClick={() => setLimit((l) => l + (Number.isFinite(first) ? first : 50))}>
           <Icon name="arrowDown" size={16} />
-          <span>Load more</span>
+          <span>더 불러오기</span>
         </div>
       )}
     </>

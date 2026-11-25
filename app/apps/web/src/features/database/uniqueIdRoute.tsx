@@ -28,8 +28,8 @@ export function UniqueIdRedirect({ uid }: { uid: string }) {
   if (!missing) return null;
   return (
     <div className="nc-uid-missing" style={{ padding: '120px 24px', textAlign: 'center', color: 'var(--lp-text-secondary)', fontSize: 14 }} data-testid="unique-id-missing">
-      <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--lp-text-primary)', marginBottom: 8 }}>This entry could not be found</div>
-      <div>{`No page with the ID ${uid} — it may have been deleted, or you may not have access.`}</div>
+      <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--lp-text-primary)', marginBottom: 8 }}>항목을 찾을 수 없습니다</div>
+      <div>{`ID가 ${uid}인 페이지가 없습니다. 삭제되었거나 접근 권한이 없을 수 있습니다.`}</div>
     </div>
   );
 }

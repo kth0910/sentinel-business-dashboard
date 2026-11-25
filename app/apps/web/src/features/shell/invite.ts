@@ -38,7 +38,7 @@ export async function acceptPendingInvite(): Promise<boolean> {
     navigate(`/${res.domain}`, { replace: true });
     return true;
   } catch (e) {
-    useUI.getState().toast((e as Error).message || 'This invite link is invalid.');
+    useUI.getState().toast((e as Error).message || '유효하지 않은 초대 링크입니다.');
     if (useSession.getState().status === 'ready') navigate('/', { replace: true });
     return false;
   } finally {

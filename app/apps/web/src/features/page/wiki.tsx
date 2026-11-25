@@ -32,14 +32,14 @@ export async function turnIntoWiki(pageId: string) {
     records.mergeRecordMap(res.recordMap);
     useUI.getState().toast(t('lp.page.your_new_wiki_is_ready', 'Your new wiki is ready!'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not turn this page into a wiki');
+    useUI.getState().toast(e?.message ?? '이 페이지를 위키로 전환하지 못했습니다');
   }
 }
 
 export async function undoWiki(pageId: string) {
   const page = getBlock(pageId);
   const ok = await confirmDialog({
-    message: t('lp.page.change_back_to_a_regular_page', 'Change “{pageName}” back to a regular page?', { pageName: pageTitle(page) || 'Untitled' }),
+    message: t('lp.page.change_back_to_a_regular_page', 'Change “{pageName}” back to a regular page?', { pageName: pageTitle(page) || '제목 없음' }),
     description: t('lp.page.this_deletes_the_wiki_database_including', 'This deletes the wiki database, including all database views and page properties. You can’t undo this.'),
     confirmLabel: t('lp.page.undo_wiki', 'Undo wiki'),
   });
@@ -48,6 +48,6 @@ export async function undoWiki(pageId: string) {
     const res = await api<{ recordMap: any }>('undoWiki', { pageId });
     records.mergeRecordMap(res.recordMap);
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not undo the wiki');
+    useUI.getState().toast(e?.message ?? '위키 변환을 되돌리지 못했습니다.');
   }
 }

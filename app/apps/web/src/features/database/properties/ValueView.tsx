@@ -52,7 +52,7 @@ export function PersonChip({ userId, showName = true, size = 20 }: { userId: str
   return (
     <span className="nc-person-chip">
       <UserAvatar userId={userId} size={size} />
-      {showName && <span className="nc-person-name">{u?.name || u?.email || 'Unknown user'}</span>}
+      {showName && <span className="nc-person-name">{u?.name || u?.email || '알 수 없는 사용자'}</span>}
     </span>
   );
 }
@@ -61,7 +61,7 @@ export function PersonChip({ userId, showName = true, size = 20 }: { userId: str
 export function GroupChip({ groupId, spaceId, size = 20 }: { groupId: string; spaceId?: string; size?: number }) {
   const space = useRecord<SpaceRecord>('space', spaceId ?? useSession.getState().spaceId ?? undefined);
   const g = ((space?.settings?.groups ?? []) as { id: string; name?: string }[]).find((x) => x?.id === groupId);
-  const name = g?.name || 'Deleted group';
+  const name = g?.name || '삭제된 그룹';
   return (
     <span className="nc-person-chip nc-group-chip" data-group-id={groupId}>
       <span className="nc-group-avatar" style={{ width: size, height: size }} aria-hidden>{name.trim()[0]?.toUpperCase() ?? <Icon name="users" size={Math.round(size * 0.55)} />}</span>
@@ -72,7 +72,7 @@ export function GroupChip({ groupId, spaceId, size = 20 }: { groupId: string; sp
 
 export function PageChip({ pageId }: { pageId: string }) {
   const b = useBlock(pageId);
-  const title = b ? ((b.properties?.title as RichText | undefined)?.map((d) => d[0]).join('') || 'Untitled') : 'Untitled';
+  const title = b ? ((b.properties?.title as RichText | undefined)?.map((d) => d[0]).join('') || '제목 없음') : '제목 없음';
   return (
     <span className="nc-page-chip">
       {b && <span className="nc-page-chip-icon"><PageIcon block={b} size={16} fallback={b.content?.length ? 'page' : 'pageEmpty'} /></span>}
@@ -178,14 +178,14 @@ function CopyValueButton({ text, kind }: { text: string; kind: string }) {
     <span
       role="button"
       className="nc-copy-value"
-      aria-label="Copy value"
-      data-tooltip="Copy value"
+      aria-label="값 복사"
+      data-tooltip="값 복사"
       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
       onClick={(e) => {
         e.stopPropagation();
         navigator.clipboard.writeText(text).then(
-          () => useUI.getState().toast(kind === 'email' ? 'Copied email to clipboard' : 'Copied to clipboard'),
-          () => useUI.getState().toast('Failed to copy'),
+          () => useUI.getState().toast(kind === 'email' ? '이메일을 클립보드에 복사했습니다' : '클립보드에 복사했습니다'),
+          () => useUI.getState().toast('복사하지 못했습니다'),
         );
       }}
     >
@@ -252,7 +252,7 @@ export function ValueView({ value, prop, wrap, onToggleCheckbox, readOnly, ctx, 
       if (!value.ids.length && !value.groups?.length) return null;
       return (
         <span className={`nc-people ${wrap ? 'wrap' : ''}`}>
-          {value.ids.map((id) => (id === TEMPLATE_ME ? <TemplateVarChip key={id} icon="person">Person who duplicated entry</TemplateVarChip> : <PersonChip key={id} userId={id} size={20} />))}
+          {value.ids.map((id) => (id === TEMPLATE_ME ? <TemplateVarChip key={id} icon="person">항목을 복제한 사람</TemplateVarChip> : <PersonChip key={id} userId={id} size={20} />))}
           {(value.groups ?? []).map((g) => <GroupChip key={`g:${g.id}`} groupId={g.id} spaceId={g.spaceId} size={20} />)}
         </span>
       );
@@ -292,7 +292,7 @@ export function ValueView({ value, prop, wrap, onToggleCheckbox, readOnly, ctx, 
       return (
         <span className={`nc-verification ${value.state}`}>
           <Icon name="verification" size={14} />
-          <span>{value.state === 'verified' ? 'Verified' : 'Expired'}</span>
+          <span>{value.state === 'verified' ? '인증됨' : '만료됨'}</span>
         </span>
       );
     case 'button':
@@ -311,7 +311,7 @@ export function ValueView({ value, prop, wrap, onToggleCheckbox, readOnly, ctx, 
       );
     }
     case 'error':
-      return <span className="nc-value-error" title={value.message}>{value.message ? 'Error' : ''}</span>;
+      return <span className="nc-value-error" title={value.message}>{value.message ? '오류' : ''}</span>;
   }
   return <span>{valueToText(value, prop, ctx)}</span>;
 }

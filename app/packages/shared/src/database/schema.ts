@@ -309,9 +309,9 @@ export function newOptionId(): string {
 
 /** Default status options/groups: Not started / In progress / Done in To-do / In progress / Complete. */
 export function defaultStatusSchema(): { options: SelectOption[]; groups: StatusGroup[]; defaultOption: string } {
-  const notStarted = { id: newOptionId(), value: 'Not started', color: 'default' };
-  const inProgress = { id: newOptionId(), value: 'In progress', color: 'blue' };
-  const done = { id: newOptionId(), value: 'Done', color: 'green' };
+  const notStarted = { id: newOptionId(), value: '시작 전', color: 'default' };
+  const inProgress = { id: newOptionId(), value: '진행 중', color: 'blue' };
+  const done = { id: newOptionId(), value: '완료', color: 'green' };
   return {
     options: [notStarted, inProgress, done],
     groups: [
@@ -319,11 +319,12 @@ export function defaultStatusSchema(): { options: SelectOption[]; groups: Status
       { id: newOptionId(), name: 'In progress', color: 'blue', optionIds: [inProgress.id] },
       { id: newOptionId(), name: 'Complete', color: 'green', optionIds: [done.id] },
     ],
-    defaultOption: 'Not started',
+    defaultOption: '시작 전',
   };
 }
 
-export const STATUS_GROUP_LABELS: Record<string, string> = { 'To-do': 'To-do', 'In progress': 'In progress', Complete: 'Complete' };
+// 업무관리 시연판: 그룹 이름(키)은 코드에서 비교하므로 영어로 두고 화면 표시만 한국어
+export const STATUS_GROUP_LABELS: Record<string, string> = { 'To-do': '할 일', 'In progress': '진행 중', Complete: '완료' };
 
 // ---------- group-by defaults ---------
 

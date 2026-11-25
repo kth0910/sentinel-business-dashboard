@@ -53,5 +53,5 @@ export function titleOf(b: BlockRecord | undefined): string {
 
 /** Name of a data source (collection.name rich text). */
 export function collectionName(c: CollectionRecord | undefined): string {
-  return (c?.name ?? []).map((d) => d[0]).join('') || 'Untitled';
+  return (c?.name ?? []).map((d) => d[0]).join('') || '제목 없음';
 }

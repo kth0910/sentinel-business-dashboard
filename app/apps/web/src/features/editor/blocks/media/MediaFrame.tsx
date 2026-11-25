@@ -24,13 +24,13 @@ export function AlignButton({ block }: { block: BlockRecord }) {
   return (
     <ActionButton
       icon={icon}
-      tooltip="Alignment"
-      label="Align block"
+      tooltip="정렬"
+      label="블록 정렬"
       onClick={(e) => openMenu(e.currentTarget, {
         width: 180,
         sections: [{
           items: (['left', 'center', 'right'] as const).map((x) => ({
-            label: x === 'left' ? 'Left' : x === 'center' ? 'Center' : 'Right',
+            label: x === 'left' ? '왼쪽' : x === 'center' ? '가운데' : '오른쪽',
             icon: x === 'left' ? 'alignmentLeft' : x === 'center' ? 'alignmentCenter' : 'alignmentRight',
             checked: a === x,
             onSelect: () => setAlign(block.id, x),

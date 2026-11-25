@@ -71,13 +71,13 @@ function bucketLabel(b: Bucket) {
 export function relativeTime(ts: number): string {
   const ko = getLocale() === 'ko-KR';
   const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return ko ? '지금' : 'Just now';
+  if (s < 60) return ko ? '지금' : '방금';
   const m = Math.floor(s / 60);
-  if (m < 60) return ko ? `${m}분 전` : `${m}m ago`;
+  if (m < 60) return ko ? `${m}분 전` : `${m}분 전`;
   const h = Math.floor(m / 60);
-  if (h < 24) return ko ? `${h}시간 전` : `${h}h ago`;
+  if (h < 24) return ko ? `${h}시간 전` : `${h}시간 전`;
   const d = Math.floor(h / 24);
-  if (d < 7) return ko ? `${d}일 전` : `${d}d ago`;
+  if (d < 7) return ko ? `${d}일 전` : `${d}일 전`;
   const date = new Date(ts);
   const sameYear = date.getFullYear() === new Date().getFullYear();
   return date.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }) });
@@ -327,7 +327,7 @@ export function SearchModal() {
 
   return createPortal(
     <div className="nc-qf-layer" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
-      <div role="dialog" aria-label={t('lp.search.search_litpage', 'Search Litpage')} className="lit-dialog nc-qf-dialog" style={{ width: showPane ? 1006 : 600 }}>
+      <div role="dialog" aria-label={t('lp.search.search_litpage', 'Search CoolNotion!')} className="lit-dialog nc-qf-dialog" style={{ width: showPane ? 1006 : 600 }}>
         <div className="search-snapshot-container nc-qf-grid">
           <div className="nc-qf-header">
             <div className="nc-qf-input-wrap">

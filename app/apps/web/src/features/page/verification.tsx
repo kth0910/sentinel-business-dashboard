@@ -60,16 +60,16 @@ export function verifyAccess(pageId: string): { ok: boolean; reason?: string } {
   return { ok: true };
 }
 
-const fmtDate = (ms: number) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const fmtDate = (ms: number) => new Date(ms).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' });
 
 function fromNow(ms: number): string {
   const d = Date.now() - ms;
   const day = 86400_000;
   if (d < 60_000) return 'just now';
-  if (d < 3600_000) return `${Math.round(d / 60_000)} minutes ago`;
-  if (d < day) return `${Math.round(d / 3600_000)} hours ago`;
+  if (d < 3600_000) return `${Math.round(d / 60_000)}분 전`;
+  if (d < day) return `${Math.round(d / 3600_000)}시간 전`;
   const n = Math.round(d / day);
-  return n === 1 ? '1 day ago' : `${n} days ago`;
+  return n === 1 ? '1일 전' : `${n}일 전`;
 }
 
 /** Blue check badge (verified) / gray (expired): a rosette with a check. */
@@ -86,9 +86,9 @@ async function verify(pageId: string, expiry: number | null) {
   try {
     const res = await api<{ recordMap: any }>('setPageVerification', { pageId, verified: true, expiry });
     records.mergeRecordMap(res.recordMap);
-    useUI.getState().toast(expiry ? `Verified until ${fmtDate(expiry)}` : t('lp.page.verified', 'Verified'));
+    useUI.getState().toast(expiry ? `${fmtDate(expiry)}까지 인증됨` : t('lp.page.verified', 'Verified'));
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not verify this page');
+    useUI.getState().toast(e?.message ?? '페이지를 인증하지 못했습니다');
   }
 }
 
@@ -96,9 +96,9 @@ export async function removeVerification(pageId: string) {
   try {
     const res = await api<{ recordMap: any }>('setPageVerification', { pageId, verified: false });
     records.mergeRecordMap(res.recordMap);
-    useUI.getState().toast('Verification removed');
+    useUI.getState().toast('인증을 해제했습니다');
   } catch (e: any) {
-    useUI.getState().toast(e?.message ?? 'Could not remove verification');
+    useUI.getState().toast(e?.message ?? '인증을 해제하지 못했습니다.');
   }
 }
 
@@ -112,7 +112,7 @@ function endOfDay(d: Date): number {
 export function openVerifyMenu(anchor: Anchor, pageId: string, opts: { reverify?: boolean } = {}) {
   const access = verifyAccess(pageId);
   if (!access.ok) {
-    useUI.getState().toast(access.reason ?? 'You can’t verify this page');
+    useUI.getState().toast(access.reason ?? '이 페이지는 인증할 수 없습니다');
     return;
   }
   const items: MenuItemDef[] = VERIFICATION_PRESETS.map((days) => {
@@ -169,7 +169,7 @@ function summaryText(info: VerificationInfo): string {
   return t('lp.page.verified_by_during', 'Verified by {user} during {dateTimeRange}', { user, dateTimeRange: `${start} → ${fmtDate(info.expiryTime)}` });
 }
 
-/** Pill under the title: "Verified" (indefinitely) / "Until {date}" / "Expired {time}". */
+/** Pill under the title: "인증됨" (indefinitely) / "Until {date}" / "Expired {time}". */
 export function VerificationButtonLabel({ info }: { info: VerificationInfo }) {
   if (info.status === 'expired') return <>{t('lp.page.expired', 'Expired {timeFromMoment}', { timeFromMoment: fromNow(info.expiryTime ?? Date.now()) })}</>;
   if (info.expiryTime) return <>{t('lp.page.until', 'Until {date}', { date: fmtDate(info.expiryTime) })}</>;
@@ -220,7 +220,7 @@ function VerificationPopover({ pageId, close, readOnly }: { pageId: string; clos
       const res = await api<{ recordMap: any }>('setPageOwners', { pageId, owners: ids });
       records.mergeRecordMap(res.recordMap);
     } catch (e: any) {
-      useUI.getState().toast(e?.message ?? 'Could not change owners');
+      useUI.getState().toast(e?.message ?? '소유자를 변경하지 못했습니다.');
     }
   };
   const addOwner = (anchor: HTMLElement) => {
@@ -228,7 +228,7 @@ function VerificationPopover({ pageId, close, readOnly }: { pageId: string; clos
     const members = (space?.permissions ?? []).filter((p) => p.type === 'user_permission' && p.user_id && p.role !== 'none').map((p) => records.get<UserRecord>('lit_user', p.user_id!)).filter((u): u is UserRecord => !!u && !info.owners.includes(u.id));
     const closeMenu = openMenu(anchor, {
       width: 260,
-      search: 'Search for people…',
+      search: '사용자 검색…',
       sections: [{ items: members.map((u) => ({ label: userName(u), text: `${u.name ?? ''} ${u.email ?? ''}`, icon: <UserAvatar userId={u.id} size={20} />, onSelect: () => { void setOwners([...info.owners, u.id]); closeMenu(); return false; } })) }],
     }, { placement: 'bottom-start' });
   };
@@ -254,7 +254,7 @@ function VerificationPopover({ pageId, close, readOnly }: { pageId: string; clos
             <UserAvatar userId={id} size={20} />
             <span className="nc-ellipsis">{userName(records.get<UserRecord>('lit_user', id))}</span>
             {canEdit && (
-              <span role="button" className="nc-icon-btn small" aria-label="Remove owner" onClick={() => void setOwners(info.owners.filter((x) => x !== id))}>
+              <span role="button" className="nc-icon-btn small" aria-label="소유자 제거" onClick={() => void setOwners(info.owners.filter((x) => x !== id))}>
                 <Icon name="close" size={12} />
               </span>
             )}

@@ -50,11 +50,11 @@ function NoDatePopup({ kind, view, collection, close, onOpen }: { kind: Kind; vi
   const rows = useMemo(() => emptyRows(result.rows, prop), [result.rows, prop]);
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => setLimit(PAGE), [q]);
-  const prompt = kind === 'calendar' ? 'Click or drag an item onto the calendar to set a date.' : 'Click to place it on the timeline';
+  const prompt = kind === 'calendar' ? 'Click or drag an item onto the calendar to set a date.' : '클릭해서 타임라인에 배치';
   return (
     <PopoverSurface width={320} className="nc-nodate-popup" maxHeight="min(480px, 70vh)">
       <div className="nc-vs-search" data-menu-keys="ignore">
-        <div className="nc-input focused"><input autoFocus placeholder="Find an entry…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <div className="nc-input focused"><input autoFocus placeholder="항목 찾기…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
       </div>
       <div
         ref={listRef}
@@ -82,12 +82,12 @@ function NoDatePopup({ kind, view, collection, close, onOpen }: { kind: Kind; vi
             >
               <div className="nc-menu-item-inner">
                 <span className="nc-nodate-icon"><PageIcon block={r} size={20} fallback="page" /></span>
-                <div className="nc-menu-label nc-ellipsis">{titleOf(r) || 'Untitled'}</div>
-                <span role="button" className="nc-nodate-open" onClick={(e) => { e.stopPropagation(); close(); onOpen(r.id); }}>Open</span>
+                <div className="nc-menu-label nc-ellipsis">{titleOf(r) || '제목 없음'}</div>
+                <span role="button" className="nc-nodate-open" onClick={(e) => { e.stopPropagation(); close(); onOpen(r.id); }}>개방형</span>
               </div>
             </div>
           ))}
-          {!rows.length && <div className="nc-menu-empty">No results</div>}
+          {!rows.length && <div className="nc-menu-empty">결과 없음</div>}
         </div>
       </div>
     </PopoverSurface>

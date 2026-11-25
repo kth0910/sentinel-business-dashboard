@@ -130,9 +130,9 @@ export function ConnectionsSection() {
         <div className="nm-row">
           <div className="nm" title={c.name}>{c.name}</div>
           {c.litpage && (
-            <span className="built" data-tooltip={t('lp.settings.built_and_maintained_by_litpage', 'Built and maintained by Litpage')}>
+            <span className="built" data-tooltip={t('lp.settings.built_and_maintained_by_litpage', 'Built and maintained by CoolNotion!')}>
               <Icon name="badgeCheck" size={12} />
-              <span>{t('lp.settings.made_by_litpage', 'Built by Litpage')}</span>
+              <span>{t('lp.settings.made_by_litpage', 'Built by CoolNotion!')}</span>
             </span>
           )}
         </div>
@@ -163,7 +163,7 @@ export function ConnectionsSection() {
           <div className="nc-set-input nc-set-conn-search">
             <Icon name="magnifyingGlassSmall" size={16} />
             <input aria-label={t('lp.settings.search_connections', 'Search connections')} placeholder={t('lp.settings.search_connections', 'Search connections')} value={q} onChange={(e) => setQ(e.target.value)} />
-            {q && <span role="button" className="nc-set-icon-btn" aria-label="Clear" onClick={() => setQ('')}><Icon name="xMarkSmall" size={14} /></span>}
+            {q && <span role="button" className="nc-set-icon-btn" aria-label="지우기" onClick={() => setQ('')}><Icon name="xMarkSmall" size={14} /></span>}
           </div>
           <div
             role="button"
@@ -221,9 +221,9 @@ export function ConnectionsSection() {
                 {c.key === 'featured' && (
                   <div className="nc-set-cmore-row">
                     <div className="nc-set-mcp-hint">
-                      <span>{t('lp.settings.use_litpage_with_your_ai_tools', 'Use Litpage with your AI tools through a custom MCP connection:')}</span>
+                      <span>{t('lp.settings.use_litpage_with_your_ai_tools', 'Use CoolNotion! with your AI tools through a custom MCP connection:')}</span>
                       <span role="button" tabIndex={0} className="nc-set-link strong" onClick={() => useUI.getState().set({ settingsSection: 'lit-mcp' })}>
-                        {t('lp.settings.litpage_mcp', 'Litpage MCP')}
+                        {t('lp.settings.litpage_mcp', 'CoolNotion! MCP')}
                         <Icon name="arrowStraightRightSmall" size={14} />
                       </span>
                     </div>
@@ -373,17 +373,17 @@ function ManageConnections({ space }: { space: SpaceRecord }) {
           label={t('lp.settings.allow_automations_to_run_webhook_actions', 'Allow automations to run webhook actions')}
           description={(
             <>
-              {rich(msg('lp.settings.decide_who_can_use_the_send', 'Decide who can use the <bold>Send webhook</bold> action in buttons and automations'), {}, { bold: (c) => <b>{c}</b> })}
-              {!enterprise && <Upsell text={msg('lp.settings.upgrade_to_block_database_automations_an', '<highlight>Upgrade</highlight> to block database automations and buttons from sending webhooks to third-party tools')} onClick={() => useUI.getState().set({ settingsSection: 'plans' })} />}
+              {rich(msg('lp.settings.decide_who_can_use_the_send', 'Decide who can use the <bold>웹훅 보내기</bold> action in buttons and automations'), {}, { bold: (c) => <b>{c}</b> })}
+              {!enterprise && <Upsell text={msg('lp.settings.upgrade_to_block_database_automations_an', '<highlight>업그레이드</highlight> to block database automations and buttons from sending webhooks to third-party tools')} onClick={() => useUI.getState().set({ settingsSection: 'plans' })} />}
             </>
           )}
-          control={<Switch label="Permit webhooks in automations" checked={webhooksOn} disabled={!enterprise} onChange={(v) => saveSpaceSettings(space.id, { disallow_webhook_automation_action: !v })} />}
+          control={<Switch label="자동화에서 웹훅 허용" checked={webhooksOn} disabled={!enterprise} onChange={(v) => saveSpaceSettings(space.id, { disallow_webhook_automation_action: !v })} />}
         />
         <Row
           id="custom-mcp-servers"
           label={t('lp.settings.turn_on_custom_mcp_servers', 'Turn on custom MCP servers')}
           description={t('lp.settings.members_can_link_agents_to_custom', 'Members can link agents to custom MCP servers not reviewed by Litpage. Through those servers, agents can send content outside, pull in external data, and act in other systems.')}
-          control={<Switch label="Turn on custom MCP servers" checked={customMcp} onChange={(v) => saveSpaceSettings(space.id, { ai_custom_mcp: v })} />}
+          control={<Switch label="사용자 지정 MCP 서버 사용 설정" checked={customMcp} onChange={(v) => saveSpaceSettings(space.id, { ai_custom_mcp: v })} />}
         />
       </Group>
     </div>

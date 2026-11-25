@@ -40,7 +40,7 @@ function PageLinkBlock({ block, readOnly }: BlockProps) {
   if (block.type === 'link_to_page' && !targetId) {
     return (
       <div className="nc-bpad">
-        <div ref={elRef} className="nc-link-empty" role="button" aria-label="Page link" onClick={() => !readOnly && elRef.current && openLinkToPagePicker(block.id, elRef.current)} />
+        <div ref={elRef} className="nc-link-empty" role="button" aria-label="페이지 링크" onClick={() => !readOnly && elRef.current && openLinkToPagePicker(block.id, elRef.current)} />
       </div>
     );
   }
@@ -49,12 +49,12 @@ function PageLinkBlock({ block, readOnly }: BlockProps) {
       <div className="nc-pad">
         <div className="nc-pagelink-2 missing">
           <div className="nc-pagelink-icon"><Icon name="pageEmpty" size={18} style={{ color: 'var(--lp-icon-secondary)' }} /></div>
-          <span className="nc-pagelink-title-2" style={{ borderBottom: 'none', fontWeight: 400 }}>{target && target.alive === false ? 'Deleted page' : 'You can’t view this page'}</span>
+          <span className="nc-pagelink-title-2" style={{ borderBottom: 'none', fontWeight: 400 }}>{target && target.alive === false ? '삭제된 페이지' : '이 페이지를 볼 수 없습니다'}</span>
         </div>
       </div>
     );
   }
-  const title = pageTitle(target) || (target.type === 'collection_view_page' ? 'Untitled database' : 'New page');
+  const title = pageTitle(target) || (target.type === 'collection_view_page' ? '제목 없는 데이터베이스' : '새 페이지');
   return (
     <div className="nc-pad">
       <a
@@ -84,13 +84,13 @@ registerBlock(['page', 'alias', 'link_to_page', 'collection_view_page'], PageLin
 registerBlockMenu(['page'], ({ block, turnInto, color }) => [
   turnInto,
   color,
-  { label: 'Open a new tab', icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
+  { label: '새 탭에서 열기', icon: 'openAsPage', onSelect: () => { window.open(pageUrl(block.id), '_blank'); } },
 ]);
 
 registerBlockMenu(['alias', 'link_to_page'], ({ block, color }) => [
   color,
-  { label: 'Open a new tab', icon: 'openAsPage', onSelect: () => { const t = aliasTarget(block); if (t) window.open(pageUrl(t), '_blank'); } },
-  { label: 'Edit link', icon: 'pencilLine', onSelect: () => { const el = blockElement(block.id); if (el) setTimeout(() => openLinkToPagePicker(block.id, el), 0); } },
+  { label: '새 탭에서 열기', icon: 'openAsPage', onSelect: () => { const t = aliasTarget(block); if (t) window.open(pageUrl(t), '_blank'); } },
+  { label: '링크 편집', icon: 'pencilLine', onSelect: () => { const el = blockElement(block.id); if (el) setTimeout(() => openLinkToPagePicker(block.id, el), 0); } },
 ]);
 
 /* ------------------------------------------------------------------ picker */
@@ -102,7 +102,7 @@ interface PickerResult {
 function parentPath(b: BlockRecord | undefined): string {
   if (!b) return '';
   const chain = ancestorsOf(b.id);
-  return chain.map((p) => pageTitle(p) || 'New page').join(' / ');
+  return chain.map((p) => pageTitle(p) || '새 페이지').join(' / ');
 }
 
 function usePageSearch(q: string) {
@@ -180,7 +180,7 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
         label: (
           <div className="nc-link-picker-item">
             <div style={{ minWidth: 0 }}>
-              <div className="nc-ellipsis">{pageTitle(p) || 'New page'}</div>
+              <div className="nc-ellipsis">{pageTitle(p) || '새 페이지'}</div>
               {path && <div className="sub">{path}</div>}
             </div>
           </div>
@@ -189,10 +189,10 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
         onSelect: () => choose(id),
       } as MenuItemDef;
     }),
-    ...(total > pages.length && pages.length >= 5 ? [{ id: 'more', label: `${total - pages.length} more results`, icon: 'ellipsis', disabled: true } as MenuItemDef] : []),
+    ...(total > pages.length && pages.length >= 5 ? [{ id: 'more', label: `결과 ${total - pages.length}개 더`, icon: 'ellipsis', disabled: true } as MenuItemDef] : []),
   ];
   const actions: MenuItemDef[] = [
-    { id: 'new', label: q ? `Add new “${q}” sub-page` : 'Add a child page', icon: 'plus', onSelect: createSub },
+    { id: 'new', label: q ? `새 “${q}” 하위 페이지 추가` : '하위 페이지 추가', icon: 'plus', onSelect: createSub },
   ];
   const flat = [...items.filter((i) => !i.disabled), ...actions];
   useEffect(() => setActive(0), [q, ids.length]);
@@ -202,7 +202,7 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
         <div className="nc-input focused">
           <input
             autoFocus
-            placeholder="Find a page…"
+            placeholder="페이지 찾기…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
@@ -215,8 +215,8 @@ function LinkToPagePicker({ blockId, close, onDone }: { blockId: string; close: 
       </div>
       <div className="lit-scroller vertical nc-menu-scroll" role="listbox">
         <div className="nc-menu-section">
-          <div className="nc-menu-section-title">Page link</div>
-          {items.length === 0 && <div className="nc-menu-empty">{q ? 'No results' : 'No recent pages'}</div>}
+          <div className="nc-menu-section-title">페이지 링크</div>
+          {items.length === 0 && <div className="nc-menu-empty">{q ? '결과 없음' : '최근 페이지 없음'}</div>}
           {items.map((it) => (
             <MenuRow key={it.id} item={it} active={!it.disabled && flat.indexOf(it) === active} onHover={() => !it.disabled && setActive(flat.indexOf(it))} onClick={() => it.onSelect?.()} />
           ))}

@@ -72,7 +72,7 @@ export function turnOnDependencies(collection: CollectionRecord, opts: { relatio
       blocking = newPropId(schema);
       const inverse = newPropId({ ...schema, [blocking]: true });
       const pointer = { id: collection.id, table: 'collection', spaceId: collection.space_id };
-      tx.set('collection', collection.id, ['schema', blocking], { name: opts.name?.trim() || 'Blocking', type: 'relation', collection_id: collection.id, collection_pointer: pointer, property: inverse, version: 'v2', autoRelate: { enabled: false } } as PropertySchema);
+      tx.set('collection', collection.id, ['schema', blocking], { name: opts.name?.trim() || '차단 중', type: 'relation', collection_id: collection.id, collection_pointer: pointer, property: inverse, version: 'v2', autoRelate: { enabled: false } } as PropertySchema);
       tx.set('collection', collection.id, ['schema', inverse], { name: 'Blocked by', type: 'relation', collection_id: collection.id, collection_pointer: pointer, property: blocking, version: 'v2', autoRelate: { enabled: false } } as PropertySchema);
     }
     let dateProperty = opts.dateProperty ?? firstDateProperty(collection.schema);

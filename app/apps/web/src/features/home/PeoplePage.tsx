@@ -52,7 +52,7 @@ function Directory() {
         <div className="nc-ppl-toolbar">
           <div className="nc-input nc-ppl-search">
             <Icon name="search" size={16} style={{ color: 'var(--lp-icon-tertiary)' }} />
-            <input value={query} placeholder={t('lp.home.type_to_search', 'Search by typing…')} onChange={(e) => setQuery(e.target.value)} aria-label="Search people" />
+            <input value={query} placeholder={t('lp.home.type_to_search', 'Search by typing…')} onChange={(e) => setQuery(e.target.value)} aria-label="사용자 검색" />
           </div>
           <label className="nc-ppl-guests">
             <input type="checkbox" checked={guests} onChange={(e) => setGuests(e.target.checked)} />
@@ -184,7 +184,7 @@ function ProfilePage({ userId }: { userId: string }) {
               <div key={rp.pageId} className="nc-profile-item" role="button" onClick={() => openPage(rp.pageId)}>
                 <PageIcon block={b} size={20} />
                 <span className="nc-ellipsis">{pageTitle(b) || t('lp.home.untitled', 'Untitled')}</span>
-                <span className="nc-profile-time">{new Date(rp.editedTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span className="nc-profile-time">{new Date(rp.editedTime).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
               </div>
             );
           })}

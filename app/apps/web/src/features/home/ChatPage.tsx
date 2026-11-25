@@ -29,15 +29,15 @@ export function ChatPage({ chatId }: { chatId?: string }) {
           <div className="nc-ai-page-actions">
             <div
               role="button"
-              aria-label="Chat history"
-              data-tooltip="Chat history"
+              aria-label="채팅 기록"
+              data-tooltip="채팅 기록"
               className="nc-btn icon-only"
               onClick={(e) => void openChatHistory(e.currentTarget, { currentId: threadId, onOpen: (id) => navigate(chatUrl(id)), onNew: () => navigate(chatUrl()) })}
             >
               <Icon name="history" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />
             </div>
             {threadId && (
-              <div role="button" aria-label="New chat" data-tooltip="New chat" className="nc-btn icon-only" onClick={() => navigate(chatUrl())}>
+              <div role="button" aria-label="새 채팅" data-tooltip="새 채팅" className="nc-btn icon-only" onClick={() => navigate(chatUrl())}>
                 <Icon name="chatBubblePlus" size={18} style={{ color: 'var(--lp-icon-secondary)' }} />
               </div>
             )}

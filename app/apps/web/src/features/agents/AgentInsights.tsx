@@ -27,7 +27,7 @@ const PERIODS = [7, 30, 90] as const;
 
 function dayLabel(day: string, opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }): string {
   const d = new Date(`${day}T00:00:00Z`);
-  return d.toLocaleDateString('en-US', { ...opts, timeZone: 'UTC' });
+  return d.toLocaleDateString('ko-KR', { ...opts, timeZone: 'UTC' });
 }
 
 function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {

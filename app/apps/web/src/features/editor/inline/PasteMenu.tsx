@@ -51,29 +51,29 @@ export function pasteUrlWithMenu(blockId: string, property: string, start: numbe
     const extended = pasteUrlExtensions.map((fn) => fn(url, range)).find((x) => x && x.length);
     const items: MenuItemDef[] = extended ? extended : linked
       ? [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', linked.id]]]]) },
-          ...(canSyncFrom(linked, blockId) ? [{ label: 'Synced block', icon: 'blockSync', onSelect: () => toSyncedBlock(range, linked.id) }] : []),
+          { label: '멘션', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', linked.id]]]]) },
+          ...(canSyncFrom(linked, blockId) ? [{ label: '동기화 블록', icon: 'blockSync', onSelect: () => toSyncedBlock(range, linked.id) }] : []),
           { label: 'URL', icon: 'link', onSelect: () => undefined },
         ]
       : pageId && database
       ? [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
-          { label: 'Connected database view', icon: 'collectionArrow', onSelect: () => void toLinkedView(range, page!) },
+          { label: '멘션', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
+          { label: '연결된 데이터베이스 보기', icon: 'collectionArrow', onSelect: () => void toLinkedView(range, page!) },
           { label: 'URL', icon: 'link', onSelect: () => undefined },
         ]
       : pageId
       ? [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
-          { label: 'Page link', icon: 'docSend', onSelect: () => toBlock(range, 'alias', { alias_pointer: { id: pageId, table: 'block', spaceId: useSession.getState().spaceId } }) },
+          { label: '멘션', icon: 'arrowDiagonalUpRight', onSelect: () => replaceWithAtom(range, [['‣', [['p', pageId]]]]) },
+          { label: '페이지 링크', icon: 'docSend', onSelect: () => toBlock(range, 'alias', { alias_pointer: { id: pageId, table: 'block', spaceId: useSession.getState().spaceId } }) },
           { label: 'URL', icon: 'link', onSelect: () => undefined },
         ]
       : [
-          { label: 'Mention', icon: 'arrowDiagonalUpRight', onSelect: () => { replaceWithAtom(range, [['‣', [['lm', { href: url, title: hostOf(url) }]]]]); void enrichLinkMention(range.blockId, range.property, url); } },
+          { label: '멘션', icon: 'arrowDiagonalUpRight', onSelect: () => { replaceWithAtom(range, [['‣', [['lm', { href: url, title: hostOf(url) }]]]]); void enrichLinkMention(range.blockId, range.property, url); } },
           { label: 'URL', icon: 'link', onSelect: () => undefined },
-          { label: 'Bookmark', icon: 'bookmark', onSelect: () => toBlock(range, 'bookmark', undefined, url) },
-          { label: 'Embed', icon: 'linkCapture', onSelect: () => toBlock(range, 'embed', undefined, url) },
+          { label: '북마크', icon: 'bookmark', onSelect: () => toBlock(range, 'bookmark', undefined, url) },
+          { label: '임베드', icon: 'linkCapture', onSelect: () => toBlock(range, 'embed', undefined, url) },
         ];
-    openMenu(anchor, { width: 240, sections: [{ title: 'Paste as', items }] }, { placement: 'bottom-start', offset: 4 });
+    openMenu(anchor, { width: 240, sections: [{ title: '붙여넣기 형식', items }] }, { placement: 'bottom-start', offset: 4 });
   }, 30);
 }
 

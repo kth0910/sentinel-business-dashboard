@@ -85,7 +85,7 @@ export function movePagesIntoDatabase(ids: string[], collectionId: string, viewI
     const v = viewId ? records.get<CollectionViewRecord>('collection_view', viewId) : undefined;
     if (v && (v.page_sort ?? []).length) tx.set('collection_view', v.id, ['page_sort'], [...(v.page_sort ?? []).filter((x) => !ids.includes(x)), ...ids]);
   });
-  useUI.getState().toast(`Moved to ${toPlainText(c.name as never) || 'Untitled'}`);
+  useUI.getState().toast(`새 데이터베이스`);
 }
 
 externalBlockDropTargets.push((x, y, ids) => {
@@ -166,7 +166,7 @@ export function moveRowsToPage(rowIds: string[], target: { pageId: string; ancho
   run('dragRowsOutOfDatabase', (tx) => {
     moveBlocksIn(tx, rows.map((r) => r.id), { parentId: page.id, parentTable: 'block', ...(target.where === 'before' && anchor ? { before: anchor } : { after: anchor }) });
   });
-  useUI.getState().toast(rows.length === 1 ? 'Moved out of the database' : `Moved ${rows.length} pages out of the database`);
+  useUI.getState().toast(rows.length === 1 ? '데이터베이스 밖으로 이동했습니다' : `페이지 ${rows.length}개를 데이터베이스 밖으로 이동했습니다`);
 }
 
 document.addEventListener('dragover', (e) => {

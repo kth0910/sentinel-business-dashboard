@@ -31,10 +31,10 @@ export function SelectionBar({ selection, setSelection, collection, view }: { se
             </div>
           );
         })}
-        <div role="button" className="nc-selection-icon trash" aria-label="Send to trash" data-tooltip="Send to trash" onClick={() => { deleteRows(selection); setSelection([]); }}>
+        <div role="button" className="nc-selection-icon trash" aria-label="휴지통으로 이동" data-tooltip="휴지통으로 이동" onClick={() => { deleteRows(selection); setSelection([]); }}>
           <Icon name="trash" size={16} />
         </div>
-        <div role="button" className="nc-selection-icon more" aria-label="More actions" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: selection, collection, view, onDone: () => setSelection([]) })}>
+        <div role="button" className="nc-selection-icon more" aria-label="추가 작업" onClick={(e) => openRowMenu(e.currentTarget, { rowIds: selection, collection, view, onDone: () => setSelection([]) })}>
           <Icon name="ellipsisSmall" size={16} />
         </div>
       </div>

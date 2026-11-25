@@ -113,7 +113,7 @@ export function DateCalendar({ value, onChange, onClear, showReminder = true }: 
             <input
               value={endText}
               size={1}
-              placeholder="End date"
+              placeholder="종료일"
               onFocus={() => setEditing('end')}
               onChange={(e) => setEndText(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commitText('end', endText); } }}
@@ -125,11 +125,11 @@ export function DateCalendar({ value, onChange, onClear, showReminder = true }: 
       </div>
       <div className="nc-dp-cal">
         <div className="nc-dp-caption">
-          <div className="nc-dp-label">{month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</div>
+          <div className="nc-dp-label">{month.toLocaleDateString('ko-KR', { month: 'short', year: 'numeric' })}</div>
           <div className="nc-dp-nav">
-            <div role="button" className="nc-dp-today" onClick={() => setMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>Today</div>
-            <div role="button" aria-label="Previous month" className="nc-dp-arrow" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}><Icon name="chevronLeft" size={16} /></div>
-            <div role="button" aria-label="Next month" className="nc-dp-arrow" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}><Icon name="chevronRight" size={16} /></div>
+            <div role="button" className="nc-dp-today" onClick={() => setMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>오늘</div>
+            <div role="button" aria-label="이전 달" className="nc-dp-arrow" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}><Icon name="chevronLeft" size={16} /></div>
+            <div role="button" aria-label="다음 달" className="nc-dp-arrow" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}><Icon name="chevronRight" size={16} /></div>
           </div>
         </div>
         <table className="nc-dp-table" role="grid">
@@ -164,7 +164,7 @@ export function DateCalendar({ value, onChange, onClear, showReminder = true }: 
       </div>
       <div className="nc-dp-options">
         <div className="nc-dp-row" role="button" onClick={() => onChange(hasEnd ? { ...value, type: typeOf(false, hasTime), end_date: undefined, end_time: undefined } : { ...value, type: typeOf(true, hasTime), end_date: value.start_date })}>
-          <span>End date</span>
+          <span>종료일</span>
           <Switch on={hasEnd} onChange={(v) => onChange(v ? { ...value, type: typeOf(true, hasTime), end_date: value.start_date } : { ...value, type: typeOf(false, hasTime), end_date: undefined, end_time: undefined })} />
         </div>
         <div
@@ -179,11 +179,11 @@ export function DateCalendar({ value, onChange, onClear, showReminder = true }: 
             }, { placement: 'right-start', offset: 4 });
           }}
         >
-          <span>Date format</span>
+          <span>날짜 형식</span>
           <span className="nc-dp-row-value">{dateFormatLabel(value.date_format)}<Icon name="arrowChevronSingleRightSmall" size={16} /></span>
         </div>
         <div className="nc-dp-row" role="button" onClick={() => onChange(hasTime ? { ...value, type: typeOf(hasEnd, false), start_time: undefined, end_time: undefined } : { ...value, type: typeOf(hasEnd, true), start_time: '09:00', ...(hasEnd ? { end_time: '09:00' } : {}) })}>
-          <span>Include time</span>
+          <span>시간 포함</span>
           <Switch on={hasTime} onChange={(v) => onChange(v ? { ...value, type: typeOf(hasEnd, true), start_time: '09:00' } : { ...value, type: typeOf(hasEnd, false), start_time: undefined, end_time: undefined })} />
         </div>
         {showReminder && (
@@ -199,21 +199,21 @@ export function DateCalendar({ value, onChange, onClear, showReminder = true }: 
               }, { placement: 'right-start', offset: 4 });
             }}
           >
-            <span>Remind</span>
+            <span>리마인더</span>
             <span className="nc-dp-row-value">{reminderLabel(value)}<Icon name="arrowChevronSingleRightSmall" size={16} /></span>
           </div>
         )}
       </div>
       {onClear && (
         <div className="nc-dp-options">
-          <div className="nc-dp-row" role="button" onClick={onClear}><span>Clear</span></div>
+          <div className="nc-dp-row" role="button" onClick={onClear}><span>지우기</span></div>
         </div>
       )}
       {showReminder && (
         <div className="nc-dp-options">
           {HELP_URL && <a className="nc-dp-row nc-dp-help" href={HELP_URL} target="_blank" rel="noopener noreferrer">
             <Icon name="questionMarkCircle" size={16} />
-            <span>Reminder help</span>
+            <span>미리 알림 도움말</span>
           </a>}
         </div>
       )}

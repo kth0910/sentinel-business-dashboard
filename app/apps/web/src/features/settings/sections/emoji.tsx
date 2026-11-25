@@ -80,7 +80,7 @@ export function EmojiSection() {
           id="emoji-admin-only"
           label={t('lp.settings.only_workspace_owners_can_create_custom', 'Only workspace owners can create custom emojis')}
           description={t('lp.settings.people_who_added_existing_emojis_can', 'People who added existing emojis can still edit or delete them')}
-          control={<Switch label="Limit custom emoji creation" checked={adminOnly} onChange={(v) => saveSpaceSettings(space.id, { emoji_admin_only: v })} />}
+          control={<Switch label="사용자 지정 이모지 생성 제한" checked={adminOnly} onChange={(v) => saveSpaceSettings(space.id, { emoji_admin_only: v })} />}
         />
       )}
       <div>

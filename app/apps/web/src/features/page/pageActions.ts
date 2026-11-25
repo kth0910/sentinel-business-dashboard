@@ -29,7 +29,7 @@ export async function duplicatePage(pageId: string) {
     await loadPage(res.blockId, true);
     const p = getBlock(pageId);
     if (p?.parent_table === 'block') await loadPage(p.parent_id, true);
-    useUI.getState().toast('Duplicated');
+    useUI.getState().toast('복제했습니다');
   }
   return res.blockId as string;
 }
@@ -47,8 +47,8 @@ export function trashPage(pageId: string) {
     if (page.parent_table === 'block') openPage(page.parent_id);
     else navigate(`/${spaceDomain(page.space_id)}`);
   }
-  useUI.getState().toast(`Sent "${toPlainText(page.properties?.title) || 'Untitled'}" to Trash`, {
-    label: 'Undo',
+  useUI.getState().toast(`"${toPlainText(page.properties?.title) || 'Untitled'}"을(를) 휴지통으로 보냈습니다`, {
+    label: '실행 취소',
     run: () => restorePage(pageId),
   });
 }
@@ -84,7 +84,7 @@ export function newPage(where: Parameters<typeof createPageIn>[1], opts?: { open
 export function copyPageLink(pageId: string, blockId?: string) {
   const url = location.origin + pageUrl(pageId, { blockId });
   void navigator.clipboard?.writeText(url);
-  useUI.getState().toast('Link copied');
+  useUI.getState().toast('링크를 복사했습니다');
 }
 
 export function pageTitle(block: BlockRecord | undefined): string {

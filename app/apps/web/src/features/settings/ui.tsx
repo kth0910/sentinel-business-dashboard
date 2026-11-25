@@ -254,7 +254,7 @@ export function Pills<V extends string>({ value, items, onChange, big }: { value
   );
 }
 
-/** Plan-gated hint ("<highlight>Upgrade</highlight> to …"), an upsell row: opens Explore plans. */
+/** Plan-gated hint ("<highlight>업그레이드</highlight> to …"), an upsell row: opens Explore plans. */
 export function Upsell({ text, onClick }: { text: string; onClick?: () => void }) {
   return (
     <div

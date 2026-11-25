@@ -234,7 +234,7 @@ export function useCellSelection(tableRef: RefObject<HTMLDivElement | null>, opt
   return (
     <>
       <div className="nc-cell-sel-box" data-testid="cell-selection" style={{ left: box.left, top: box.top, width: box.width, height: box.height }}>
-        {!opts.readOnly && <div className="nc-fill-handle" role="button" aria-label="Drag to fill" data-testid="fill-handle" onPointerDown={startFill} />}
+        {!opts.readOnly && <div className="nc-fill-handle" role="button" aria-label="끌어서 채우기" data-testid="fill-handle" onPointerDown={startFill} />}
       </div>
       {box.fill && <div className="nc-cell-fill-preview" style={{ left: box.left, top: box.fill.top, width: box.width, height: box.fill.height }} />}
     </>

@@ -68,7 +68,7 @@ function EmailCopy({ form, pageId }: { form: PublicForm; pageId: string }) {
     try {
       const r = await api<{ to: string }>('emailFormResponse', { viewId: form.viewId, pageId, email: form.submitAs ? undefined : email.trim() });
       setState('sent');
-      setMsg(form.submitAs ? `Email sent to ${r.to}` : 'Email sent!');
+      setMsg(form.submitAs ? `${r.to}(으)로 이메일을 보냈습니다` : '이메일을 보냈습니다');
     } catch (e) {
       setState('error');
       setMsg((e as Error).message || 'Something went wrong while processing that request. Please try again later.');
@@ -77,9 +77,9 @@ function EmailCopy({ form, pageId }: { form: PublicForm; pageId: string }) {
   if (state === 'sent') return <div className="nc-form-done-sub" data-testid="form-email-sent">{msg}</div>;
   return (
     <div className="nc-form-email-copy">
-      {!form.submitAs && <div className="nc-form-done-sub">Enter your email to receive a copy of your submission.</div>}
-      {!form.submitAs && <div className="nc-form-input"><input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email address" /></div>}
-      <div role="button" className={`nc-form-btn secondary ${state === 'busy' ? 'busy' : ''}`} onClick={() => state !== 'busy' && (form.submitAs || email.trim()) && void send()}>Email me a copy</div>
+      {!form.submitAs && <div className="nc-form-done-sub">이메일을 입력하면 제출한 내용의 사본을 받을 수 있습니다.</div>}
+      {!form.submitAs && <div className="nc-form-input"><input type="email" placeholder="이메일 주소" value={email} onChange={(e) => setEmail(e.target.value)} aria-label="이메일 주소" /></div>}
+      <div role="button" className={`nc-form-btn secondary ${state === 'busy' ? 'busy' : ''}`} onClick={() => state !== 'busy' && (form.submitAs || email.trim()) && void send()}>내 이메일로 사본 받기</div>
       {state === 'error' && <div className="nc-form-error" role="alert">{msg}</div>}
     </div>
   );
@@ -105,7 +105,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
         return (
           <div className="nc-form-input nc-form-select">
             <select value={String((Array.isArray(value) ? (value as string[])[0] : (value as string | undefined)) ?? '')} disabled={disabled} onChange={(e) => onChange(e.target.value || undefined)}>
-              <option value="">Choose an option</option>
+              <option value="">옵션 선택</option>
               {q.options.map((o) => <option key={o.id} value={o.value}>{o.value}</option>)}
             </select>
             <Icon name="chevronDown" size={14} color="var(--lp-icon-secondary)" />
@@ -136,7 +136,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
               </label>
             );
           })}
-          {!multi && sel.size > 0 && !disabled && <div role="button" className="nc-form-clear" onClick={() => onChange(undefined)}>Clear selection</div>}
+          {!multi && sel.size > 0 && !disabled && <div role="button" className="nc-form-clear" onClick={() => onChange(undefined)}>선택 해제</div>}
           {multi && <div className="nc-form-hint">{q.maxSelection ? `(Respondents can choose up to ${q.maxSelection})` : '(Respondents can choose any number of options)'}</div>}
         </div>
       );
@@ -145,7 +145,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
       const d = (value as DateAnswer | undefined) ?? undefined;
       return (
         <div className="nc-form-input">
-          <input type="date" value={d?.start_date ?? ''} disabled={disabled} placeholder="Your answer" onChange={(e) => onChange(e.target.value ? { start_date: e.target.value } : undefined)} />
+          <input type="date" value={d?.start_date ?? ''} disabled={disabled} placeholder="내 답변" onChange={(e) => onChange(e.target.value ? { start_date: e.target.value } : undefined)} />
         </div>
       );
     }
@@ -169,7 +169,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
       return (
         <div className="nc-form-input nc-form-select">
           <select value={sel[0] ?? ''} disabled={disabled} onChange={(e) => onChange(e.target.value ? [e.target.value] : undefined)}>
-            <option value="">Your answer</option>
+            <option value="">내 답변</option>
             {rows.map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
           </select>
           <Icon name="chevronDown" size={14} color="var(--lp-icon-secondary)" />
@@ -182,11 +182,11 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
         <div className="nc-form-files">
           {files.map((f, i) => (
             <div key={i} className="nc-form-file"><Icon name="paperClip" size={14} /><span>{f.name}</span>
-              {!disabled && <span role="button" aria-label="Delete file" className="nc-form-file-del" onClick={() => onChange(files.filter((_, j) => j !== i) as unknown as FormAnswer)}><Icon name="close" size={12} /></span>}
+              {!disabled && <span role="button" aria-label="파일 삭제" className="nc-form-file-del" onClick={() => onChange(files.filter((_, j) => j !== i) as unknown as FormAnswer)}><Icon name="close" size={12} /></span>}
             </div>
           ))}
           <label className={`nc-form-upload ${disabled || form.anonymous ? 'disabled' : ''}`}>
-            <Icon name="upload" size={14} />{uploading ? 'Uploading…' : 'Upload'}
+            <Icon name="upload" size={14} />{uploading ? '업로드 중…' : '업로드'}
             <input type="file" disabled={disabled || form.anonymous || uploading} onChange={async (e) => {
               const f = e.target.files?.[0];
               if (!f) return;
@@ -206,7 +206,7 @@ function QuestionInput({ q, form, value, onChange, disabled }: { q: PublicQuesti
       const props = {
         value: (value as string | undefined) ?? '',
         disabled,
-        placeholder: 'Your answer',
+        placeholder: '내 답변',
         onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value),
         inputMode: q.type === 'number' ? ('decimal' as const) : undefined,
         type: q.type === 'email' ? 'email' : q.type === 'url' ? 'url' : q.type === 'phone_number' ? 'tel' : 'text',
@@ -259,7 +259,7 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         onDone?.(res.pageId);
       }
     } catch (e) {
-      setFailure((e as Error).message || 'The form could not be submitted. Try again, or reach out to the form owner.');
+      setFailure((e as Error).message || '폼을 제출하지 못했습니다. 다시 시도하거나 폼 소유자에게 문의하세요.');
     } finally {
       setBusy(false);
     }
@@ -279,14 +279,14 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
       <div className="nc-form-r nc-form-done" data-testid="form-confirmation">
         <div className="nc-form-done-icon"><Icon name="check" size={28} /></div>
         {/* Form settings › Submit › Confirmation title / body defaults */}
-        <div className="nc-form-done-title">{ss.confirmationTitle?.trim() || (publicCopy ? 'Your submission is recorded.' : 'Thank you!')}</div>
-        <div className="nc-form-done-sub">{ss.confirmationBody?.trim() || (publicCopy ? 'Thanks for filling out this form.' : 'Your submission was sent successfully.')}</div>
+        <div className="nc-form-done-title">{ss.confirmationTitle?.trim() || (publicCopy ? '응답이 기록되었습니다.' : '감사합니다!')}</div>
+        <div className="nc-form-done-sub">{ss.confirmationBody?.trim() || (publicCopy ? '양식을 작성해 주셔서 감사합니다.' : '제출이 완료되었습니다.')}</div>
         <div className="nc-form-done-actions">
           {ss.allowSubmitAnotherResponse !== false && (
-            <div role="button" className="nc-form-btn secondary" onClick={() => { setAnswers({}); setErrors({}); setDone(null); }}>Submit another</div>
+            <div role="button" className="nc-form-btn secondary" onClick={() => { setAnswers({}); setErrors({}); setDone(null); }}>다른 응답 제출</div>
           )}
           {ss.allowViewResponse && canView && (
-            <a className="nc-form-btn secondary" data-testid="form-view-response" href={`/${done.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer">Open my submission</a>
+            <a className="nc-form-btn secondary" data-testid="form-view-response" href={`/${done.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer">내 제출 내용 열기</a>
           )}
         </div>
         {ss.allowEmailResponse && !preview && <EmailCopy form={form} pageId={done} />}
@@ -301,9 +301,9 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         {header}
         <div className="nc-form-r-as">
           {form.submitAs ? (
-            <span className="nc-form-r-pill">Submitting as <span className="nc-form-avatar sm">{form.submitAs.name[0]?.toUpperCase()}</span>{form.submitAs.name}</span>
+            <span className="nc-form-r-pill">제출자 <span className="nc-form-avatar sm">{form.submitAs.name[0]?.toUpperCase()}</span>{form.submitAs.name}</span>
           ) : (
-            <span className="nc-form-r-pill">Sending anonymously</span>
+            <span className="nc-form-r-pill">익명으로 제출 중</span>
           )}
         </div>
         {qs.map((q) => (
@@ -316,7 +316,7 @@ export function FormRenderer({ form, preview, onDone }: { form: PublicForm; prev
         ))}
         {failure && <div className="nc-form-error big" role="alert">Something went wrong while processing that request. {failure}</div>}
         <div className="nc-form-r-submit">
-          <div role="button" className={`nc-form-btn primary ${busy ? 'busy' : ''}`} data-testid="form-submit" style={{ background: submitColor(form.submitScreen.submitButtonColor) }} onClick={() => !busy && void submit()}>{busy ? 'Submitting…' : form.submitScreen.submitButtonText?.trim() || 'Submit'}</div>
+          <div role="button" className={`nc-form-btn primary ${busy ? 'busy' : ''}`} data-testid="form-submit" style={{ background: submitColor(form.submitScreen.submitButtonColor) }} onClick={() => !busy && void submit()}>{busy ? '제출 중…' : form.submitScreen.submitButtonText?.trim() || '제출'}</div>
         </div>
       </div>
     </div>

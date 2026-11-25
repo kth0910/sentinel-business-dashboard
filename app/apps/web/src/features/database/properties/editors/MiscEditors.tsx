@@ -93,7 +93,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
     if (o.kind === 'user') add(o.id);
     else addGroup(o.id);
   };
-  const groupName = (id: string) => spaceGroups.find((g) => g.id === id)?.name || 'Deleted group';
+  const groupName = (id: string) => spaceGroups.find((g) => g.id === id)?.name || '삭제된 그룹';
   return (
     <PopoverSurface width={300} className="nc-select-editor">
       <div className="nc-select-editor-field">
@@ -103,7 +103,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
           return (
             <span key={id} className="nc-person-token">
               <UserAvatar userId={id} size={18} />
-              <span>{id === TEMPLATE_ME ? 'Me' : u?.name || u?.email || 'Unknown'}</span>
+              <span>{id === TEMPLATE_ME ? '나' : u?.name || u?.email || '알 수 없음'}</span>
               <span role="button" className="nc-pill-remove" onClick={() => set(ids.filter((x) => x !== id))}><Icon name="xSmall" size={12} /></span>
             </span>
           );
@@ -118,7 +118,7 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
         <input
           ref={inputRef}
           value={q}
-          placeholder={ids.length || groups.length ? '' : spaceGroups.length ? 'Find people or groups…' : 'Find a person…'}
+          placeholder={ids.length || groups.length ? '' : spaceGroups.length ? '사용자 또는 그룹 찾기…' : '사람 검색…'}
           onChange={(e) => { setQ(e.target.value); setActive(0); }}
           onKeyDown={(e) => {
             if (e.nativeEvent.isComposing) return;
@@ -132,11 +132,11 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll">
-        <div className="nc-select-editor-hint">{spaceGroups.length ? (limit === 1 ? 'Select one' : 'Choose any number of options') : limit === 1 ? 'Select a person' : 'Select as many people as you like'}</div>
+        <div className="nc-select-editor-hint">{spaceGroups.length ? (limit === 1 ? '하나 선택' : '원하는 만큼 선택') : limit === 1 ? '사용자를 한 명 선택하세요' : '원하는 만큼 사람을 선택하세요'}</div>
         {/* database templates: "Me — Person who duplicated entry" */}
         {getBlock(opts.rowIds[0])?.is_template && !ids.includes(TEMPLATE_ME) && (!q || 'me'.includes(q.trim().toLowerCase())) && (
           <div role="option" aria-selected={false} className="nc-select-option" onMouseDown={(e) => e.preventDefault()} onClick={() => add(TEMPLATE_ME)}>
-            <span className="nc-person-chip"><Icon name="person" size={18} /><span className="nc-person-name">Me</span><span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>Person who duplicated entry</span></span>
+            <span className="nc-person-chip"><Icon name="person" size={18} /><span className="nc-person-name">나</span><span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>항목을 복제한 사람</span></span>
           </div>
         )}
         {list.map((u, i) => (
@@ -144,20 +144,20 @@ function PersonEditor({ opts, close }: { opts: CellEditorOptions; close: () => v
             <span className="nc-person-chip"><UserAvatar userId={u.id} size={20} /><span className="nc-person-name">{u.name || u.email}</span></span>
           </div>
         ))}
-        {groupList.length > 0 && <div className="nc-select-editor-hint">Groups</div>}
+        {groupList.length > 0 && <div className="nc-select-editor-hint">그룹</div>}
         {groupList.map((g, k) => {
           const i = list.length + k;
           return (
             <div key={g.id} role="option" aria-selected={i === active} data-group-id={g.id} className={`nc-select-option ${i === active ? 'active' : ''}`} onMouseMove={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => addGroup(g.id)}>
               <span className="nc-person-chip">
                 <span className="nc-group-avatar" style={{ width: 20, height: 20 }} aria-hidden>{(g.name ?? '').trim()[0]?.toUpperCase()}</span>
-                <span className="nc-person-name">{g.name || 'Untitled'}</span>
-                <span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>{(g.member_ids?.length ?? 0) === 1 ? '1 person' : `${g.member_ids?.length ?? 0} people`}</span>
+                <span className="nc-person-name">{g.name || '제목 없음'}</span>
+                <span className="nc-select-editor-hint" style={{ padding: 0, marginInlineStart: 8 }}>{(g.member_ids?.length ?? 0) === 1 ? '1명' : `${g.member_ids?.length ?? 0}명`}</span>
               </span>
             </div>
           );
         })}
-        {!options.length && <div className="nc-select-editor-empty">No results</div>}
+        {!options.length && <div className="nc-select-editor-empty">결과 없음</div>}
       </div>
     </PopoverSurface>
   );
@@ -171,7 +171,7 @@ export async function uploadFileValues(list: File[]): Promise<FileValue[]> {
   const out: FileValue[] = [];
   for (const f of list) {
     if (f.size > 5 * 1024 * 1024) {
-      useUI.getState().toast('The maximum size per file is 5 MB.');
+      useUI.getState().toast('파일당 최대 크기는 5MB입니다.');
       continue;
     }
     try {
@@ -179,7 +179,7 @@ export async function uploadFileValues(list: File[]): Promise<FileValue[]> {
       out.push({ name: res.name || f.name, url: res.url });
     } catch (err) {
       console.error(err);
-      useUI.getState().toast('Upload failed.');
+      useUI.getState().toast('업로드하지 못했습니다.');
     }
   }
   return out;
@@ -192,8 +192,8 @@ export function openFileFullScreen(f: FileValue) {
       <img src={f.url} alt={f.name} onClick={(e) => e.stopPropagation()} />
       <div className="nc-file-fullscreen-bar" onClick={(e) => e.stopPropagation()}>
         <span className="nc-ellipsis">{f.name}</span>
-        <a href={f.url} download={f.name} className="nc-btn outline">Download</a>
-        <span role="button" className="nc-btn outline" onClick={close}>Close</span>
+        <a href={f.url} download={f.name} className="nc-btn outline">다운로드</a>
+        <span role="button" className="nc-btn outline" onClick={close}>닫기</span>
       </div>
     </div>
   ), { placement: 'center', backdrop: 'dim', className: 'nc-file-fullscreen-overlay' });
@@ -239,12 +239,12 @@ function FilesEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
     const f = files[i];
     openNestedMenu(anchor, { width: 200, sections: [
       { items: [
-        ...(isImageFile(f) ? [{ id: 'full', label: 'Full screen', icon: 'maximize', onSelect: () => { setTimeout(() => openFileFullScreen(f), 0); } }] : []),
-        { id: 'orig', label: 'View original', icon: 'openAsPage', onSelect: () => { window.open(f.url, '_blank', 'noopener'); } },
-        { id: 'dl', label: 'Download', icon: 'download', onSelect: () => downloadFile(f) },
-        { id: 'rename', label: 'Rename', icon: 'pencil', onSelect: () => setRenaming(i) },
+        ...(isImageFile(f) ? [{ id: 'full', label: '전체 화면', icon: 'maximize', onSelect: () => { setTimeout(() => openFileFullScreen(f), 0); } }] : []),
+        { id: 'orig', label: '원본 보기', icon: 'openAsPage', onSelect: () => { window.open(f.url, '_blank', 'noopener'); } },
+        { id: 'dl', label: '다운로드', icon: 'download', onSelect: () => downloadFile(f) },
+        { id: 'rename', label: '이름 바꾸기', icon: 'pencil', onSelect: () => setRenaming(i) },
       ] },
-      { items: [{ id: 'delete', label: 'Delete', icon: 'trash', onSelect: () => set(files.filter((_, j) => j !== i)) }] },
+      { items: [{ id: 'delete', label: '삭제', icon: 'trash', onSelect: () => set(files.filter((_, j) => j !== i)) }] },
     ] }, { placement: 'bottom-end' });
   };
   return (
@@ -274,7 +274,7 @@ function FilesEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
                   set(next);
                 }}
               >
-                <span className="nc-files-handle" draggable aria-label="Drag to reorder" onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); setDrag({ from: i, over: i }); }} onDragEnd={() => setDrag(null)}><Icon name="gripVertical" size={14} /></span>
+                <span className="nc-files-handle" draggable aria-label="드래그하여 순서 변경" onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); setDrag({ from: i, over: i }); }} onDragEnd={() => setDrag(null)}><Icon name="gripVertical" size={14} /></span>
                 {isImageFile(f) ? <img className="nc-files-thumb" src={f.url} alt="" /> : <Icon name="paperClip" size={16} />}
                 {renaming === i ? (
                   <input
@@ -287,26 +287,26 @@ function FilesEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
                 ) : (
                   <a href={f.url} target="_blank" rel="noreferrer" className="nc-files-name" onClick={(e) => { if (isImageFile(f)) { e.preventDefault(); openFileFullScreen(f); } }}>{f.name}</a>
                 )}
-                <span role="button" className="nc-files-remove" aria-label="More actions" data-testid="files-item-menu" onClick={(e) => fileMenu(e.currentTarget, i)}><Icon name="ellipsisSmall" size={14} /></span>
+                <span role="button" className="nc-files-remove" aria-label="추가 작업" data-testid="files-item-menu" onClick={(e) => fileMenu(e.currentTarget, i)}><Icon name="ellipsisSmall" size={14} /></span>
               </div>
             ))}
           </div>
         )}
         <div className="nc-files-tabs">
-          <span role="tab" aria-selected={tab === 'upload'} className={tab === 'upload' ? 'active' : ''} onClick={() => setTab('upload')}>Upload</span>
-          <span role="tab" aria-selected={tab === 'link'} className={tab === 'link' ? 'active' : ''} onClick={() => setTab('link')}>Link</span>
+          <span role="tab" aria-selected={tab === 'upload'} className={tab === 'upload' ? 'active' : ''} onClick={() => setTab('upload')}>업로드</span>
+          <span role="tab" aria-selected={tab === 'link'} className={tab === 'link' ? 'active' : ''} onClick={() => setTab('link')}>링크</span>
         </div>
         <div className="nc-files-body">
           {tab === 'upload' ? (
             <>
-              <button className="nc-btn outline nc-files-choose" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? 'Uploading…' : 'Choose a file'}</button>
+              <button className="nc-btn outline nc-files-choose" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? '업로드 중…' : '파일 선택'}</button>
               <input ref={fileRef} type="file" multiple={!single} hidden data-testid="files-input" onChange={(e) => void addUploads([...(e.target.files ?? [])])} />
-              <div className="nc-files-hint">{dropping ? 'Drop to upload' : 'The maximum size per file is 5 MB.'}</div>
+              <div className="nc-files-hint">{dropping ? '여기에 놓아 업로드' : '파일당 최대 크기는 5MB입니다.'}</div>
             </>
           ) : (
             <>
-              <div className="nc-input focused"><input autoFocus placeholder="Paste a URL such as https://…" value={link} onChange={(e) => setLink(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && link.trim()) { e.preventDefault(); set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); } if (e.key === 'Escape') close(); }} /></div>
-              <button className="nc-btn primary nc-files-embed" disabled={!link.trim()} onClick={() => { set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); }}>Embed link</button>
+              <div className="nc-input focused"><input autoFocus placeholder="https://… 같은 URL을 붙여 넣으세요" value={link} onChange={(e) => setLink(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && link.trim()) { e.preventDefault(); set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); } if (e.key === 'Escape') close(); }} /></div>
+              <button className="nc-btn primary nc-files-embed" disabled={!link.trim()} onClick={() => { set([...files, { name: link.trim(), url: /^[a-z]+:/i.test(link.trim()) ? link.trim() : `https://${link.trim()}` }]); setLink(''); }}>링크 임베드</button>
             </>
           )}
         </div>
@@ -363,7 +363,7 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
         setBusy(false);
         const lat = Math.round(pos.coords.latitude * 1e6) / 1e6;
         const lon = Math.round(pos.coords.longitude * 1e6) / 1e6;
-        set({ name: name.trim() || 'Current Location', address: `${lat}, ${lon}`, lat, lon });
+        set({ name: name.trim() || '현재 위치', address: `${lat}, ${lon}`, lat, lon });
         close();
       },
       () => { setBusy(false); setGeoError(true); },
@@ -375,12 +375,12 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
       <div className="nc-place-fields" data-menu-keys="ignore">
         <div className="nc-input focused">
           <Icon name="magnifyingGlassSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
-          <input autoFocus placeholder="Find a place..." value={q} data-testid="place-search" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); pickTyped(); close(); } if (e.key === 'Escape') close(); }} />
+          <input autoFocus placeholder="장소 검색..." value={q} data-testid="place-search" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); pickTyped(); close(); } if (e.key === 'Escape') close(); }} />
         </div>
       </div>
       <div className="nc-place-results">
-        <div role="button" className={`nc-menu-item ${geoError ? 'disabled' : ''}`} data-testid="place-current" data-tooltip={geoError ? 'Location access is unavailable' : undefined} onClick={() => !geoError && !busy && useCurrent()}>
-          <div className="nc-menu-item-inner"><Icon name="crosshair" size={16} /><div className="nc-menu-label">{busy ? 'Current Location…' : 'Current Location'}</div></div>
+        <div role="button" className={`nc-menu-item ${geoError ? 'disabled' : ''}`} data-testid="place-current" data-tooltip={geoError ? '위치 정보에 접근할 수 없습니다' : undefined} onClick={() => !geoError && !busy && useCurrent()}>
+          <div className="nc-menu-item-inner"><Icon name="crosshair" size={16} /><div className="nc-menu-label">{busy ? '현재 위치 확인 중…' : '현재 위치'}</div></div>
         </div>
         {needle && (
           <div role="button" className="nc-menu-item" data-testid="place-use-typed" onClick={() => { pickTyped(); close(); }}>
@@ -395,17 +395,17 @@ function PlaceEditor({ opts, close }: { opts: CellEditorOptions; close: () => vo
             </div>
           </div>
         ))}
-        {needle && <div className="nc-place-disclaimer">Results may be limited. </div>}
+        {needle && <div className="nc-place-disclaimer">결과가 일부만 표시될 수 있습니다. </div>}
       </div>
       {cur && (
         <>
           <div className="nc-menu-divider" />
           <div className="nc-place-fields" data-menu-keys="ignore">
-            <label className="nc-place-label">Place name</label>
-            <div className="nc-input"><input placeholder="Rename place" value={name} data-testid="place-name" onChange={(e) => setName(e.target.value)} onBlur={() => set({ ...cur, name: name.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') { set({ ...cur, name: name.trim() || undefined }); close(); } }} /></div>
+            <label className="nc-place-label">장소 이름</label>
+            <div className="nc-input"><input placeholder="장소 이름 변경" value={name} data-testid="place-name" onChange={(e) => setName(e.target.value)} onBlur={() => set({ ...cur, name: name.trim() || undefined })} onKeyDown={(e) => { if (e.key === 'Enter') { set({ ...cur, name: name.trim() || undefined }); close(); } }} /></div>
           </div>
-          <a className="nc-menu-item nc-place-map" href={mapsUrl(cur)} target="_blank" rel="noreferrer"><div className="nc-menu-item-inner"><Icon name="openAsPage" size={16} /><div className="nc-menu-label">Open in Maps</div></div></a>
-          <div role="button" className="nc-menu-item nc-place-clear" data-testid="place-clear" onClick={() => { write(opts, undefined); close(); }}><div className="nc-menu-item-inner"><Icon name="trash" size={16} /><div className="nc-menu-label">Clear place</div></div></div>
+          <a className="nc-menu-item nc-place-map" href={mapsUrl(cur)} target="_blank" rel="noreferrer"><div className="nc-menu-item-inner"><Icon name="openAsPage" size={16} /><div className="nc-menu-label">지도에서 열기</div></div></a>
+          <div role="button" className="nc-menu-item nc-place-clear" data-testid="place-clear" onClick={() => { write(opts, undefined); close(); }}><div className="nc-menu-item-inner"><Icon name="trash" size={16} /><div className="nc-menu-label">장소 지우기</div></div></div>
         </>
       )}
     </PopoverSurface>
@@ -423,7 +423,7 @@ function RelationEditor({ opts, close }: { opts: CellEditorOptions; close: () =>
   });
   const [q, setQ] = useState('');
   const pages = useMemo(() => (target ? collectionRows(target.id) : []), [target]);
-  const title = (b: BlockRecord) => toPlainText(b.properties?.title) || 'Untitled';
+  const title = (b: BlockRecord) => toPlainText(b.properties?.title) || '제목 없음';
   const set = (next: string[]) => {
     setIds(next);
     write(opts, encodeRelation(next, c?.space_id));
@@ -434,19 +434,19 @@ function RelationEditor({ opts, close }: { opts: CellEditorOptions; close: () =>
     <PopoverSurface width={360} className="nc-select-editor">
       <div className="nc-select-editor-field">
       <div className="nc-select-editor-input">
-        <input autoFocus value={q} placeholder="Link or create an entry…" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') close(); }} />
+        <input autoFocus value={q} placeholder="항목 연결 또는 만들기…" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') close(); }} />
       </div>
       </div>
       <div className="lit-scroller vertical nc-select-editor-scroll">
-        {!target && <div className="nc-select-editor-empty">Choose a related database in Edit property.</div>}
-        {linked.length > 0 && <div className="nc-select-editor-hint">Linked</div>}
+        {!target && <div className="nc-select-editor-empty">속성 편집에서 연결할 데이터베이스를 선택하세요.</div>}
+        {linked.length > 0 && <div className="nc-select-editor-hint">연결됨</div>}
         {linked.map((b) => (
           <div key={b.id} className="nc-select-option" onClick={() => set(ids.filter((x) => x !== b.id))}>
             <span className="nc-page-chip"><PageIcon block={b} size={18} /><span className="nc-page-chip-title">{title(b)}</span></span>
             <span className="nc-select-option-more"><Icon name="minus" size={14} /></span>
           </div>
         ))}
-        {target && <div className="nc-select-editor-hint">{rest.length ? 'Select more' : 'No pages'}</div>}
+        {target && <div className="nc-select-editor-hint">{rest.length ? '더 선택' : '페이지 없음'}</div>}
         {rest.slice(0, 100).map((b) => (
           <div key={b.id} className="nc-select-option" onClick={() => { if (prop?.limit === 1) { set([b.id]); close(); } else set([...ids, b.id]); }}>
             <span className="nc-page-chip"><PageIcon block={b} size={18} /><span className="nc-page-chip-title">{title(b)}</span></span>

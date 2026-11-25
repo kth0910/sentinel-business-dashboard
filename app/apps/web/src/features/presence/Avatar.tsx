@@ -6,7 +6,7 @@ import { useUser } from '../../lib/hooks.ts';
 import { colorToken } from '../../lib/colorToken.ts';
 
 export function userName(u: UserRecord | undefined | null): string {
-  return u?.name || u?.email || 'Unknown user';
+  return u?.name || u?.email || '알 수 없는 사용자';
 }
 
 /** Deterministic presence color (cursor, selection, avatar ring) for a user/client. */

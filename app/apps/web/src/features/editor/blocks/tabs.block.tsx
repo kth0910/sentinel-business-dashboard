@@ -40,7 +40,7 @@ function writeSelected(blockId: string, tabId: string) {
 }
 
 export function tabLabel(tab: BlockRecord, index: number): string {
-  return toPlainText(tab.properties?.title as RichText | undefined) || `Tab ${index + 1}`;
+  return toPlainText(tab.properties?.title as RichText | undefined) || `탭 ${index + 1}`;
 }
 
 function addTab(blockId: string): string {
@@ -74,7 +74,7 @@ function TabPill({ tab, index, selected, readOnly, onSelect, blockId }: { tab: B
   const ref = useRef<HTMLDivElement>(null);
   const icon = tab.format?.page_icon as string | undefined;
   const startRename = () => {
-    setV(toPlainText(tab.properties?.title as RichText | undefined) || `Tab ${index + 1}`);
+    setV(toPlainText(tab.properties?.title as RichText | undefined) || `탭 ${index + 1}`);
     setEditing(true);
   };
   useEffect(() => {
@@ -104,10 +104,10 @@ function TabPill({ tab, index, selected, readOnly, onSelect, blockId }: { tab: B
               width: 220,
               sections: [{
                 items: [
-                  { label: 'Rename', icon: 'pencilLine', onSelect: () => { setTimeout(startRename, 0); } },
-                  { label: 'Edit icon', icon: 'iconEdit', onSelect: () => { setTimeout(() => ref.current && openIconPicker(ref.current, { current: icon, onPick: (val) => run('tabBlockActions.setIcon', (tx) => setFormat(tx, tab.id, { page_icon: val ?? undefined })) }), 0); } },
-                  { label: 'Copy link', icon: 'link', onSelect: () => copyPageLink(pageIdOfBlock(blockId) ?? blockId, tab.id) },
-                  { label: 'Delete', icon: 'trash', onSelect: () => deleteTab(blockId, tab.id) },
+                  { label: '이름 바꾸기', icon: 'pencilLine', onSelect: () => { setTimeout(startRename, 0); } },
+                  { label: '아이콘 편집', icon: 'iconEdit', onSelect: () => { setTimeout(() => ref.current && openIconPicker(ref.current, { current: icon, onPick: (val) => run('tabBlockActions.setIcon', (tx) => setFormat(tx, tab.id, { page_icon: val ?? undefined })) }), 0); } },
+                  { label: '링크 복사', icon: 'link', onSelect: () => copyPageLink(pageIdOfBlock(blockId) ?? blockId, tab.id) },
+                  { label: '삭제', icon: 'trash', onSelect: () => deleteTab(blockId, tab.id) },
                 ],
               }],
             });
@@ -165,13 +165,13 @@ function TabsBlock({ block, depth, readOnly }: BlockProps) {
     <div className="nc-bpad">
       <div className="nc-tabs-card">
         <div className="nc-tabs-strip">
-          <div role="tablist" aria-label="Tab block" aria-orientation="horizontal" style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          <div role="tablist" aria-label="탭 블록" aria-orientation="horizontal" style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {tabs.map((t, i) => (
               <TabPill key={t.id} tab={t} index={i} blockId={block.id} selected={t.id === current?.id} readOnly={readOnly} onSelect={() => select(t.id)} />
             ))}
           </div>
           {!readOnly && (
-            <div role="button" aria-label="Add tab" className="nc-tab-add" data-tooltip="Add tab" onMouseDown={(e) => e.preventDefault()} onClick={() => { const id = addTab(block.id); select(id); }}>
+            <div role="button" aria-label="탭 추가" className="nc-tab-add" data-tooltip="탭 추가" onMouseDown={(e) => e.preventDefault()} onClick={() => { const id = addTab(block.id); select(id); }}>
               <Icon name="plus" size={16} />
             </div>
           )}
@@ -192,7 +192,7 @@ function TabsBlock({ block, depth, readOnly }: BlockProps) {
                   useEditor.getState().requestFocus(id, 0);
                 }}
               >
-                Empty tab. Click or drop blocks inside.
+                빈 탭입니다. 블록을 클릭하거나 끌어다 놓으세요.
               </div>
             )}
           </div>

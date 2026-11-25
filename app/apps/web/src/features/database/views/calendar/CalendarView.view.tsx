@@ -55,7 +55,7 @@ function addMonths(n: number, k: number): number {
 }
 
 function timeLabel(ms: number): string {
-  return new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return new Date(ms).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
 }
 
 function layoutWeek(items: { row: BlockRecord; range: DayRange }[], weekStart: number, days: number[]): Placed[] {
@@ -91,8 +91,8 @@ function layoutWeek(items: { row: BlockRecord; range: DayRange }[], weekStart: n
 function NoDateProperty({ onAdd, readOnly }: { onAdd: () => void; readOnly: boolean }) {
   return (
     <div className="nc-cal-nodate">
-      <div className="nc-cal-nodate-title">No date field</div>
-      {readOnly ? <div>Calendar layouts need a date field to display entries.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>Add a date field</span> to this table to display a calendar layout.</div>}
+      <div className="nc-cal-nodate-title">날짜 속성 없음</div>
+      {readOnly ? <div>캘린더 레이아웃에 항목을 표시하려면 날짜 속성이 필요합니다.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>날짜 속성 추가</span> to this table to display a calendar layout.</div>}
     </div>
   );
 }
@@ -207,7 +207,7 @@ function CalendarView(props: ViewProps) {
   const lane = LANE + visibleProps.length * 20 + (wrapTitles ? 20 : 0) + (cardSubitems ? 20 : 0);
   const openSubitems = (anchor: HTMLElement, row: BlockRecord) => {
     const kids = sub ? childIdsOf(row, sub).map((id) => records.get<BlockRecord>('block', id)).filter((b): b is BlockRecord => !!b && b.alive !== false) : [];
-    openMenu(anchor, { width: 240, sections: [{ items: kids.map((k) => ({ id: k.id, label: titleOf(k) || 'Untitled', icon: <PageIcon block={k} size={16} fallback="page" />, onSelect: () => kit.openRow(k.id) })) }] }, { placement: 'bottom-start' });
+    openMenu(anchor, { width: 240, sections: [{ items: kids.map((k) => ({ id: k.id, label: titleOf(k) || '제목 없음', icon: <PageIcon block={k} size={16} fallback="page" />, onSelect: () => kit.openRow(k.id) })) }] }, { placement: 'bottom-start' });
   };
 
   const addDateProperty = () => {
@@ -300,13 +300,13 @@ function CalendarView(props: ViewProps) {
       <div className="nc-cal-header">
         <div className="nc-cal-title">{monthTitle}</div>
         <div style={{ flex: 1 }} />
-        <div role="button" className="nc-cal-manage" data-tooltip="Calendar sync is not available" onClick={() => useUI.getState().toast('Calendar sync is not available')}>
+        <div role="button" className="nc-cal-manage" data-tooltip="캘린더 동기화를 사용할 수 없습니다" onClick={() => useUI.getState().toast('캘린더 동기화를 사용할 수 없습니다')}>
           <Icon name="calendar" size={16} />
-          <span>Manage in Calendar</span>
+          <span>캘린더에서 관리</span>
         </div>
-        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? 'Previous Week' : 'Previous Month'} onClick={() => goto(-1)}><Icon name="chevronLeft" size={20} color="var(--lp-icon-secondary)" /></div>
-        <div role="button" className="nc-cal-today" onClick={() => goto(0)}>Today</div>
-        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? 'Next Week' : 'Next Month'} onClick={() => goto(1)}><Icon name="chevronRight" size={20} color="var(--lp-icon-secondary)" /></div>
+        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? '이전 주' : '이전 달'} onClick={() => goto(-1)}><Icon name="chevronLeft" size={20} color="var(--lp-icon-secondary)" /></div>
+        <div role="button" className="nc-cal-today" onClick={() => goto(0)}>오늘</div>
+        <div role="button" className="nc-cal-nav" aria-label={range === 'week' ? '다음 주' : '다음 달'} onClick={() => goto(1)}><Icon name="chevronRight" size={20} color="var(--lp-icon-secondary)" /></div>
       </div>
       <div className="nc-cal-days lit-calendar-header-days">
         {headerDays.map((d) => <div key={d}>{weekdayName(weekdayOf(d) === 0 ? 7 : weekdayOf(d), 'short')}</div>)}
@@ -342,10 +342,10 @@ function CalendarView(props: ViewProps) {
                     onDrop={(e) => { const id = e.dataTransfer.getData(NO_DATE_DRAG_TYPE); setDropDay(null); if (id && editable) { e.preventDefault(); setRowDay(id, view, collection, d); } }}
                   >
                     {!readOnly && (
-                      <div role="button" className="nc-cal-add" aria-label="Create an item" data-tooltip="Create an item" onClick={() => addOn(d)}><Icon name="plus" size={14} /></div>
+                      <div role="button" className="nc-cal-add" aria-label="항목 만들기" data-tooltip="항목 만들기" onClick={() => addOn(d)}><Icon name="plus" size={14} /></div>
                     )}
                     <div className={`nc-cal-num lit-calendar-view-day ${inMonth ? '' : 'outside'} ${d === today ? 'today' : ''}`} data-testid={d === today ? 'today-day-number' : undefined}>
-                      {first && d !== today ? `${monthName(Number(iso.slice(5, 7)), true)} 1` : Number(iso.slice(8))}
+                      {first && d !== today ? `${monthName(Number(iso.slice(5, 7)), true)} 1일` : Number(iso.slice(8))}
                     </div>
                     {hidden > 0 && (
                       <div role="button" className="nc-cal-more" style={{ top: TOP + lanesShown * lane }} onClick={() => setExpanded((x) => ({ ...x, [ws]: true }))}>{hidden} more</div>
@@ -374,7 +374,7 @@ function CalendarView(props: ViewProps) {
                       >
                         <div className={`nc-cal-card-title ${wrapTitles ? 'wrap' : ''}`}>
                           {startLbl && <div className="nc-cal-time">{startLbl}{endLbl && <span> → {endLbl}</span>}</div>}
-                          <div className="nc-cal-card-name notranslate">{(p.row.properties?.title ?? []).map((x) => x[0]).join('') || 'Untitled'}</div>
+                          <div className="nc-cal-card-name notranslate">{(p.row.properties?.title ?? []).map((x) => x[0]).join('') || '제목 없음'}</div>
                         </div>
                         {visibleProps.length > 0 && (
                           <div className="nc-cal-card-props">
@@ -384,7 +384,7 @@ function CalendarView(props: ViewProps) {
                         {cardSubitems && (sub!.counts[p.row.id] ?? 0) > 0 && (
                           <div role="button" className="nc-cal-card-subitems" data-testid="calendar-subitems" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); openSubitems(e.currentTarget, p.row); }}>
                             <Icon name="triangleRight" size={10} />
-                            <span>{`${sub!.counts[p.row.id]} ${sub!.counts[p.row.id] === 1 ? 'sub-item' : 'sub-items'}`}</span>
+                            <span>{`하위 항목 ${sub!.counts[p.row.id]}개`}</span>
                           </div>
                         )}
                         {editable && <div className="nc-cal-handle left lit-calendar-item-drag-handle-left" onPointerDown={(e) => startDrag(e, p, 'left')} />}
@@ -430,13 +430,13 @@ function CalendarLayoutSettings({ view, collection, readOnly }: LayoutSettingsPr
   const range = fmt.calendar_view_range === 'week' ? 'week' : 'month';
   return (
     <>
-      <SettingsRow label="Group calendar by" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, datePropertyItems(schema, by, (id) => setQuery2(view, { calendar_by: id }, 'calendar.setDateProperty')))} />
-      <SettingsRow label="Display calendar as" value={range === 'week' ? 'Week' : 'Month'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
-        { id: 'month', label: 'Month', checked: range === 'month', onSelect: () => setFormat(view, { calendar_view_range: 'month' }) },
-        { id: 'week', label: 'Week', checked: range === 'week', onSelect: () => setFormat(view, { calendar_view_range: 'week' }) },
+      <SettingsRow label="캘린더 그룹 기준" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, datePropertyItems(schema, by, (id) => setQuery2(view, { calendar_by: id }, 'calendar.setDateProperty')))} />
+      <SettingsRow label="캘린더 표시 단위" value={range === 'week' ? '주' : '월'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, [
+        { id: 'month', label: '월', checked: range === 'month', onSelect: () => setFormat(view, { calendar_view_range: 'month' }) },
+        { id: 'week', label: '주', checked: range === 'week', onSelect: () => setFormat(view, { calendar_view_range: 'week' }) },
       ])} />
-      <SettingsToggle label="Show weekends" on={fmt.calendar_show_weekends !== false} disabled={readOnly} onChange={(v) => setFormat(view, { calendar_show_weekends: v })} />
-      <SettingsToggle label="Wrap entry titles" on={viewProperties(view, schema).some((e) => e.property === 'title' && (e as { wrap?: boolean }).wrap === true)} disabled={readOnly} onChange={(v) => {
+      <SettingsToggle label="주말 표시" on={fmt.calendar_show_weekends !== false} disabled={readOnly} onChange={(v) => setFormat(view, { calendar_show_weekends: v })} />
+      <SettingsToggle label="항목 제목 줄바꿈" on={viewProperties(view, schema).some((e) => e.property === 'title' && (e as { wrap?: boolean }).wrap === true)} disabled={readOnly} onChange={(v) => {
         const entries = viewProperties(view, schema);
         const next = entries.some((e) => e.property === 'title') ? entries.map((e) => (e.property === 'title' ? { ...e, wrap: v } : e)) : [{ property: 'title', visible: true, wrap: v }, ...entries];
         setFormat(view, { calendar_properties: next }, 'calendar.wrapPageTitles');

@@ -250,7 +250,7 @@ function PageHeader({ page, readOnly, publicView, backlinks }: { page: BlockReco
         <div className={`nc-page-icon-wrap ${hasCover ? 'with-cover' : ''}`}>
           <div
             role="button"
-            aria-label={`${icon.startsWith('lit-icon') || /^(https?:|\/)/.test(icon) ? 'Page icon' : icon} Change page icon`}
+            aria-label={`${icon.startsWith('lit-icon') || /^(https?:|\/)/.test(icon) ? 'Page icon' : icon} 페이지 아이콘 변경`}
             className="lit-record-icon nc-page-icon"
             onClick={(e) => !readOnly && openPageIconPicker(page.id, e.currentTarget)}
           >
@@ -317,8 +317,8 @@ function PageHeader({ page, readOnly, publicView, backlinks }: { page: BlockReco
 function PageNotFound() {
   return (
     <div className="nc-page-missing">
-      <div className="nc-page-missing-title">We couldn’t find this page</div>
-      <div className="nc-page-missing-sub">You may lack access, or the page moved or was removed. Check the URL and try again.</div>
+      <div className="nc-page-missing-title">페이지를 찾을 수 없습니다</div>
+      <div className="nc-page-missing-sub">액세스 권한이 없거나 페이지가 이동되었거나 삭제되었을 수 있습니다. URL을 확인한 후 다시 시도하세요.</div>
     </div>
   );
 }
@@ -332,7 +332,7 @@ function TrashBanner({ page }: { page: BlockRecord }) {
   // Settings › Security › Data retention: 30 days, or the Enterprise workspace's own number
   const space = useRecord<SpaceRecord>('space', page.space_id);
   const daysLeft = Math.max(1, trashRetentionDays(space) - Math.floor((Date.now() - deleted) / 86400000));
-  const when = Date.now() - deleted < 60_000 ? 'just now' : Date.now() - deleted < 86400000 ? `${Math.round((Date.now() - deleted) / 3600000) || 1}h ago` : new Date(deleted).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const when = Date.now() - deleted < 60_000 ? 'just now' : Date.now() - deleted < 86400000 ? `${Math.round((Date.now() - deleted) / 3600000) || 1}시간 전` : new Date(deleted).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
   return (
     <div className="nc-trash-banner" role="status">
       <span>{t('lp.page.moved_to_trash_by_permanent_deletion', 'Moved to Trash by {trashAuthorDisplayName} {movedToTrashDateComponent}. Permanent deletion in {numDaysLeftInTrashComponent}.', { trashAuthorDisplayName: userName(by), movedToTrashDateComponent: when, numDaysLeftInTrashComponent: retentionDurationLabel(daysLeft) })}</span>
@@ -344,12 +344,12 @@ function TrashBanner({ page }: { page: BlockRecord }) {
         className={`nc-banner-btn ${canEdit ? '' : 'disabled'}`}
         onClick={async () => {
           if (!canEdit) return;
-          const ok = await confirmDialog({ message: 'Are you sure you want to delete this page permanently?', description: 'You can’t undo this action.', confirmLabel: t('lp.page.permanently_delete', 'Permanently delete') });
+          const ok = await confirmDialog({ message: '이 페이지를 영구 삭제할까요?', description: '이 작업은 되돌릴 수 없습니다.', confirmLabel: t('lp.page.permanently_delete', 'Permanently delete') });
           if (!ok) return;
           await api('deleteBlocksPermanently', { blockIds: [page.id] }).catch(() => {});
           if (page.parent_table === 'block' && getBlock(page.parent_id)?.alive) openPage(page.parent_id);
           else navigate(`/${spaceDomain(page.space_id)}`);
-          useUI.getState().toast('Page deleted permanently');
+          useUI.getState().toast('페이지가 영구 삭제되었습니다');
         }}
       >
         <Icon name="trash" size={14} />{t('lp.page.permanently_delete', 'Permanently delete')}

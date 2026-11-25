@@ -70,7 +70,7 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
                           </select>
                         )}
                     </td>
-                    <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">Cloud</span>}</td>
+                    <td className="wrap">{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</td>
                     <td className="num">{c.after ? c.after.amount.toLocaleString('ko-KR') : '삭제됨'}{before(c, 'amount')}</td>
                     <td className={`num biz-delta ${c.delta > 0 ? 'up' : c.delta < 0 ? 'down' : ''}`}>{c.delta ? `${signed(c.delta)} ${arrow(c.delta)}` : '—'}</td>
                     <td>{r.probability || '—'}{before(c, 'probability')}</td>

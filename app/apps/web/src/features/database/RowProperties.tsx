@@ -70,24 +70,24 @@ export function openLabelMenu(anchor: HTMLElement, c: CollectionRecord, propId: 
     width: 220,
     sections: [
       { items: [
-        { id: 'rename', label: 'Rename', icon: 'compose', disabled: readOnly, onSelect: () => { setTimeout(() => openRename(anchor, c, propId), 0); } },
-        { id: 'edit', label: 'Edit property', icon: 'slidersTwo', disabled: readOnly || !hasEditFlyout(prop), onSelect: () => { setTimeout(() => openEditPropertyPopover(anchor, c.id, propId), 0); } },
-        ...(!readOnly && prop?.type !== 'auto_increment_id' ? [{ id: 'type', label: 'Change type', icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(c.id, propId, prop) }] : []),
+        { id: 'rename', label: '이름 바꾸기', icon: 'compose', disabled: readOnly, onSelect: () => { setTimeout(() => openRename(anchor, c, propId), 0); } },
+        { id: 'edit', label: '속성 편집', icon: 'slidersTwo', disabled: readOnly || !hasEditFlyout(prop), onSelect: () => { setTimeout(() => openEditPropertyPopover(anchor, c.id, propId), 0); } },
+        ...(!readOnly && prop?.type !== 'auto_increment_id' ? [{ id: 'type', label: '유형 변경', icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(c.id, propId, prop) }] : []),
       ] },
       { items: [
-        { id: 'vis', label: 'Property visibility', icon: 'eyeSlash', disabled: readOnly, submenu: () => ({ width: 180, sections: [{ items: [
-          { id: 'show', label: 'Always show', checked: vis === 'show', onSelect: () => setVisibility(c, propId, 'show') },
-          { id: 'empty', label: 'Hide when blank', checked: vis === 'hide_if_empty', onSelect: () => setVisibility(c, propId, 'hide_if_empty') },
-          { id: 'hide', label: 'Always hide', checked: vis === 'hide', onSelect: () => setVisibility(c, propId, 'hide') },
+        { id: 'vis', label: '속성 표시 여부', icon: 'eyeSlash', disabled: readOnly, submenu: () => ({ width: 180, sections: [{ items: [
+          { id: 'show', label: '항상 표시', checked: vis === 'show', onSelect: () => setVisibility(c, propId, 'show') },
+          { id: 'empty', label: '비어 있으면 숨기기', checked: vis === 'hide_if_empty', onSelect: () => setVisibility(c, propId, 'hide_if_empty') },
+          { id: 'hide', label: '항상 숨기기', checked: vis === 'hide', onSelect: () => setVisibility(c, propId, 'hide') },
         ] }] }) },
         ...(!readOnly ? [
-          { id: 'dup', label: 'Duplicate property', icon: 'duplicate', onSelect: () => duplicateProperty(c.id, propId) },
-          { id: 'del', label: 'Delete property', icon: 'trash', onSelect: () => { setTimeout(() => void confirmDeleteProperty(c.id, propId), 0); } },
+          { id: 'dup', label: '속성 복제', icon: 'duplicate', onSelect: () => duplicateProperty(c.id, propId) },
+          { id: 'del', label: '속성 삭제', icon: 'trash', onSelect: () => { setTimeout(() => void confirmDeleteProperty(c.id, propId), 0); } },
         ] : []),
       ] },
       { items: [{
-        id: 'layout', label: 'Customize layout', icon: 'layout', disabled: !access.canEditStructure,
-        description: access.locked ? 'Unlock this table to adjust its layout.' : undefined,
+        id: 'layout', label: '레이아웃 사용자 지정', icon: 'layout', disabled: !access.canEditStructure,
+        description: access.locked ? '레이아웃을 조정하려면 이 표의 잠금을 해제하세요.' : undefined,
         onSelect: () => openLayoutBuilder(c.id),
       }] },
     ],
@@ -124,7 +124,7 @@ export function PropertyRow({ page, col, id, readOnly, structureRO, icons = true
           </div>
         </div>
         <div role="cell" className="nc-page-prop-value">
-          <PropertyCell row={page} schema={col.schema} propId={id} readOnly={readOnly} mode="page" wrap placeholder={<span className="nc-page-prop-empty">Empty</span>} className="nc-page-prop-cell" />
+          <PropertyCell row={page} schema={col.schema} propId={id} readOnly={readOnly} mode="page" wrap placeholder={<span className="nc-page-prop-empty">하위 페이지 없음</span>} className="nc-page-prop-cell" />
           {p.type !== 'title' && <PropertyCommentButton page={page} col={col} propId={id} />}
         </div>
       </div>
@@ -154,7 +154,7 @@ export function PropertyRows({ page, col, ids, readOnly, structureRO, icons = tr
       {hidden.length > 0 && (
         <div role="button" className="nc-page-prop-more" onClick={() => setExpanded(!expanded)}>
           <Icon name={expanded ? 'chevronUp' : 'chevronDown'} size={16} />
-          <span>{expanded ? `Hide ${hidden.length} ${hidden.length === 1 ? 'property' : 'properties'}` : `${hidden.length} more ${hidden.length === 1 ? 'property' : 'properties'}`}</span>
+          <span>{expanded ? `속성 ${hidden.length}개 숨기기` : `속성 ${hidden.length}개 더 보기`}</span>
         </div>
       )}
     </>
@@ -165,7 +165,7 @@ export function AddPropertyRow({ col }: { col: CollectionRecord }) {
   return (
     <div role="button" aria-haspopup="dialog" className="nc-page-prop-add" onClick={(e) => openAddPropertyMenu(e.currentTarget, { collectionId: col.id })}>
       <Icon name="plusFillSmall" size={16} />
-      <span>Add a property</span>
+      <span>속성 추가</span>
     </div>
   );
 }
@@ -186,7 +186,7 @@ export function RowProperties({ page, readOnly }: { page: BlockRecord; readOnly:
   return (
     <div className="nc-row-props-wrap">
       <TemplateBanner page={page} col={col} />
-      <div role="table" aria-label="Page properties" className="nc-row-props">
+      <div role="table" aria-label="페이지 속성" className="nc-row-props">
         <PropertyRows page={page} col={col} ids={pageProperties(col)} readOnly={readOnly} structureRO={structureRO} />
         {!structureRO && <AddPropertyRow col={col} />}
       </div>

@@ -87,7 +87,7 @@ export function PresenceLayer({ pageId, rootRef }: { pageId: string; rootRef: Re
             </div>
           )}
           {m.block && (
-            <div className="nc-remote-avatar" style={{ top: m.block.top + 2, left: m.block.right + 8 }} title={`${m.name} is editing`}>
+            <div className="nc-remote-avatar" style={{ top: m.block.top + 2, left: m.block.right + 8 }} title={`${m.name}님이 편집 중`}>
               <UserAvatar userId={m.userId} size={20} ring={m.color} />
             </div>
           )}

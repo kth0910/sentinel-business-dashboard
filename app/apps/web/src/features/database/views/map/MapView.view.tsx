@@ -64,8 +64,8 @@ function fit(points: LatLon[], w: number, h: number): { center: LatLon; z: numbe
 function NoPlace({ onAdd, readOnly }: { onAdd: () => void; readOnly: boolean }) {
   return (
     <div className="nc-cal-nodate">
-      <div className="nc-cal-nodate-title">No place property</div>
-      {readOnly ? <div>Map views require a place property in order to display.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>Add a place property</span> to your database in order to display a Map view.</div>}
+      <div className="nc-cal-nodate-title">장소 속성 없음</div>
+      {readOnly ? <div>지도 보기를 표시하려면 장소 속성이 필요합니다.</div> : <div><span role="link" className="nc-cal-link" onClick={onAdd}>장소 속성 추가</span> to your database in order to display a Map view.</div>}
     </div>
   );
 }
@@ -181,28 +181,28 @@ function MapView(props: ViewProps) {
           const y = p.y - tl.y;
           if (x < -40 || y < -40 || x > width + 40 || y > height + 40) return null;
           return (
-            <div key={row.id} className={`nc-map-pin ${hover === row.id ? 'hover' : ''}`} style={{ left: x, top: y }} data-block-id={row.id} role="button" aria-label={titleOf(row) || 'Untitled'}
+            <div key={row.id} className={`nc-map-pin ${hover === row.id ? 'hover' : ''}`} style={{ left: x, top: y }} data-block-id={row.id} role="button" aria-label={titleOf(row) || '제목 없음'}
               onPointerEnter={() => setHover(row.id)} onPointerLeave={() => setHover(null)} onClick={() => kit.openRow(row.id)}>
               <svg width="26" height="34" viewBox="0 0 26 34" aria-hidden><path d="M13 33s11-11.4 11-19.5C24 6.6 19.1 2 13 2S2 6.6 2 13.5C2 21.6 13 33 13 33z" fill="var(--lp-blue-bg-accent)" stroke="var(--lp-bg-primary)" strokeWidth="2" /><circle cx="13" cy="13.5" r="4" fill="var(--lp-bg-primary)" /></svg>
-              {hover === row.id && <div className="nc-map-pin-label">{titleOf(row) || 'Untitled'}{place.address && place.address !== place.name ? <span>{place.address}</span> : place.name ? <span>{place.name}</span> : null}</div>}
+              {hover === row.id && <div className="nc-map-pin-label">{titleOf(row) || '제목 없음'}{place.address && place.address !== place.name ? <span>{place.address}</span> : place.name ? <span>{place.name}</span> : null}</div>}
             </div>
           );
         })}
         <div className="nc-map-ui nc-map-toolbar">
           <div role="button" className="nc-map-btn" data-testid="map-no-location" onClick={(e) => openMenu(e.currentTarget, {
             width: 280, header: <div className="nc-map-menu-head">No location ({missing.length})</div>,
-            sections: [{ items: missing.length ? missing.slice(0, 100).map((r) => ({ id: r.id, label: titleOf(r) || 'Untitled', icon: 'page', description: readOnly ? undefined : 'Click the map to place this page', onSelect: () => { if (!readOnly) setPinMode({ rowId: r.id }); else kit.openRow(r.id); } })) : [{ id: 'none', label: 'Every page has a location', disabled: true }] }],
+            sections: [{ items: missing.length ? missing.slice(0, 100).map((r) => ({ id: r.id, label: titleOf(r) || '제목 없음', icon: 'page', description: readOnly ? undefined : '지도를 클릭해 이 페이지를 배치하세요', onSelect: () => { if (!readOnly) setPinMode({ rowId: r.id }); else kit.openRow(r.id); } })) : [{ id: 'none', label: '모든 페이지에 위치가 지정되어 있습니다', disabled: true }] }],
           }, { placement: 'bottom-start' })}>No location ({missing.length})</div>
           {!readOnly && (
-            <div role="button" className={`nc-map-btn icon ${pinMode && !pinMode.rowId ? 'on' : ''}`} aria-label={pinMode ? 'Disable add-pin mode' : 'Enable pin placement'} data-tooltip={pinMode ? 'Disable add-pin mode' : 'Enable pin placement'} onClick={() => setPinMode(pinMode ? null : { rowId: null })}>
+            <div role="button" className={`nc-map-btn icon ${pinMode && !pinMode.rowId ? 'on' : ''}`} aria-label={pinMode ? '핀 추가 모드 끄기' : '핀 추가 모드 켜기'} data-tooltip={pinMode ? '핀 추가 모드 끄기' : '핀 배치 켜기'} onClick={() => setPinMode(pinMode ? null : { rowId: null })}>
               <Icon name="location" size={16} />
             </div>
           )}
         </div>
-        {pinMode && <div className="nc-map-ui nc-map-hint">{pinMode.rowId ? `Click the map to place “${titleOf(kit.rows.find((r) => r.id === pinMode.rowId)) || 'Untitled'}”` : 'Click the map to add a page with a pin'}<span role="button" onClick={() => setPinMode(null)}>Cancel</span></div>}
+        {pinMode && <div className="nc-map-ui nc-map-hint">{pinMode.rowId ? `지도를 클릭해 “${titleOf(kit.rows.find((r) => r.id === pinMode.rowId)) || 'Untitled'}” 핀을 놓으세요` : '지도를 클릭해 핀이 있는 페이지를 추가하세요'}<span role="button" onClick={() => setPinMode(null)}>취소</span></div>}
         <div className="nc-map-ui nc-map-zoom">
-          <div role="button" aria-label="Zoom in" onClick={() => setZoom(z + 1)}><Icon name="plus" size={16} /></div>
-          <div role="button" aria-label="Zoom out" onClick={() => setZoom(z - 1)}><Icon name="dashLong" size={16} /></div>
+          <div role="button" aria-label="확대" onClick={() => setZoom(z + 1)}><Icon name="plus" size={16} /></div>
+          <div role="button" aria-label="축소" onClick={() => setZoom(z - 1)}><Icon name="dashLong" size={16} /></div>
         </div>
         <div className="nc-map-ui nc-map-attr">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors</div>
       </div>
@@ -219,11 +219,11 @@ function MapLayoutSettings({ view, collection, readOnly }: LayoutSettingsProps) 
   const places = Object.entries(schema).filter(([, p]) => p.type === 'place');
   const by = (q2.map_by as string | undefined) && schema[q2.map_by as string] ? (q2.map_by as string) : places[0]?.[0];
   const h = fmt.map_config?.height ?? 'medium';
-  const labels: Record<string, string> = { small: 'Small', medium: 'Medium', large: 'Large', extra_large: 'Extra large' };
+  const labels: Record<string, string> = { small: '작게', medium: '보통', large: '크게', extra_large: '매우 크게' };
   return (
     <>
-      <SettingsRow label="Map by" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, places.length ? places.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: id === by, onSelect: () => setQuery2(view, { map_by: id }, 'mapView.setMapBy') })) : [{ id: 'none', label: 'No place properties', disabled: true }])} />
-      <SettingsRow label="Height" value={labels[h] ?? 'Medium'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, Object.keys(labels).map((k) => ({ id: k, label: labels[k], checked: h === k, onSelect: () => setFormat(view, { map_config: { ...(fmt.map_config ?? {}), height: k } }, 'mapView.setHeight') })))} />
+      <SettingsRow label="지도 기준" value={by ? schema[by]?.name : 'None'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, places.length ? places.map(([id, p]) => ({ id, label: p.name, icon: <PropertyIcon prop={p} size={16} />, checked: id === by, onSelect: () => setQuery2(view, { map_by: id }, 'mapView.setMapBy') })) : [{ id: 'none', label: '장소 속성 없음', disabled: true }])} />
+      <SettingsRow label="높이" value={labels[h] ?? '보통'} disabled={readOnly} onClick={(e) => pickMenu(e.currentTarget, Object.keys(labels).map((k) => ({ id: k, label: labels[k], checked: h === k, onSelect: () => setFormat(view, { map_config: { ...(fmt.map_config ?? {}), height: k } }, 'mapView.setHeight') })))} />
     </>
   );
 }

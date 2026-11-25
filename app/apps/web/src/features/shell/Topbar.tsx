@@ -173,7 +173,7 @@ function Breadcrumb({ pageId }: { pageId: string }) {
         >
           {/* lockFill 16, "Private" in tertiary text with margin-inline 4/5, chevron 11 */}
           <Icon name="lockFill" size={16} style={{ color: 'var(--lp-icon-tertiary)' }} />
-          <span style={{ color: 'var(--lp-text-tertiary)', margin: '0 5px 0 4px' }}>Private</span>
+          <span style={{ color: 'var(--lp-text-tertiary)', margin: '0 5px 0 4px' }}>비공개</span>
           <Icon name="arrowChevronSingleDownFill" size={11} style={{ color: 'var(--lp-icon-tertiary)' }} />
         </div>
       )}
@@ -182,7 +182,7 @@ function Breadcrumb({ pageId }: { pageId: string }) {
 }
 
 function Crumb({ block, current }: { block: BlockRecord; current?: boolean }) {
-  const title = pageTitle(block) || 'New page';
+  const title = pageTitle(block) || '새 페이지';
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   return (
     <div
@@ -215,19 +215,19 @@ function TopbarActions({ pageId }: { pageId: string }) {
   return (
     <div className="lit-topbar-action-buttons">
       <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <div className="nc-topbar-edited" data-tooltip={editor?.name ? `Edited by ${editor.name}` : undefined}>{relativeEdited(page.last_edited_time)}</div>
+        <div className="nc-topbar-edited" data-tooltip={editor?.name ? `${editor.name} 편집` : undefined}>{relativeEdited(page.last_edited_time)}</div>
         <TranslatePill pageId={pageId} />
         <TopbarFacepile pageId={pageId} />
         <SuggestingPill pageId={pageId} />
         <ShareButton pageId={pageId} />
-        <div role="button" aria-label="Copy link" className="nc-topbar-icon-btn" data-tooltip="Copy link" onClick={() => copyPageLink(pageId)}>
+        <div role="button" aria-label="링크 복사" className="nc-topbar-icon-btn" data-tooltip="링크 복사" onClick={() => copyPageLink(pageId)}>
           <Icon name="link" size={18} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
         <TopbarCommentsButton pageId={pageId} />
-        <div role="button" aria-label="Favorite" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? 'Remove from saved pages' : 'Save this page'} onClick={() => toggleFavorite(pageId)}>
+        <div role="button" aria-label="즐겨찾기" className="nc-topbar-icon-btn lit-topbar-favorite-button" data-tooltip={fav ? '즐겨찾기에서 제거' : '즐겨찾기에 추가'} onClick={() => toggleFavorite(pageId)}>
           <Icon name="star" size={18} style={{ color: fav ? '#78350f' : 'var(--lp-icon-primary)', fill: fav ? '#78350f' : 'none' }} />
         </div>
-        <div ref={moreRef} role="button" aria-label="Actions" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="Style, export, and more…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
+        <div ref={moreRef} role="button" aria-label="작업" className="nc-topbar-icon-btn lit-topbar-more-button" data-tooltip="스타일, 내보내기 등…" onClick={() => moreRef.current && openPageMenu(pageId, moreRef.current)}>
           <Icon name="ellipsis" size={22} style={{ color: 'var(--lp-icon-primary)' }} />
         </div>
       </div>

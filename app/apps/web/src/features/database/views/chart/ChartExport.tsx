@@ -7,7 +7,7 @@ import { openOverlay } from '../../../../components/overlay.tsx';
 import { useUI } from '../../../../lib/store/ui.ts';
 
 type Background = 'default' | 'gray' | 'none';
-const BACKGROUNDS: { id: Background; label: string }[] = [{ id: 'default', label: 'Default' }, { id: 'gray', label: 'Gray' }, { id: 'none', label: 'Transparent' }];
+const BACKGROUNDS: { id: Background; label: string }[] = [{ id: 'default', label: '기본' }, { id: 'gray', label: '회색' }, { id: 'none', label: '투명' }];
 const PAD = 24;
 
 function resolveColor(cssValue: string): string {
@@ -111,10 +111,10 @@ function ChartExport({ svg, name, close }: { svg: SVGSVGElement; name: string; c
     try {
       const blob = await pngBlob(out.text, out.width, out.height);
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      toast('Copied to clipboard');
+      toast('클립보드에 복사했습니다');
       close();
     } catch {
-      toast('Couldn’t copy the chart. Try downloading it instead.');
+      toast('차트를 복사할 수 없습니다. 다운로드해서 사용하세요.');
     }
   };
   const downloadPng = async () => {
@@ -122,7 +122,7 @@ function ChartExport({ svg, name, close }: { svg: SVGSVGElement; name: string; c
       download(await pngBlob(out.text, out.width, out.height), `${name}.png`);
       close();
     } catch {
-      toast('Couldn’t export the chart');
+      toast('차트를 내보내지 못했습니다');
     }
   };
   const downloadSvg = () => {
@@ -130,27 +130,27 @@ function ChartExport({ svg, name, close }: { svg: SVGSVGElement; name: string; c
     close();
   };
   return (
-    <div className="nc-chart-export" role="dialog" aria-label="Store chart as…" data-testid="chart-export">
+    <div className="nc-chart-export" role="dialog" aria-label="차트를 다음 형식으로 저장…" data-testid="chart-export">
       <div className="nc-chart-export-head">
-        <span>Store chart as…</span>
-        <div role="button" className="nc-icon-btn" aria-label="Close" onClick={close}><Icon name="xMarkSmall" size={18} /></div>
+        <span>차트를 다음 형식으로 저장…</span>
+        <div role="button" className="nc-icon-btn" aria-label="닫기" onClick={close}><Icon name="xMarkSmall" size={18} /></div>
       </div>
-      <div className="nc-chart-export-label">Preview</div>
+      <div className="nc-chart-export-label">미리보기</div>
       <div className={`nc-chart-export-preview ${bg === 'none' ? 'checker' : ''}`}>
-        {preview && <img src={preview} alt="Chart preview" style={{ aspectRatio: `${out.width} / ${out.height}` }} />}
+        {preview && <img src={preview} alt="차트 미리보기" style={{ aspectRatio: `${out.width} / ${out.height}` }} />}
       </div>
       <div className="nc-chart-export-row">
-        <span className="nc-chart-export-label inline">Background</span>
-        <div className="nc-chart-export-bgs" role="radiogroup" aria-label="Background">
+        <span className="nc-chart-export-label inline">배경</span>
+        <div className="nc-chart-export-bgs" role="radiogroup" aria-label="배경">
           {BACKGROUNDS.map((b) => (
             <div key={b.id} role="radio" aria-checked={bg === b.id} aria-label={b.label} data-tooltip={b.label} className={`nc-chart-export-bg bg-${b.id} ${bg === b.id ? 'on' : ''}`} onClick={() => setBg(b.id)} />
           ))}
         </div>
       </div>
       <div className="nc-chart-export-actions">
-        <div role="button" className="nc-btn" onClick={() => void copyPng()}>Copy as PNG</div>
-        <div role="button" className="nc-btn" onClick={() => void downloadPng()}>Download PNG</div>
-        <div role="button" className="nc-btn primary" onClick={downloadSvg}>Download SVG</div>
+        <div role="button" className="nc-btn" onClick={() => void copyPng()}>PNG로 복사</div>
+        <div role="button" className="nc-btn" onClick={() => void downloadPng()}>PNG 다운로드</div>
+        <div role="button" className="nc-btn primary" onClick={downloadSvg}>SVG 다운로드</div>
       </div>
     </div>
   );

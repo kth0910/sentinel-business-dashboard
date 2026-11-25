@@ -49,7 +49,7 @@ function spaceMembers(spaceId: string | null | undefined): UserRecord[] {
 function pageItem(id: string, onSelect: () => void): MenuItemDef {
   const b = pageOrNull(id) as BlockRecord | undefined;
   const crumb = breadcrumbOf(id);
-  return { id, label: pageTitle(b) || 'New page', text: pageTitle(b), icon: <PageIcon block={b} size={20} />, description: crumb || undefined, onSelect };
+  return { id, label: pageTitle(b) || '새 페이지', text: pageTitle(b), icon: <PageIcon block={b} size={20} />, description: crumb || undefined, onSelect };
 }
 
 /** Text block containing the trigger: new sub-pages "@"/"[[" are parented to it (not listed in content). */
@@ -85,7 +85,7 @@ function addPageIn(q: string, link: boolean) {
   const leaf = document.querySelector<HTMLElement>(`[data-content-editable-leaf][data-block-id="${s.blockId}"][data-property="${s.property}"]`);
   const snapshot = { ...s };
   openPagePicker(leaf?.getBoundingClientRect() ?? new DOMRect(200, 200, 0, 0), {
-    placeholder: 'Add page in…',
+    placeholder: '위치를 선택해 페이지 추가…',
     onPick: (parentId) => {
       useEditor.setState({ slash: snapshot });
       const id = createPageIn(parentId, q);
@@ -99,19 +99,19 @@ function addPageIn(q: string, link: boolean) {
 
 function newPageSection(q: string, link: boolean): MenuSectionDef {
   return {
-    title: 'New page',
+    title: '새 페이지',
     items: [
       {
         id: 'new-subpage',
-        label: q ? <span>New “{q}” sub-page</span> : 'Add a child page',
-        text: 'add child page',
+        label: q ? <span>New “{q}” sub-page</span> : '하위 페이지 추가',
+        text: '하위 페이지 추가',
         icon: 'plus',
         onSelect: () => insertPage(createSubpage(q), link),
       },
       {
         id: 'new-page-in',
-        label: q ? <span>New “{q}” page in…</span> : 'Add a page in…',
-        text: 'add a page in',
+        label: q ? <span>New “{q}” page in…</span> : '페이지 추가 위치…',
+        text: '페이지 추가 위치',
         icon: 'arrowDiagonalUpRight',
         onSelect: () => { addPageIn(q, link); return false; },
       },
@@ -130,9 +130,9 @@ function useGhost(first: MenuItemDef | undefined, q: string) {
 function SearchFeedback() {
   return (
     <div className="nc-mention-feedback">
-      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('Thanks for your feedback')}><Icon name="thumbsUp" size={16} /></div>
-      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('Thanks for your feedback')}><Icon name="thumbsDown" size={16} /></div>
-      <span>Share search feedback</span>
+      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('의견 감사합니다')}><Icon name="thumbsUp" size={16} /></div>
+      <div role="button" className="nc-mention-feedback-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => useUI.getState().toast('의견 감사합니다')}><Icon name="thumbsDown" size={16} /></div>
+      <span>검색 의견 보내기</span>
     </div>
   );
 }
@@ -141,7 +141,7 @@ function SearchFeedback() {
 function RemindLabel({ when }: { when: string }) {
   return (
     <span className="nc-mention-remind">
-      Remind me
+      알림 받기
       <span className="nc-mention-hint"><span className="nc-mention-dash">—</span>{when}</span>
     </span>
   );
@@ -152,11 +152,11 @@ function dateItems(q: string): MenuItemDef[] {
   if (!q.trim()) {
     const today = new Date();
     return [
-      { id: 'today', label: 'Today', icon: 'clock', onSelect: () => insert({ type: 'date', start_date: isoDate(today), date_format: 'relative' }) },
+      { id: 'today', label: '오늘', icon: 'clock', onSelect: () => insert({ type: 'date', start_date: isoDate(today), date_format: 'relative' }) },
       {
         id: 'remind',
         label: <RemindLabel when="Tomorrow 9am" />,
-        text: 'Remind me',
+        text: '알림 받기',
         icon: 'alarm',
         onSelect: () => insert({ type: 'datetime', start_date: isoDate(addDays(today, 1)), start_time: '09:00', date_format: 'relative', reminder: { unit: 'minute', value: 0 } }),
       },
@@ -214,10 +214,10 @@ export function MentionMenu({ q }: { q: string }) {
     const extra = mentionMenuExtensions.flatMap((fn) => fn({ blockId: useEditor.getState().slash?.blockId ?? '', q }));
     const extraFor = (title: string) => extra.filter((x) => x.title === title).flatMap((x) => x.items);
     const dates = [...extraFor('Date'), ...dateItems(q)];
-    if (dates.length) sections.push({ title: 'Date', items: dates });
+    if (dates.length) sections.push({ title: '날짜', items: dates });
     if (people.length || extraFor('People').length) {
       sections.push({
-        title: 'People',
+        title: '사용자',
         items: [...extraFor('People'), ...people.slice(0, q ? 6 : 4).map((u) => ({
           id: u.id,
           label: u.name || u.email,
@@ -232,12 +232,12 @@ export function MentionMenu({ q }: { q: string }) {
     }
     if (groups.length) {
       sections.push({
-        title: 'Groups',
+        title: '그룹',
         items: groups.slice(0, 4).map((g) => ({
           id: `group:${g.id}`,
-          label: g.name || 'Untitled',
+          label: g.name || '제목 없음',
           icon: <span className="nc-mention-group-icon"><Icon name="team" size={14} /></span>,
-          right: <span className="nc-mention-group-caption">{(g.member_ids?.length ?? 0) === 1 ? '1 member' : `${g.member_ids?.length ?? 0} members`}</span>,
+          right: <span className="nc-mention-group-caption">{(g.member_ids?.length ?? 0) === 1 ? '멤버 1명' : `${g.member_ids?.length ?? 0}명`}</span>,
           onSelect: () => {
             const blockId = useEditor.getState().slash?.blockId ?? '';
             insertAtomForTrigger([['‣', [['g', g.id, spaceId ?? '']]]]);
@@ -246,12 +246,12 @@ export function MentionMenu({ q }: { q: string }) {
         })),
       });
     }
-    if (extraFor('Agents').length) sections.push({ title: 'Agents', items: extraFor('Agents') });
+    if (extraFor('Agents').length) sections.push({ title: '에이전트', items: extraFor('Agents') });
     const pageItems = hits.ids.map((id) => pageItem(id, () => insertPage(id, false)));
     if (!expanded && hits.total > hits.ids.length) {
-      pageItems.push({ id: 'more', label: `${hits.total - hits.ids.length} more results`, icon: 'ellipsisSmall', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { setExpanded(true); return false; } });
+      pageItems.push({ id: 'more', label: `결과 ${hits.total - hits.ids.length}개 더`, icon: 'ellipsisSmall', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { setExpanded(true); return false; } });
     }
-    if (pageItems.length) sections.push({ title: 'Page link', items: pageItems });
+    if (pageItems.length) sections.push({ title: '페이지 링크', items: pageItems });
     sections.push(newPageSection(q.trim(), false));
     return { width: 330, maxHeight: '40vh', className: 'nc-mention-menu', sections, footer: q.trim() ? <SearchFeedback /> : undefined };
   }, [q, people, groups, hits.ids.join(','), hits.total, expanded]);
@@ -265,9 +265,9 @@ export function LinkToPageMenu({ q, plus }: { q: string; plus?: boolean }) {
   const def: MenuDef = useMemo(() => {
     const items = hits.ids.map((id) => pageItem(id, () => insertPage(id, true)));
     if (!expanded && hits.total > hits.ids.length) {
-      items.push({ id: 'more', label: `${hits.total - hits.ids.length} more results`, icon: 'ellipsisSmall', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { setExpanded(true); return false; } });
+      items.push({ id: 'more', label: `결과 ${hits.total - hits.ids.length}개 더`, icon: 'ellipsisSmall', iconColor: 'var(--lp-icon-secondary)', onSelect: () => { setExpanded(true); return false; } });
     }
-    const linkSection: MenuSectionDef = { title: 'Page link', items };
+    const linkSection: MenuSectionDef = { title: '페이지 링크', items };
     const create = newPageSection(q.trim(), true);
     const createUntitled: MenuSectionDef = { items: create.items };
     const sections = plus ? [create, ...(items.length ? [linkSection] : [])] : [...(items.length ? [linkSection] : []), createUntitled];

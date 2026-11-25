@@ -13,8 +13,8 @@ export interface CsvPreview {
 }
 
 const TYPE_LABEL: Record<string, string> = {
-  title: 'Title', text: 'Text', number: 'Number', select: 'Select', multi_select: 'Multi-select', status: 'Status', date: 'Date',
-  checkbox: 'Checkbox', url: 'URL', email: 'Email', phone_number: 'Phone',
+  title: '제목', text: '텍스트', number: '숫자', select: '선택', multi_select: 'Multi-select', status: 'Status', date: '날짜',
+  checkbox: '체크박스', url: 'URL', email: '이메일', phone_number: '전화번호',
 };
 
 export function CsvMapping({ preview, fileName, onImport, onCancel, merge }: {
@@ -41,7 +41,7 @@ export function CsvMapping({ preview, fileName, onImport, onCancel, merge }: {
   return (
     <div className="nc-csv-mapping" role="group" aria-label={t('lp.import.map_columns', 'Map columns')}>
       <div className="nc-csv-mapping-head">
-        <div className="nc-csv-mapping-title">{merge ? t('lp.import.merge_into', 'Merge “{file}” into {database}', { file: fileName, database: preview.target?.name || 'Untitled' }) : fileName}</div>
+        <div className="nc-csv-mapping-title">{merge ? t('lp.import.merge_into', 'Merge “{file}” into {database}', { file: fileName, database: preview.target?.name || '제목 없음' }) : fileName}</div>
         <div className="nc-csv-mapping-sub">
           {t('lp.import.count_plural_one_other_c1d7', '{count, plural, one {# record} other {# records}}', { count: preview.rows })} · {merge ? t('lp.import.choose_the_property_each_column_fills', 'Choose the property each column fills. New rows are added; existing rows stay as they are.') : t('lp.import.choose_a_property_type_for_each', 'Choose a property type for each column.')}
         </div>
@@ -54,7 +54,7 @@ export function CsvMapping({ preview, fileName, onImport, onCancel, merge }: {
               <div className="nc-csv-col-sample nc-ellipsis">{c.samples.filter(Boolean).join(', ') || '—'}</div>
             </div>
             {merge ? (
-              <select className="nc-csv-type" aria-label={`${c.name} property`} value={choice[c.index] ?? 'new'} onChange={(e) => setChoice((x) => ({ ...x, [c.index]: e.target.value }))}>
+              <select className="nc-csv-type" aria-label={`${c.name} 속성`} value={choice[c.index] ?? 'new'} onChange={(e) => setChoice((x) => ({ ...x, [c.index]: e.target.value }))}>
                 {props.map((p) => <option key={p.id} value={p.id}>{p.name} ({TYPE_LABEL[p.type] ?? p.type})</option>)}
                 <option value="new">{t('lp.import.new_property', 'New property')}</option>
                 <option value="skip">{t('lp.import.don_t_import', 'Don’t import')}</option>
@@ -62,7 +62,7 @@ export function CsvMapping({ preview, fileName, onImport, onCancel, merge }: {
             ) : c.index === 0 ? (
               <div className="nc-csv-type fixed">{TYPE_LABEL.title}</div>
             ) : (
-              <select className="nc-csv-type" aria-label={`${c.name} type`} value={choice[c.index] ?? c.type} onChange={(e) => setChoice((x) => ({ ...x, [c.index]: e.target.value }))}>
+              <select className="nc-csv-type" aria-label={`${c.name} 유형`} value={choice[c.index] ?? c.type} onChange={(e) => setChoice((x) => ({ ...x, [c.index]: e.target.value }))}>
                 {preview.types.map((ty) => <option key={ty} value={ty}>{TYPE_LABEL[ty] ?? ty}</option>)}
                 <option value="skip">{t('lp.import.don_t_import', 'Don’t import')}</option>
               </select>

@@ -51,7 +51,7 @@ export function TopbarFacepile({ pageId }: { pageId: string }) {
     if (id) document.querySelector(`.lit-page-content [data-block-id="${CSS.escape(id)}"], .nc-page-title[data-block-id="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   };
   return (
-    <div className="nc-facepile" aria-label="People on this page">
+    <div className="nc-facepile" aria-label="이 페이지에 있는 사람">
       {extra > 0 && (
         <div role="button" className="nc-facepile-more" data-tooltip={t('lp.presence.viewers', 'Viewers')}>
           {t('lp.presence.hiddenuserscount_plural_one_other', '{hiddenUsersCount, plural, one {+{hiddenUsersCount}} other {+{hiddenUsersCount}}}', { hiddenUsersCount: extra })}

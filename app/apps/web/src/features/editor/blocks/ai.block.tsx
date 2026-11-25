@@ -20,7 +20,7 @@ function emit(name: string, detail: Record<string, unknown>): boolean {
 
 function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
   const [tab, setTab] = useState<Tab>('notes');
-  const title = toPlainText(block.properties?.title) || 'Meeting notes';
+  const title = toPlainText(block.properties?.title) || '회의록';
   const created = new Date(block.created_time || Date.now());
   const state = (block.format?.transcription_state as string | undefined) ?? 'transcription_not_started';
   return (
@@ -32,24 +32,24 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 600 }}>{title}</div>
-            <div style={{ fontSize: 12, color: 'var(--lp-text-secondary)' }}>{created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {created.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+            <div style={{ fontSize: 12, color: 'var(--lp-text-secondary)' }}>{created.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', year: 'numeric' })} at {created.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })}</div>
           </div>
           {!readOnly && (
             <button
               className="nc-blk-btn primary"
               onClick={() => {
-                if (!emit('nc:meeting-notes', { blockId: block.id, action: state === 'transcription_in_progress' ? 'stop' : 'start' })) toast('AI meeting notes needs the Litpage desktop app or a connected AI service.');
+                if (!emit('nc:meeting-notes', { blockId: block.id, action: state === 'transcription_in_progress' ? 'stop' : 'start' })) toast('AI 회의록을 사용하려면 CoolNotion! 데스크톱 앱이나 연결된 AI 서비스가 필요합니다.');
               }}
             >
               <Icon name="mic" size={14} />
-              {state === 'transcription_in_progress' ? 'Stop' : 'Start transcribing'}
+              {state === 'transcription_in_progress' ? '중지' : '녹취 시작'}
             </button>
           )}
         </div>
         <div className="nc-tabs-strip" role="tablist">
           {(['summary', 'notes', 'transcript'] as Tab[]).map((t) => (
             <div key={t} role="tab" aria-selected={tab === t} className={`nc-tab-pill ${tab === t ? 'selected' : ''}`} onClick={() => setTab(t)}>
-              {t === 'summary' ? 'Summary' : t === 'notes' ? 'Notes' : 'Transcript'}
+              {t === 'summary' ? '요약' : t === 'notes' ? '노트' : '녹취록'}
             </div>
           ))}
         </div>
@@ -63,10 +63,10 @@ function MeetingNotesBlock({ block, depth, readOnly }: BlockProps) {
               let id = '';
               run('meetingNotes.addNote', (tx) => { id = createBlockIn(tx, { type: 'text', parentId: block.id, parentTable: 'block' }); });
               useEditor.getState().requestFocus(id, 0);
-            }}>Litpage AI will turn notes and transcript into a summary</div>
+            }}>CoolNotion! AI가 노트와 녹취록을 요약해 줍니다</div>
           ))}
-          {tab === 'summary' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>Write the summary here…</div>}
-          {tab === 'transcript' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>The transcript will appear here…</div>}
+          {tab === 'summary' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>여기에 요약을 작성하세요…</div>}
+          {tab === 'transcript' && <div className="nc-tab-empty" style={{ cursor: 'default' }}>녹취록이 여기에 표시됩니다…</div>}
         </div>
       </div>
     </div>
@@ -84,13 +84,13 @@ function AiBlock({ block, readOnly }: BlockProps) {
           <div className="nc-ai-input">
             <Icon name="aiFace" size={18} />
             <input
-              placeholder="Ask AI to write anything…"
+              placeholder="AI에게 무엇이든 작성해 달라고 요청하세요…"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && prompt.trim() && !e.nativeEvent.isComposing) {
                   e.preventDefault();
-                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('Litpage AI is not connected in this workspace.');
+                  if (!emit('nc:ask-ai', { blockId: block.id, prompt: prompt.trim(), target: 'ai_block' })) toast('이 워크스페이스에는 CoolNotion! AI가 연결되어 있지 않습니다.');
                   setPrompt('');
                 }
               }}

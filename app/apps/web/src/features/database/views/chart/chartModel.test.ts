@@ -39,9 +39,9 @@ describe('chart model', () => {
   it('manual order is A→Z with "No Tags" last; y-descending keeps ties in that order (screens db-422 / db-452)', () => {
     const cfg = defaultChartConfig(schema);
     const manual = computeChart(rows, cfg, schema, ctx);
-    expect(manual.points.map((p) => `${p.label}:${p.value}`)).toEqual(['Backend:1', 'Bug:1', 'Docs:1', 'Planning:1', 'UI:1', 'Web:2', 'No Tags:1']);
+    expect(manual.points.map((p) => `${p.label}:${p.value}`)).toEqual(['Backend:1', 'Bug:1', 'Docs:1', 'Planning:1', 'UI:1', 'Web:2', 'Tags 없음:1']);
     const desc = computeChart(rows, { ...cfg, chartFormat: { ...cfg.chartFormat, mainSort: 'y-descending' } }, schema, ctx);
-    expect(desc.points.map((p) => p.label)).toEqual(['Web', 'Backend', 'Bug', 'Docs', 'Planning', 'UI', 'No Tags']);
+    expect(desc.points.map((p) => p.label)).toEqual(['Web', 'Backend', 'Bug', 'Docs', 'Planning', 'UI', 'Tags 없음']);
     expect(desc.points[0].color).toBe('blue');
   });
 
@@ -55,8 +55,8 @@ describe('chart model', () => {
     const data = computeChart(rows, donut, schema, ctx);
     expect(data.rowCount).toBe(6);
     expect(data.total).toBe(8);
-    expect(data.points.map((p) => p.label)).toEqual(['Web', 'No Tags', 'Backend', 'Bug', 'Docs', 'Planning', 'UI']);
-    expect(data.caption).toBe('Total');
+    expect(data.points.map((p) => p.label)).toEqual(['Web', 'Tags 없음', 'Backend', 'Bug', 'Docs', 'Planning', 'UI']);
+    expect(data.caption).toBe('전체');
   });
 
   it('number chart counts all rows with Litpage\'s default title', () => {
@@ -64,7 +64,7 @@ describe('chart model', () => {
     expect(num.dataConfig).toEqual({ type: 'number_reducer', aggregationConfig: { aggregation: { aggregator: 'count' } } });
     const data = computeChart(rows, num, schema, ctx);
     expect(data.number?.value).toBe(6);
-    expect(data.number?.title).toBe('Count all');
+    expect(data.number?.title).toBe('전체 개수');
   });
 
   it('sums a number property per group and omits zero groups', () => {
@@ -74,7 +74,7 @@ describe('chart model', () => {
     const data = computeChart(rows, sum, schema, ctx);
     expect(data.points.find((p) => p.label === 'Web')?.value).toBe(3);
     expect(data.integer).toBe(false);
-    expect(data.yName).toBe('Estimate (Sum)');
+    expect(data.yName).toBe('Estimate (합계)');
   });
 
   it('stacks series by a second property', () => {
@@ -82,7 +82,7 @@ describe('chart model', () => {
     if (cfg.dataConfig.type !== 'groups_reducer') throw new Error('groups');
     const stacked: ChartConfig = { ...cfg, dataConfig: { ...cfg.dataConfig, aggregationConfig: { ...cfg.dataConfig.aggregationConfig, stackOptions: { groupBy: { property: '>fhI', type: 'checkbox', sort: { type: 'manual' } } } } } };
     const data = computeChart(rows, stacked, schema, ctx);
-    expect(data.series.map((s) => s.label)).toEqual(['Unchecked']);
+    expect(data.series.map((s) => s.label)).toEqual(['체크 안 됨']);
     expect(data.points.find((p) => p.label === 'Web')?.parts?.[0].value).toBe(2);
   });
 

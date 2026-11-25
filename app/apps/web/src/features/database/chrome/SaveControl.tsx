@@ -15,7 +15,7 @@ import {
 } from '../viewState.ts';
 import '../dbv.css';
 
-const ONLY_YOU = 'Changes to filters & sorts in this layout are only visible to you.';
+const ONLY_YOU = '이 레이아웃의 필터와 정렬 변경 사항은 나에게만 보입니다.';
 
 function selectView(viewId: string) {
   const v = records.get<CollectionViewRecord>('collection_view', viewId);
@@ -26,11 +26,11 @@ function selectView(viewId: string) {
 function extraItems(view: CollectionViewRecord, scope: SaveScope, onDone?: () => void): MenuItemDef[] {
   const items: MenuItemDef[] = [];
   if (canSaveForEveryone(view)) {
-    items.push({ id: 'new', label: 'Store as a new layout', icon: 'plus', onSelect: () => { const id = saveAsNewView(view.id); if (id) selectView(id); onDone?.(); } });
+    items.push({ id: 'new', label: '새 레이아웃으로 저장', icon: 'plus', onSelect: () => { const id = saveAsNewView(view.id); if (id) selectView(id); onDone?.(); } });
   }
   const t = tempStateOf(view.id);
   if (scope !== 'sorts' && (t?.propertyFilters?.length ?? 0) > 0) {
-    items.push({ id: 'merge', label: 'Combine with advanced filter', icon: 'filter', description: 'Group rules with an advanced filter and combine AND/OR conditions.', onSelect: () => { mergeIntoAdvancedFilter(view.id); onDone?.(); } });
+    items.push({ id: 'merge', label: '고급 필터와 결합', icon: 'filter', description: '고급 필터로 규칙을 묶고 AND/OR 조건을 조합합니다.', onSelect: () => { mergeIntoAdvancedFilter(view.id); onDone?.(); } });
   }
   return items;
 }
@@ -40,7 +40,7 @@ export function FilterBarSaveControl({ view }: { view: CollectionViewRecord }) {
   useViewTempVersion();
   if (!dirtyKind(view)) return null;
   const reset = (
-    <div role="button" className="nc-save-reset" onClick={() => resetPersonal(view.id)}>Reset</div>
+    <div role="button" className="nc-save-reset" onClick={() => resetPersonal(view.id)}>초기화</div>
   );
   if (!canSaveForEveryone(view)) {
     return <div className="nc-save-control" data-tooltip={ONLY_YOU}>{reset}</div>;
@@ -50,9 +50,9 @@ export function FilterBarSaveControl({ view }: { view: CollectionViewRecord }) {
     <div className="nc-save-control">
       {reset}
       <div className={`nc-save-everyone ${extra.length ? 'split' : ''}`}>
-        <div role="button" className="nc-save-everyone-main" onClick={() => saveForEveryone(view.id)}>Store for everyone</div>
+        <div role="button" className="nc-save-everyone-main" onClick={() => saveForEveryone(view.id)}>모두에게 저장</div>
         {extra.length > 0 && (
-          <div role="button" className="nc-save-everyone-more" aria-label="More storage options" onClick={(e) => openMenu(e.currentTarget, { width: 250, sections: [{ items: extraItems(view, 'all') }] }, { placement: 'bottom-end' })}>
+          <div role="button" className="nc-save-everyone-more" aria-label="저장 옵션 더 보기" onClick={(e) => openMenu(e.currentTarget, { width: 250, sections: [{ items: extraItems(view, 'all') }] }, { placement: 'bottom-end' })}>
             <Icon name="arrowChevronSingleDownSmall" size={14} />
           </div>
         )}
@@ -80,14 +80,14 @@ export function SettingsSaveControl({ view, scope }: { view: CollectionViewRecor
   const canSave = canSaveForEveryone(view);
   const n = scope === 'filters' ? changedFilterCount(view) : 0;
   const caption = scope === 'filters'
-    ? `${n} ${n === 1 ? 'filter differs' : 'filters differ'} from the shared view`
-    : 'Your sort differs from the shared view';
+    ? `공유된 보기와 필터 ${n}개가 다릅니다`
+    : '내 정렬이 공유된 보기와 다릅니다';
   const extra = canSave ? extraItems(view, scope) : [];
   return (
     <div className="nc-menu-section nc-save-settings">
       {canSave ? <div className="nc-save-caption">{caption}</div> : <div className="nc-save-caption">{ONLY_YOU}</div>}
-      {canSave && <Row icon="check" tone="orange" label="Store for everyone" onClick={() => saveForEveryone(view.id, scope)} />}
-      <Row icon="undo" tone="gray" label={scope === 'filters' ? 'Reset filters' : 'Reset sorts'} onClick={() => resetPersonal(view.id, scope)} />
+      {canSave && <Row icon="check" tone="orange" label="모두에게 저장" onClick={() => saveForEveryone(view.id, scope)} />}
+      <Row icon="undo" tone="gray" label={scope === 'filters' ? '필터 초기화' : '정렬 초기화'} onClick={() => resetPersonal(view.id, scope)} />
       {extra.map((it) => <Row key={it.id} icon={String(it.icon ?? 'plus')} tone="gray" label={it.label} onClick={() => it.onSelect?.()} />)}
     </div>
   );

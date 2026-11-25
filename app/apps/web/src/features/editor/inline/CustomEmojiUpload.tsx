@@ -35,15 +35,15 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
   const n = name.trim().toLowerCase().replace(/\s+/g, '-');
   const taken = getCustomEmojis(spaceId).some((e) => e.name === n);
   const nameErr = !n ? '' : n.length >= 50
-    ? 'Name must be under 50 characters'
+    ? '이름은 50자 미만이어야 합니다'
     : !NAME_RE.test(n)
-      ? 'Use lowercase letters, numbers, hyphens, or underscores only'
-      : taken ? 'That name is already in use' : '';
+      ? '영문 소문자, 숫자, 하이픈, 밑줄만 사용할 수 있습니다'
+      : taken ? '이미 사용 중인 이름입니다' : '';
 
   const takeFile = async (f: File | Blob | null | undefined, fileName = 'emoji.png') => {
     if (!f) return;
     if (!(f.type || '').startsWith('image/')) {
-      setErr('Upload an image file file');
+      setErr('이미지 파일을 업로드하세요.');
       return;
     }
     setErr('');
@@ -54,7 +54,7 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
       if (!name) setName(suggestName((f as File).name ?? fileName));
       setStep('name');
     } catch (e: any) {
-      setErr(e?.message ?? 'Emoji save failed. Try again.');
+      setErr(e?.message ?? '이모지를 저장하지 못했습니다. 다시 시도하세요.');
     } finally {
       setBusy(false);
     }
@@ -64,7 +64,7 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
     const v = raw.trim();
     if (!v) return;
     if (!/^https?:\/\/\S+$/i.test(v)) {
-      setErr('This link doesn’t point to an image');
+      setErr('이 링크는 이미지를 가리키지 않습니다');
       return;
     }
     setBusy(true);
@@ -78,7 +78,7 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
     };
     probe.onerror = () => {
       setBusy(false);
-      setErr('This link doesn’t point to an image');
+      setErr('이미지 링크가 아닙니다');
     };
     probe.src = v;
   };
@@ -113,26 +113,26 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
       close();
       if (res?.emoji) onAdded?.(res.emoji);
     } catch (e: any) {
-      setErr(e?.message ?? 'Emoji save failed. Try again.');
+      setErr(e?.message ?? '이모지를 저장하지 못했습니다. 다시 시도하세요.');
       setBusy(false);
     }
   };
 
   return (
     <PopoverSurface width={300} className="nc-cemoji-popup">
-      <div role="dialog" aria-label="Add a custom emoji" className="nc-cemoji" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
-        <div className="nc-cemoji-title">Add a custom emoji</div>
-        <div className="nc-cemoji-desc">Anyone on your team can use this custom emoji</div>
+      <div role="dialog" aria-label="사용자 지정 이모지 추가" className="nc-cemoji" onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
+        <div className="nc-cemoji-title">사용자 지정 이모지 추가</div>
+        <div className="nc-cemoji-desc">팀의 누구나 이 사용자 지정 이모지를 사용할 수 있습니다</div>
         {step === 'image' ? (
           <>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void takeFile(f); }} data-testid="custom-emoji-file" />
             <div role="button" className={`nc-cemoji-btn primary ${busy ? 'disabled' : ''}`} onClick={() => !busy && fileRef.current?.click()}>
-              {busy ? 'Uploading…' : 'Upload an image file'}
+              {busy ? '업로드 중…' : '이미지 파일 업로드'}
             </div>
             <div className="nc-cemoji-or"><span>or</span></div>
             <div className="nc-input">
               <input
-                placeholder="Paste an image URL…"
+                placeholder="이미지 링크 붙여넣기…"
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); takeLink(link); } }}
@@ -140,16 +140,16 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
             </div>
             <div className="nc-cemoji-hint">or {isMac ? '⌘V' : 'Ctrl+V'} to paste an image or link</div>
             {err && <div className="nc-cemoji-err" role="alert">{err}</div>}
-            {link.trim() && <div role="button" className="nc-cemoji-btn" onClick={() => takeLink(link)}>Next</div>}
+            {link.trim() && <div role="button" className="nc-cemoji-btn" onClick={() => takeLink(link)}>다음</div>}
           </>
         ) : (
           <>
             <div className="nc-cemoji-preview">
-              <span className="label">Preview</span>
+              <span className="label">미리보기</span>
               <img src={url} alt="" />
               <span className="name">:{n || 'emoji'}:</span>
             </div>
-            <label className="nc-cemoji-label" htmlFor="nc-cemoji-name">Emoji name</label>
+            <label className="nc-cemoji-label" htmlFor="nc-cemoji-name">이모지 이름</label>
             <div className="nc-input">
               <input
                 id="nc-cemoji-name"
@@ -162,9 +162,9 @@ function CustomEmojiUpload({ close, onAdded }: { close: () => void; onAdded?: (e
             </div>
             {(nameErr || err) && <div className="nc-cemoji-err" role="alert">{nameErr || err}</div>}
             <div className="nc-cemoji-actions">
-              <div role="button" className="nc-cemoji-btn" onClick={() => { setStep('image'); setErr(''); }}><Icon name="arrowLeft" size={14} />Back</div>
+              <div role="button" className="nc-cemoji-btn" onClick={() => { setStep('image'); setErr(''); }}><Icon name="arrowLeft" size={14} />뒤로</div>
               <div style={{ flex: 1 }} />
-              <div role="button" className={`nc-cemoji-btn primary ${!n || nameErr || busy ? 'disabled' : ''}`} onClick={() => void save()}>Save</div>
+              <div role="button" className={`nc-cemoji-btn primary ${!n || nameErr || busy ? 'disabled' : ''}`} onClick={() => void save()}>저장</div>
             </div>
           </>
         )}

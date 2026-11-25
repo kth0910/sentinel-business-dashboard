@@ -16,18 +16,18 @@ import { ConfigRow, ShowAsPicker } from './ui.tsx';
 import './advanced.css';
 
 export const NUMBER_FORMAT_LABEL: Record<string, string> = {
-  number: 'Number', number_with_commas: 'Number with commas', percent: 'Percent', dollar: 'US dollar', australian_dollar: 'Australian dollar',
-  canadian_dollar: 'Canadian dollar', singapore_dollar: 'Singapore dollar', euro: 'Euro', pound: 'Pound', yen: 'Yen', ruble: 'Ruble', rupee: 'Rupee',
-  won: 'Won', yuan: 'Yuan', real: 'Real', lira: 'Lira', rupiah: 'Rupiah', franc: 'Franc', hong_kong_dollar: 'HK dollar',
-  new_zealand_dollar: 'NZ dollar', krona: 'Swedish krona', norwegian_krone: 'Norwegian krone', mexican_peso: 'Mexican peso', rand: 'Rand',
-  new_taiwan_dollar: 'NT dollar', danish_krone: 'Danish krone', zloty: 'Złoty', baht: 'Baht', forint: 'Forint', koruna: 'Koruna',
-  shekel: 'Shekel', chilean_peso: 'Chilean peso', philippine_peso: 'Philippine peso', dirham: 'Dirham', colombian_peso: 'Colombian peso',
-  riyal: 'Riyal', ringgit: 'Ringgit', leu: 'Leu', argentine_peso: 'Argentine peso', uruguayan_peso: 'Uruguayan peso', peruvian_sol: 'Peruvian sol',
-  vietnamese_dong: 'Vietnamese dong', pakistani_rupee: 'Pakistani rupee', nigerian_naira: 'Nigerian naira', bitcoin: 'Bitcoin',
+  number: '숫자', number_with_commas: '쉼표 있는 숫자', percent: '퍼센트', dollar: '미국 달러', australian_dollar: '호주 달러',
+  canadian_dollar: '캐나다 달러', singapore_dollar: '싱가포르 달러', euro: '유로', pound: '파운드', yen: '엔', ruble: '루블', rupee: '루피',
+  won: '원', yuan: '위안', real: '헤알', lira: '리라', rupiah: '루피아', franc: '프랑', hong_kong_dollar: '홍콩 달러',
+  new_zealand_dollar: '뉴질랜드 달러', krona: '스웨덴 크로나', norwegian_krone: '노르웨이 크로네', mexican_peso: '멕시코 페소', rand: '랜드',
+  new_taiwan_dollar: '대만 달러', danish_krone: '덴마크 크로네', zloty: 'Złoty', baht: '바트', forint: '포린트', koruna: '코루나',
+  shekel: '셰켈', chilean_peso: '칠레 페소', philippine_peso: '필리핀 페소', dirham: '디르함', colombian_peso: '콜롬비아 페소',
+  riyal: '리얄', ringgit: '링깃', leu: '레우', argentine_peso: '아르헨티나 페소', uruguayan_peso: '우루과이 페소', peruvian_sol: '페루 솔',
+  vietnamese_dong: '베트남 동', pakistani_rupee: '파키스탄 루피', nigerian_naira: '나이지리아 나이라', bitcoin: '비트코인',
 };
 
 export const PRECISIONS: { id: string; label: string }[] = [
-  { id: 'precision_uncapped', label: 'Default' }, { id: 'precision_0', label: '1' }, { id: 'precision_1', label: '1.0' }, { id: 'precision_2', label: '1.00' },
+  { id: 'precision_uncapped', label: '기본' }, { id: 'precision_0', label: '1' }, { id: 'precision_1', label: '1.0' }, { id: 'precision_2', label: '1.00' },
   { id: 'precision_3', label: '1.000' }, { id: 'precision_4', label: '1.0000' }, { id: 'precision_5', label: '1.00000' },
 ];
 
@@ -36,7 +36,7 @@ const NUMERIC_RESULT = new Set<Aggregator>(['count', 'count_values', 'unique', '
 export function aggregationLabel(spec: AggregationSpec | undefined): string {
   const a = aggregatorName(spec);
   if (typeof spec === 'object') return `${AGGREGATION_LABEL[a]} (${spec.groupName})`;
-  return AGGREGATION_LABEL[a] ?? 'Show original';
+  return AGGREGATION_LABEL[a] ?? '원본 표시';
 }
 
 
@@ -59,7 +59,7 @@ export function calculateMenu(targetType: string | undefined, current: Aggregati
   };
   const out: MenuItemDef[] = [item('show_original')];
   if (allowed.has('show_unique')) out.push(item('show_unique'));
-  for (const b of [bucket('Count', AGGREGATION_BUCKETS.count), bucket('Percent', AGGREGATION_BUCKETS.percent), bucket('More options', AGGREGATION_BUCKETS.more), bucket('Date', AGGREGATION_BUCKETS.date)]) if (b) out.push(b);
+  for (const b of [bucket('개수', AGGREGATION_BUCKETS.count), bucket('퍼센트', AGGREGATION_BUCKETS.percent), bucket('더 보기', AGGREGATION_BUCKETS.more), bucket('날짜', AGGREGATION_BUCKETS.date)]) if (b) out.push(b);
   return out;
 }
 
@@ -88,32 +88,32 @@ export function RollupConfigBody({ collectionId, propertyId }: { collectionId: s
   const menu = (e: React.MouseEvent<HTMLDivElement>, def: Parameters<typeof openMenu>[1]) => openMenu(e.currentTarget, def, { placement: 'right-start', parent: parentOf(e.currentTarget) });
   return (
     <div className="nc-menu-section nc-adv-config" data-menu-keys="ignore">
-      <ConfigRow icon="relation" label="Relation" value={rel?.name ?? 'Select'} onClick={(e) => menu(e, {
+      <ConfigRow icon="relation" label="관계형" value={rel?.name ?? '선택'} onClick={(e) => menu(e, {
         width: 280,
-        sections: [{ items: relations.length ? relations.map(([id, p]) => ({ label: p.name, icon: 'relation', checked: id === relId, onSelect: () => set({ relation_property: id, target_property: 'title', target_property_type: 'title', aggregation: 'show_original' }) })) : [{ label: 'No relations in this data source', disabled: true }] }],
+        sections: [{ items: relations.length ? relations.map(([id, p]) => ({ label: p.name, icon: 'relation', checked: id === relId, onSelect: () => set({ relation_property: id, target_property: 'title', target_property_type: 'title', aggregation: 'show_original' }) })) : [{ label: '이 데이터 소스에 관계형이 없습니다', disabled: true }] }],
       })} />
-      <ConfigRow icon="rollup" label="Property" value={tps?.name ?? (targetPropId === 'title' && target ? target.schema.title?.name ?? 'Name' : 'Select')} disabled={!rel} tooltip={rel ? undefined : 'Choose a link first.'} onClick={(e) => target && menu(e, {
-        width: 280, search: 'Find a field…',
+      <ConfigRow icon="rollup" label="속성" value={tps?.name ?? (targetPropId === 'title' && target ? target.schema.title?.name ?? '이름' : '선택')} disabled={!rel} tooltip={rel ? undefined : '먼저 관계형을 선택하세요.'} onClick={(e) => target && menu(e, {
+        width: 280, search: '필드 찾기…',
         
         sections: [{ items: Object.entries(target.schema).map(([id, p]) => ({ label: p.name, icon: propertyIconFor(p.type), checked: id === targetPropId, disabled: p.type === 'rollup' && id !== targetPropId, onSelect: () => set({ target_property: id, target_property_type: p.type, aggregation: 'show_original' }) })) }],
       })} />
-      <ConfigRow icon="formula" label="Calculate" value={aggregationLabel(spec)} disabled={!rel || !targetPropId} tooltip={rel && targetPropId ? undefined : 'Choose a link and field first.'} onClick={(e) => menu(e, {
+      <ConfigRow icon="formula" label="계산" value={aggregationLabel(spec)} disabled={!rel || !targetPropId} tooltip={rel && targetPropId ? undefined : '관계형 속성과 필드를 먼저 선택하세요.'} onClick={(e) => menu(e, {
         width: 200,
         sections: [{ items: calculateMenu(tps?.type ?? (targetPropId === 'title' ? 'title' : undefined), spec, (s) => set({ aggregation: s as unknown as string }), tps?.type === 'status' ? (tps.groups ?? []).map((g) => g.name) : undefined) }],
       })} />
       {numeric && (
         <>
-          <ConfigRow icon={<span style={{ width: 20 }} />} label="Number format" value={NUMBER_FORMAT_LABEL[(ps.number_format as string) ?? 'number'] ?? 'Number'} onClick={(e) => menu(e, {
-            width: 250, search: 'Search',
+          <ConfigRow icon={<span style={{ width: 20 }} />} label="숫자 형식" value={NUMBER_FORMAT_LABEL[(ps.number_format as string) ?? 'number'] ?? '숫자'} onClick={(e) => menu(e, {
+            width: 250, search: '검색',
             sections: [{ items: NUMBER_FORMATS.map((f) => ({ label: NUMBER_FORMAT_LABEL[f] ?? f, checked: ((ps.number_format as string) ?? 'number') === f, onSelect: () => set({ number_format: f }) })) }],
           })} />
-          <ConfigRow icon={<span style={{ width: 20 }} />} label="Decimal places" value={PRECISIONS.find((p) => p.id === ((ps.number_precision as string) ?? 'precision_uncapped'))?.label ?? 'Default'} onClick={(e) => menu(e, {
+          <ConfigRow icon={<span style={{ width: 20 }} />} label="소수점 자릿수" value={PRECISIONS.find((p) => p.id === ((ps.number_precision as string) ?? 'precision_uncapped'))?.label ?? '기본값'} onClick={(e) => menu(e, {
             width: 200,
             sections: [{ items: PRECISIONS.map((p) => ({ label: p.label, checked: ((ps.number_precision as string) ?? 'precision_uncapped') === p.id, onSelect: () => set({ number_precision: p.id }) })) }],
           })} />
-          <div className="nc-menu-section-title" style={{ marginTop: 10 }}>Show as</div>
+          <div className="nc-menu-section-title" style={{ marginTop: 10 }}>표시 방식</div>
           <ShowAsPicker value={showAs} onChange={(v) => set({ show_as: v === 'number' ? undefined : { type: v, color: 'green', maxValue: agg.startsWith('percent') ? 1 : 100, showValue: true } })} />
-          <div className="nc-rollup-hint">Changes apply to all layouts showing this field.</div>
+          <div className="nc-rollup-hint">이 속성을 표시하는 모든 보기에 변경 사항이 적용됩니다.</div>
         </>
       )}
     </div>
@@ -122,10 +122,10 @@ export function RollupConfigBody({ collectionId, propertyId }: { collectionId: s
 
 function RollupPanel({ collectionId, propertyId, close }: { collectionId: string; propertyId: string; close: () => void }) {
   return (
-    <div className="nc-rel-panel" style={{ width: 300 }} role="dialog" aria-label="Rollup">
+    <div className="nc-rel-panel" style={{ width: 300 }} role="dialog" aria-label="롤업">
       <RollupConfigBody collectionId={collectionId} propertyId={propertyId} />
       <div className="nc-rel-foot">
-        <ConfigRow icon="check" label="Done" chevron={false} onClick={close} />
+        <ConfigRow icon="check" label="완료" chevron={false} onClick={close} />
       </div>
     </div>
   );

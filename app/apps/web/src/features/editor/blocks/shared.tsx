@@ -23,7 +23,7 @@ export function toast(message: string, action?: { label: string; run: () => void
   useUI.getState().toast(message, action);
 }
 
-export async function copyText(text: string, message = 'Copied') {
+export async function copyText(text: string, message = '복사됨') {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -112,7 +112,7 @@ export function fileNameOf(b: BlockRecord): string {
   try {
     return decodeURIComponent(new URL(src, location.href).pathname.split('/').pop() || '') || src;
   } catch {
-    return src.split('/').pop() || 'File';
+    return src.split('/').pop() || '파일';
   }
 }
 
@@ -165,7 +165,7 @@ export function Caption({ block, readOnly, className }: { block: BlockRecord; re
         value={value}
         readOnly={readOnly}
         className="lit-caption nc-caption"
-        placeholder="Write a caption…"
+        placeholder="캡션 입력…"
         placeholderAlways={shown && !value.length}
         onChange={(next, info) => commitText(block.id, 'caption', next, info.caret)}
         onBlur={() => {
@@ -370,7 +370,7 @@ export function LiveSwitch({ blockId, get }: { blockId: string; get: (b: BlockRe
 export function openLightbox(render: () => ReactNode) {
   return openOverlay((close) => (
     <div className="nc-lightbox" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
-      <div className="nc-lightbox-close" role="button" aria-label="Close" onClick={close}><Icon name="close" size={20} /></div>
+      <div className="nc-lightbox-close" role="button" aria-label="닫기" onClick={close}><Icon name="close" size={20} /></div>
       <div className="nc-lightbox-body">{render()}</div>
     </div>
   ), { backdrop: 'dim', placement: 'center', className: 'nc-lightbox-overlay' });

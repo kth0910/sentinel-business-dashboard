@@ -90,26 +90,26 @@ export function createPage(opts: {
 
 const t = (s: string): RichText => [[s]];
 
+/** 새 워크스페이스의 '시작하기' 페이지(업무관리 시연판: 한국어, AI 안내 없음). */
+export const WELCOME_TITLE = '시작하기';
+
 function gettingStartedContent(): BlockSpec[] {
   return [
-    { type: 'text', title: t('👋 Welcome to Litpage. This page is a safe place to try the workspace.') },
-    { type: 'text', title: t('A few quick experiments will show you how pages, blocks, and databases fit together.') },
-    { type: 'to_do', title: [['Open the '], ['/', [['c']]], [' slash menu and add a heading, callout, or sub-page.']] },
-    { type: 'to_do', title: [['Hover over this line, then use the '], ['⋮⋮', [['c']]], [' drag handle to reorder it.']] },
-    { type: 'to_do', title: t('Add a database, add a few rows, and switch between its table, board, and calendar views') },
-    { type: 'to_do', title: t('Share a page with a teammate and choose whether they can edit, comment, or read') },
-    { type: 'to_do', title: t('Ask Litpage AI to summarize a page or turn a rough idea into a first draft') },
-    { type: 'to_do', title: [['Try '], ['⌘/Ctrl + P', [['c']]], [' to find a page, and '], ['⌘/Ctrl + K', [['c']]], [' to open quick actions.']] },
+    { type: 'text', title: t('👋 업무 페이지와 데이터베이스를 자유롭게 연습해 볼 수 있는 페이지입니다.') },
+    { type: 'to_do', title: [['줄 맨 앞에서 '], ['/', [['c']]], [' 를 눌러 제목, 콜아웃, 하위 페이지를 추가해 보세요.']] },
+    { type: 'to_do', title: [['이 줄에 마우스를 올리고 '], ['⋮⋮', [['c']]], [' 손잡이를 끌어 순서를 바꿔 보세요.']] },
+    { type: 'to_do', title: t('데이터베이스를 추가하고 표, 캘린더, 타임라인 보기로 바꿔 보세요') },
+    { type: 'to_do', title: [[''], ['Ctrl + P', [['c']]], [' 로 페이지를 찾고, '], ['Ctrl + K', [['c']]], [' 로 빠른 작업을 열 수 있습니다.']] },
     {
-      type: 'toggle', title: t('More shortcuts and ideas'),
+      type: 'toggle', title: t('더 알아보기'),
       children: [
-        { type: 'bulleted_list', title: t('Type @ to mention a person, page, or date') },
-        { type: 'bulleted_list', title: t('Drag a block beside another one to make a column layout') },
-        { type: 'bulleted_list', title: t('Use the Templates gallery when you want a ready-made starting point') },
+        { type: 'bulleted_list', title: t('@를 입력하면 사람, 페이지, 날짜를 멘션할 수 있습니다') },
+        { type: 'bulleted_list', title: t('블록을 다른 블록 옆으로 끌면 여러 단으로 나뉩니다') },
+        { type: 'bulleted_list', title: t("'/' 메뉴 맨 위 '업무' 묶음에서 채용 현황, 일정, 매출 블록을 넣을 수 있습니다") },
       ],
     },
     { type: 'text', title: [] },
-    { type: 'callout', title: t('Tip: press ⌘/Ctrl + Shift + L to switch between light and dark mode.'), format: { page_icon: '💡', block_color: 'gray_background' } },
+    { type: 'callout', title: t('팁: Ctrl + Shift + L 로 밝은 화면과 어두운 화면을 바꿀 수 있습니다.'), format: { page_icon: '💡', block_color: 'gray_background' } },
   ];
 }
 
@@ -129,7 +129,7 @@ export function createWorkspace(
     };
     const teamId = newId();
     const team: TeamRecord = {
-      id: teamId, version: 0, space_id: spaceId, name: 'General', icon: '🏠', description: '', team_pages: [],
+      id: teamId, version: 0, space_id: spaceId, name: '일반', icon: '🏠', description: '', team_pages: [],
       parent_id: spaceId, parent_table: 'space', alive: true,
       membership: [{ user_id: userId, role: 'owner', added_time: now }],
       settings: { type: 'open', default_page_role: 'editor' }, created_time: now, created_by_id: userId, is_default: true,
@@ -139,13 +139,13 @@ export function createWorkspace(
     save('team', team);
     const svId = newId();
     const gettingStarted = createPage({
-      spaceId, userId, parentId: spaceId, parentTable: 'space', title: opts.welcome?.title ?? 'Welcome to Litpage', icon: opts.welcome?.icon ?? '👋',
+      spaceId, userId, parentId: spaceId, parentTable: 'space', title: opts.welcome?.title ?? WELCOME_TITLE, icon: opts.welcome?.icon ?? '👋',
       content: opts.welcome?.content ?? gettingStartedContent(), permissions: [{ type: 'user_permission', role: 'editor', user_id: userId }],
     });
     const teamHome = createPage({
-      spaceId, userId, parentId: teamId, parentTable: 'team', title: 'Team Home', icon: '🏠',
+      spaceId, userId, parentId: teamId, parentTable: 'team', title: '팀 홈', icon: '🏠',
       content: [
-        { type: 'text', title: t('A shared home for everyone on this team. Add docs, wikis, and projects here.') },
+        { type: 'text', title: t('팀 모두가 함께 쓰는 공간입니다. 문서, 위키, 프로젝트를 이곳에 모아 두세요.') },
       ],
     });
     team.team_pages = [teamHome.id];

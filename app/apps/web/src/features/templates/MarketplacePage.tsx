@@ -134,7 +134,7 @@ function Discover({ templates, onOpen, onTab }: { templates: TemplateInfo[]; onO
         <div className="nc-mkt-hero-text">
           <div className="nc-mkt-hero-label"><Icon name="chatUser" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />{t('lp.templates.consulting', 'Consulting')}</div>
           <div className="nc-mkt-hero-title">{t('lp.templates.get_a_free_setup_session', 'Get a free setup session')}</div>
-          <div className="nc-mkt-hero-desc">{t('lp.templates.certified_litpage_consultants_offer_limi', 'Certified Litpage consultants offer limited 30-minute sessions. Get help before the spots are gone.')}</div>
+          <div className="nc-mkt-hero-desc">{t('lp.templates.certified_litpage_consultants_offer_limi', 'Certified CoolNotion! consultants offer limited 30-minute sessions. Get help before the spots are gone.')}</div>
           <div role="button" className="nc-mkt-dark-btn" onClick={() => onTab('consultants')}>{t('lp.templates.reserve_now', 'Reserve now')}</div>
         </div>
         <div className="nc-mkt-hero-art">
@@ -170,7 +170,7 @@ function Discover({ templates, onOpen, onTab }: { templates: TemplateInfo[]; onO
         >
           <div className="nc-mkt-hero-text">
             <div className="nc-mkt-hero-label"><Icon name="medal" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />{t('lp.templates.top_creator', 'Top creator')}</div>
-            <div className="nc-mkt-hero-title">Litpage</div>
+            <div className="nc-mkt-hero-title">CoolNotion!</div>
             <div className="nc-mkt-hero-desc">{t('lp.templates.starter_templates_for_projects_notes_pla', 'Starter templates for projects, notes, planning and more — free for every workspace.')}</div>
             <div className="nc-mkt-explore bottom">
               <span>{t('lp.templates.explore', 'Explore')}<Icon name="arrowStraightRight" size={16} /></span>
@@ -560,35 +560,35 @@ function DetailStats({ tpl, all }: { tpl: TemplateInfo; all: TemplateInfo[] }) {
 
 const LISTINGS: Record<'agents' | 'consultants' | 'skills' | 'connections', { title: string; desc: string; items: { icon: string; name: string; desc: string }[] }> = {
   agents: {
-    title: 'Agents', desc: 'Custom agents that work for your team in Litpage.',
+    title: '에이전트', desc: '팀을 위해 일하는 맞춤형 에이전트입니다.',
     items: [
-      { icon: '🗂️', name: 'Inbox triage', desc: 'Sorts incoming requests into the right database.' },
-      { icon: '📝', name: 'Meeting summarizer', desc: 'Turns meeting notes into decisions and action items.' },
-      { icon: '📈', name: 'Weekly reporter', desc: 'Writes a weekly status update from your project tracker.' },
+      { icon: '🗂️', name: 'Inbox triage', desc: '들어오는 요청을 알맞은 데이터베이스로 분류합니다.' },
+      { icon: '📝', name: 'Meeting summarizer', desc: '회의록을 결정 사항과 실행 항목으로 정리합니다.' },
+      { icon: '📈', name: 'Weekly reporter', desc: '프로젝트 트래커를 바탕으로 주간 현황 보고를 작성합니다.' },
     ],
   },
   consultants: {
-    title: 'Consultants', desc: 'Certified experts who can help you set up Litpage.',
+    title: '컨설턴트', desc: 'CoolNotion! 설정을 도와주는 인증된 전문가입니다.',
     items: [
-      { icon: '🧭', name: 'Workspace setup', desc: 'A guided session to structure teamspaces and permissions.' },
-      { icon: '🛠️', name: 'Database design', desc: 'Model projects, tasks and relations for your team.' },
-      { icon: '🎓', name: 'Team training', desc: 'Onboard your team with live workshops.' },
+      { icon: '🧭', name: 'Workspace setup', desc: '팀스페이스와 권한 구성을 안내하는 세션입니다.' },
+      { icon: '🛠️', name: 'Database design', desc: '팀의 프로젝트, 작업, 관계형을 설계합니다.' },
+      { icon: '🎓', name: 'Team training', desc: '실시간 워크숍으로 팀을 온보딩합니다.' },
     ],
   },
   skills: {
-    title: 'Skills', desc: 'Reusable instructions for Litpage AI.',
+    title: '스킬', desc: 'CoolNotion! AI에서 재사용할 수 있는 지침입니다.',
     items: [
-      { icon: '✍️', name: 'Write a project brief', desc: 'Drafts a brief from a few bullet points.' },
-      { icon: '🔎', name: 'Research summary', desc: 'Summarizes sources into key findings.' },
-      { icon: '🌐', name: 'Translate page', desc: 'Translates a page while keeping formatting.' },
+      { icon: '✍️', name: 'Write a project brief', desc: '몇 가지 요점으로 브리프 초안을 작성합니다.' },
+      { icon: '🔎', name: 'Research summary', desc: '자료를 핵심 내용으로 요약합니다.' },
+      { icon: '🌐', name: 'Translate page', desc: '서식을 유지하면서 페이지를 번역합니다.' },
     ],
   },
   connections: {
-    title: 'Connections', desc: 'Connect apps to search, sync and take actions from Litpage.',
+    title: '연결', desc: '앱을 연결해 CoolNotion!에서 검색, 동기화, 작업을 실행합니다.',
     items: [
-      { icon: '💬', name: 'Chat apps', desc: 'Share pages and get notifications in your chat tools.' },
-      { icon: '📁', name: 'File storage', desc: 'Embed and search files from cloud drives.' },
-      { icon: '🐙', name: 'Code hosting', desc: 'Link pull requests and issues to pages.' },
+      { icon: '💬', name: 'Chat apps', desc: '채팅 도구에서 페이지를 공유하고 알림을 받습니다.' },
+      { icon: '📁', name: 'File storage', desc: '클라우드 드라이브의 파일을 임베드하고 검색합니다.' },
+      { icon: '🐙', name: 'Code hosting', desc: '풀 리퀘스트와 이슈를 페이지에 연결합니다.' },
     ],
   },
 };

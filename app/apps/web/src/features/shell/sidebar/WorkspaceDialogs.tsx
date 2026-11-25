@@ -16,7 +16,7 @@ export function openCreateWorkspaceDialog() {
 
 function CreateWorkspace({ close }: { close: () => void }) {
   const user = records.get('lit_user', useSession.getState().userId) as { name?: string } | undefined;
-  const [name, setName] = useState(user?.name ? `${user.name}'s Workspace` : '');
+  const [name, setName] = useState(user?.name ? `${user.name}의 워크스페이스` : '');
   const [icon, setIcon] = useState<string>('');
   const [busy, setBusy] = useState(false);
   const create = async () => {

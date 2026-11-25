@@ -292,7 +292,7 @@ export const handlers: Record<string, Handler> = {
   },
   createWorkspace(ctx, { name, icon }) {
     const uid = requireUser(ctx);
-    const { space } = createWorkspace(uid, String(name || 'My Workspace'), icon);
+    const { space } = createWorkspace(uid, String(name || '내 워크스페이스'), icon);
     turnOffTrimmedFeatures(space.id); // 업무관리 시연판: AI·외부 공개 끔 (biz/defaults.ts)
     const rm = new RecordMapBuilder(uid);
     return { spaceId: space.id, recordMap: rm.map };

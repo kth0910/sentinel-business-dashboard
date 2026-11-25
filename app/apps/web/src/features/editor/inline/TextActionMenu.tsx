@@ -369,7 +369,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               <TBtn
                 haspopup
                 expanded={popup === 'color'}
-                tip="Text color"
+                tip="텍스트 색상"
                 onPress={(el) => withFreeze((unfreeze) => openColorMenu(el, r, unfreeze), 'color')}
               >
                 <div
@@ -383,24 +383,24 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
                   A
                 </div>
               </TBtn>
-              <TBtn icon="textBold" tip="Bold" sub={`${mod}B`} pressed={has('b')} onPress={() => toggleMarkRange(r, ['b'])} />
-              <TBtn icon="textItalic" tip="Italicize" sub={`${mod}I`} pressed={has('i')} onPress={() => toggleMarkRange(r, ['i'])} />
-              <TBtn icon="textUnderline" tip="Underline" sub={`${mod}U`} pressed={has('_')} onPress={() => toggleMarkRange(r, ['_'])} />
-              <TBtn icon="textX" width={28} tip="Clear format" sub={`${mod}${alt}\\`} label="Clear format" onPress={() => clearFormatRange(r)} />
+              <TBtn icon="textBold" tip="굵게" sub={`${mod}B`} pressed={has('b')} onPress={() => toggleMarkRange(r, ['b'])} />
+              <TBtn icon="textItalic" tip="기울임꼴" sub={`${mod}I`} pressed={has('i')} onPress={() => toggleMarkRange(r, ['i'])} />
+              <TBtn icon="textUnderline" tip="밑줄" sub={`${mod}U`} pressed={has('_')} onPress={() => toggleMarkRange(r, ['_'])} />
+              <TBtn icon="textX" width={28} tip="서식 지우기" sub={`${mod}${alt}\\`} label="서식 지우기" onPress={() => clearFormatRange(r)} />
             </div>
             <div className="nc-tam-row">
               <TBtn
                 icon="link"
                 haspopup
-                tip="Add link"
+                tip="링크 추가"
                 sub={`${mod}K`}
                 pressed={isLink ? true : undefined}
                 expanded={popup === 'link'}
                 onPress={() => withFreeze((unfreeze) => openLinkPopup(r, { onClose: unfreeze }), 'link')}
               />
-              <TBtn icon="textStrikethrough" tip="Strike-through" sub={`${mod}${shift}X`} pressed={has('s')} onPress={() => toggleMarkRange(r, ['s'])} />
-              <TBtn icon="code" tip="Apply code style" sub={`${mod}E`} pressed={has('c')} onPress={() => toggleMarkRange(r, ['c'])} />
-              <TBtn icon="squareRoot" tip="Apply equation style" sub={`${mod}${shift}E`} onPress={() => { hideTextMenu(); convertSelectionToEquation(r); }} />
+              <TBtn icon="textStrikethrough" tip="취소선" sub={`${mod}${shift}X`} pressed={has('s')} onPress={() => toggleMarkRange(r, ['s'])} />
+              <TBtn icon="code" tip="코드 스타일 적용" sub={`${mod}E`} pressed={has('c')} onPress={() => toggleMarkRange(r, ['c'])} />
+              <TBtn icon="squareRoot" tip="수식 스타일 적용" sub={`${mod}${shift}E`} onPress={() => { hideTextMenu(); convertSelectionToEquation(r); }} />
               <TBtn
                 icon="ellipsisSmall"
                 className="lit-block-action-menu nc-tam-more"
@@ -417,9 +417,9 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
             <div
               role="button"
               tabIndex={0}
-              aria-label="Write a comment"
+              aria-label="댓글 작성"
               className="nc-tam-comment"
-              data-tooltip="Comment"
+              data-tooltip="댓글"
               data-tooltip-sub={`${mod}${shift}M`}
               onClick={() => { hideTextMenu(); startCommentOnSelection(r.blockId, r.start, r.end, r.property); }}
             >
@@ -431,10 +431,10 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
                 icon="emojiFacePlus"
                 haspopup
                 expanded={popup === 'emoji'}
-                tip="React to this selection"
+                tip="선택한 내용에 반응"
                 onPress={(el) => withFreeze((unfreeze) => openEmojiPopover(el, (emoji) => reactToSelection(r, emoji), unfreeze), 'emoji')}
               />
-              <TBtn icon="commentPencil" tip="Suggest edits" sub={`${mod}${shift}${alt}X`} onPress={() => { hideTextMenu(); void import('../../comments/suggest.ts').then((m) => m.startSuggestingOnRange(r)); }} />
+              <TBtn icon="commentPencil" tip="편집 제안" sub={`${mod}${shift}${alt}X`} onPress={() => { hideTextMenu(); void import('../../comments/suggest.ts').then((m) => m.startSuggestingOnRange(r)); }} />
             </div>
           </div>
           </>)}
@@ -445,7 +445,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
             <div className="nc-tam-skills lit-scroller vertical">
               <div className="nc-tam-skills-head">
                 Skills
-                <div role="button" aria-label="Skills" className="nc-tam-icon-btn" data-tooltip="Manage skills" onClick={() => askAI(r, { skill: 'manage' })}>
+                <div role="button" aria-label="스킬" className="nc-tam-icon-btn" data-tooltip="스킬 관리" onClick={() => askAI(r, { skill: 'manage' })}>
                   <Icon name="sliders" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
                 </div>
               </div>
@@ -453,7 +453,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
                 <div key={s} role="button" tabIndex={0} className="nc-tam-skill" onClick={() => askAI(r, { skill: s })}>
                   <span className="nc-ellipsis" style={{ flex: '1 1 0%', minWidth: 0 }}>{s}</span>
                   <div className="nc-tam-skill-edit">
-                    <div role="button" aria-label="Edit skill" className="nc-tam-icon-btn" data-tooltip="Edit skill" onClick={(e) => { e.stopPropagation(); askAI(r, { skill: s, edit: true } as any); }}>
+                    <div role="button" aria-label="스킬 편집" className="nc-tam-icon-btn" data-tooltip="스킬 편집" onClick={(e) => { e.stopPropagation(); askAI(r, { skill: s, edit: true } as any); }}>
                       <Icon name="pencilLineSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
                     </div>
                   </div>
@@ -464,7 +464,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
                   <span className="nc-ellipsis" style={{ flex: '1 1 0%', minWidth: 0 }}>{s.name}</span>
                   {s.pageId && (
                     <div className="nc-tam-skill-edit">
-                      <div role="button" aria-label="Edit skill" className="nc-tam-icon-btn" data-tooltip="Edit skill" onClick={(e) => { e.stopPropagation(); hideTextMenu(); openPage(s.pageId!); }}>
+                      <div role="button" aria-label="스킬 편집" className="nc-tam-icon-btn" data-tooltip="스킬 편집" onClick={(e) => { e.stopPropagation(); hideTextMenu(); openPage(s.pageId!); }}>
                         <Icon name="pencilLineSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />
                       </div>
                     </div>
@@ -481,7 +481,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               role="textbox"
               aria-multiline="true"
               rows={1}
-              placeholder="Revise with AI"
+              placeholder="AI로 수정"
               value={aiText}
               onFocus={() => { useTextMenu.setState((s) => ({ frozen: s.frozen + 1 })); }}
               onBlur={() => { useTextMenu.setState((s) => ({ frozen: Math.max(0, s.frozen - 1) })); }}
@@ -512,9 +512,9 @@ function tok(c: string): string {
 }
 
 const DESCRIPTIONS: Partial<Record<BlockType, string>> = {
-  text: 'Write with plain text', header: 'Large section heading', sub_header: 'Medium heading', sub_sub_header: 'Small heading',
-  bulleted_list: 'Add a bulleted list', numbered_list: 'Add a numbered list', to_do: 'Track tasks in a checklist',
-  toggle: 'Toggles collapse or reveal content', quote: 'Capture a quote', callout: 'Highlight important text', code: 'Add a code snippet',
+  text: '일반 텍스트로 작성', header: '큰 섹션 제목', sub_header: '중간 제목', sub_sub_header: '작은 제목',
+  bulleted_list: '글머리 기호 목록 추가', numbered_list: '번호 목록 추가', to_do: '체크리스트로 할 일 관리',
+  toggle: '콘텐츠를 접거나 펼칠 수 있습니다', quote: '인용문 남기기', callout: '중요한 텍스트 강조', code: 'Add a code snippet',
 };
 
 function turnIntoDescription(t: BlockType): string | undefined {

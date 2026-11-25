@@ -42,9 +42,9 @@ export function rich(id: string, def: string, parts: Record<string, ReactNode>, 
 export function itemDate(ts: number): string {
   const ko = getLocale() === 'ko-KR';
   const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return ko ? '방금' : 'Just now';
+  if (s < 60) return ko ? '방금' : '방금';
   const m = Math.floor(s / 60);
-  if (m < 60) return ko ? `${m}분 전` : `${m}m ago`;
+  if (m < 60) return ko ? `${m}분 전` : `${m}분 전`;
   const d = new Date(ts);
   if (d.toDateString() === new Date().toDateString()) return d.toLocaleTimeString(getLocale(), { hour: 'numeric', minute: '2-digit' });
   const sameYear = d.getFullYear() === new Date().getFullYear();
@@ -399,7 +399,7 @@ function renderItem(item: FeedItem, list: NotificationRecord[]): { headline: Rea
       };
     }
     case 'automation': {
-      const name = String(a.automation_name ?? 'Automation');
+      const name = String(a.automation_name ?? '자동화');
       const headline = a.kind === 'paused'
         ? t('lp.shell.is_paused', '{automationName} is paused', { automationName: name })
         : a.subject || t('lp.shell.new_message_from', 'New message from {automationName}', { automationName: name });
