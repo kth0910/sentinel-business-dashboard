@@ -1,0 +1,969 @@
+{
+  "schema_version": 1,
+  "registry_version": "2026.07.31",
+  "semantic_color_derivations": {
+    "panel": "canvas",
+    "on_panel": "text",
+    "inverse_canvas": "text",
+    "on_inverse": "canvas"
+  },
+  "axis_values": {
+    "jobs": ["decide", "explain", "compare", "prove", "teach", "launch", "document", "inspire"],
+    "evidence": ["quantitative", "sourced-text", "authentic-photography", "artifact-ui", "diagram", "mixed"],
+    "density": ["sparse-keynote", "editorial-medium", "analytical-dense", "operational-dense"],
+    "emotion": ["urgent", "calm", "premium", "playful", "provocative", "documentary", "institutional"],
+    "surface": ["open-light", "open-dark", "paper-editorial", "full-bleed-image", "technical-canvas", "split-field"],
+    "focal_anchor": ["headline", "artifact", "person-place", "chart", "system", "comparison-axis", "annotation"]
+  },
+  "axis_aliases": {
+    "jobs": {
+      "decide": ["decision", "recommendation", "proposal", "strategy", "executive", "board update", "이사회", "전략", "제안"],
+      "explain": ["explanation", "guide", "technical guide", "system explanation", "architecture", "explain", "설명", "가이드", "아키텍처"],
+      "compare": ["comparison", "alternatives", "tradeoff", "trade off", "versus", "vs", "비교", "대안", "선택"],
+      "prove": ["evidence", "analysis", "research", "report", "proof", "review", "조사", "분석", "리포트", "연구", "정책"],
+      "teach": ["teaching", "onboarding", "workshop", "learning", "tutorial", "교육", "학습", "워크숍"],
+      "launch": ["launch", "reveal", "release", "announcement", "keynote", "출시", "런칭", "발표"],
+      "document": ["documentation", "archive", "chronicle", "reportage", "record", "case study", "기록", "아카이브"],
+      "inspire": ["inspiration", "story", "vision", "manifesto", "culture", "campaign", "portfolio", "travel guide", "brand", "비전", "문화", "캠페인", "브랜드"]
+    },
+    "evidence": {
+      "quantitative": ["data", "metrics", "numbers", "statistics", "정량", "수치"],
+      "sourced-text": ["sources", "citations", "documents", "testimony", "출처", "인용", "문헌"],
+      "authentic-photography": ["photography", "photos", "documentary images", "사진", "실사"],
+      "artifact-ui": ["artifact", "ui", "interface", "screenshot", "product", "아티팩트", "화면", "제품"],
+      "diagram": ["diagram", "topology", "flow", "map", "도식", "토폴로지", "흐름"],
+      "mixed": ["mixed evidence", "multimodal", "복합 증거", "혼합"]
+    },
+    "density": {
+      "sparse-keynote": ["sparse", "keynote", "minimal", "희소", "미니멀"],
+      "editorial-medium": ["editorial", "medium", "magazine", "에디토리얼", "중간"],
+      "analytical-dense": ["analytical", "dense analysis", "research dense", "분석 밀도", "고밀도 분석"],
+      "operational-dense": ["operational", "control room", "operations dense", "운영 밀도", "상황실"]
+    },
+    "emotion": {
+      "urgent": ["urgency", "crisis", "immediate", "긴급", "위기"],
+      "calm": ["quiet", "reassuring", "measured", "차분", "안정"],
+      "premium": ["luxury", "refined", "elevated", "프리미엄", "고급"],
+      "playful": ["friendly", "fun", "youthful", "유쾌", "친근"],
+      "provocative": ["bold", "challenging", "disruptive", "도발", "대담"],
+      "documentary": ["reportage", "observational", "witness", "다큐멘터리", "관찰"],
+      "institutional": ["official", "trusted", "formal", "공식", "신뢰", "제도"]
+    },
+    "surface": {
+      "open-light": ["light", "white", "bright", "밝은", "화이트"],
+      "open-dark": ["dark", "black", "night", "어두운", "블랙"],
+      "paper-editorial": ["paper", "editorial", "print", "종이", "인쇄"],
+      "full-bleed-image": ["full bleed", "photo led", "image field", "풀 블리드", "이미지 중심"],
+      "technical-canvas": ["technical", "grid", "blueprint", "기술 캔버스", "설계"],
+      "split-field": ["split", "duotone", "two field", "분할", "양분"]
+    },
+    "focal_anchor": {
+      "headline": ["title", "typography", "statement", "헤드라인", "타이포"],
+      "artifact": ["product", "object", "screen", "제품", "오브젝트", "화면"],
+      "person-place": ["person", "people", "place", "destination", "인물", "장소", "여행지"],
+      "chart": ["chart", "data", "metric", "차트", "지표"],
+      "system": ["system", "architecture", "topology", "시스템", "아키텍처"],
+      "comparison-axis": ["comparison", "versus", "before after", "비교", "전후"],
+      "annotation": ["notes", "labels", "callouts", "주석", "라벨"]
+    }
+  },
+  "themes": [
+    {
+      "theme": "Swiss Signal",
+      "cover_family": "asymmetric-editorial-poster",
+      "surface": "paper",
+      "title_anchor": "offset-lower-left",
+      "hero_form": "cropped-evidence-strip",
+      "type_direction": "neo-grotesk display + restrained serif/mono annotation",
+      "palette_direction": "warm paper + ink + signal red + cool utility accent",
+      "jobs": ["decide", "compare", "prove"],
+      "evidence": ["quantitative", "sourced-text", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["institutional", "provocative"],
+      "surface_axis": ["open-light", "paper-editorial"],
+      "focal_anchors": ["headline", "chart", "comparison-axis"],
+      "subject_cues": ["public policy", "serious proposal", "research strategy", "정책 제안", "연구 전략"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F7F2E8", "text": "#171717", "accent": "#B42318", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Editorial Culture",
+      "cover_family": "cover-story-collage",
+      "surface": "editorial-paper",
+      "title_anchor": "magazine-margin",
+      "hero_form": "photo-collage-and-pull-quote",
+      "type_direction": "high-contrast serif display + clean sans body",
+      "palette_direction": "black + white + one saturated editorial color + photo-derived tones",
+      "jobs": ["document", "inspire"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["premium", "documentary"],
+      "surface_axis": ["paper-editorial", "full-bleed-image"],
+      "focal_anchors": ["person-place", "headline"],
+      "subject_cues": ["brand story", "cultural profile", "art portfolio", "culture magazine", "문화 프로필"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FCFAF7", "text": "#161616", "accent": "#8A1538", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Cinematic Noir",
+      "cover_family": "key-visual-cinema",
+      "surface": "cinematic-dark",
+      "title_anchor": "subject-aware-edge",
+      "hero_form": "full-bleed-key-visual",
+      "type_direction": "expressive display + highly legible sans support",
+      "palette_direction": "near-black + two subject-derived luminous accents",
+      "jobs": ["document", "inspire", "launch"],
+      "evidence": ["authentic-photography", "mixed"],
+      "density": ["sparse-keynote", "editorial-medium"],
+      "emotion": ["urgent", "premium"],
+      "surface_axis": ["open-dark", "full-bleed-image"],
+      "focal_anchors": ["artifact", "person-place"],
+      "subject_cues": ["film", "cinema", "mystery", "narrative game", "영화", "미스터리"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#0A0A0F", "text": "#F6F2EA", "accent": "#B91C3C", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Mission Control",
+      "cover_family": "operational-status-board",
+      "surface": "dark-operational",
+      "title_anchor": "top-left-compact",
+      "hero_form": "system-boundary-or-event-timeline",
+      "type_direction": "sturdy sans + mono labels and numeric details",
+      "palette_direction": "charcoal + warm white + safety orange + status mint",
+      "jobs": ["explain", "prove"],
+      "evidence": ["diagram", "quantitative", "mixed"],
+      "density": ["operational-dense"],
+      "emotion": ["urgent", "institutional"],
+      "surface_axis": ["open-dark", "technical-canvas"],
+      "focal_anchors": ["system", "chart"],
+      "subject_cues": ["incident response", "security operations", "infrastructure monitoring", "control plane", "장애 대응", "보안 운영"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#171A1F", "text": "#F7F1E6", "accent": "#C2410C", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Product Keynote",
+      "cover_family": "artifact-hero",
+      "surface": "brand-neutral",
+      "title_anchor": "quiet-top-left",
+      "hero_form": "large-screenshot-device-or-object",
+      "type_direction": "bold clean sans + product-native support",
+      "palette_direction": "brand-led neutral + one or two functional accents",
+      "jobs": ["launch", "inspire"],
+      "evidence": ["artifact-ui", "quantitative", "mixed"],
+      "density": ["sparse-keynote", "editorial-medium"],
+      "emotion": ["premium", "calm"],
+      "surface_axis": ["open-light", "open-dark"],
+      "focal_anchors": ["artifact", "headline"],
+      "subject_cues": ["product launch", "feature announcement", "device reveal", "software launch", "제품 출시", "기능 발표"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8FAFC", "text": "#0F172A", "accent": "#1D4ED8", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Data Newsroom",
+      "cover_family": "headline-and-evidence",
+      "surface": "light-data",
+      "title_anchor": "top-band",
+      "hero_form": "single-chart-or-sourced-photo",
+      "type_direction": "editorial sans + tabular numerals",
+      "palette_direction": "warm white + ink + one evidence highlight",
+      "jobs": ["prove", "decide"],
+      "evidence": ["quantitative", "sourced-text", "mixed"],
+      "density": ["analytical-dense", "editorial-medium"],
+      "emotion": ["documentary", "institutional"],
+      "surface_axis": ["open-light", "paper-editorial"],
+      "focal_anchors": ["chart", "headline"],
+      "subject_cues": ["market report", "performance review", "data investigation", "evidence report", "시장 보고서", "실적 분석"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FBF8F1", "text": "#172033", "accent": "#075985", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Destination Magazine",
+      "cover_family": "destination-cover-lines",
+      "surface": "photo-editorial",
+      "title_anchor": "destination-negative-space",
+      "hero_form": "dominant-destination-photography",
+      "type_direction": "confident magazine display + contemporary editorial body",
+      "palette_direction": "destination-, season-, and photography-derived roles",
+      "jobs": ["inspire", "document"],
+      "evidence": ["authentic-photography", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["playful", "premium"],
+      "surface_axis": ["full-bleed-image", "paper-editorial"],
+      "focal_anchors": ["person-place", "headline"],
+      "subject_cues": ["tokyo", "kyoto", "osaka", "city guide", "travel guide", "itinerary", "도쿄", "교토", "오사카", "여행 가이드", "여행 일정"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FFF9F1", "text": "#172033", "accent": "#B93815", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Field Notes",
+      "cover_family": "place-setting-field-record",
+      "surface": "mixed-paper",
+      "title_anchor": "field-margin",
+      "hero_form": "annotated-observation-plate",
+      "type_direction": "humanist sans + serif captions + sparse handwritten accent",
+      "palette_direction": "off-white + dark green or navy + warm field accent + true photo color",
+      "jobs": ["document", "prove", "teach"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["documentary", "calm"],
+      "surface_axis": ["paper-editorial", "full-bleed-image"],
+      "focal_anchors": ["annotation", "person-place"],
+      "subject_cues": ["field research", "expedition", "observation log", "environmental fieldwork", "현장 연구", "탐사 기록"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F3F0E6", "text": "#17251D", "accent": "#7C3F16", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Playful Modular",
+      "cover_family": "question-and-modules",
+      "surface": "bright-modular",
+      "title_anchor": "center-left-open-field",
+      "hero_form": "friendly-step-or-concept-map",
+      "type_direction": "friendly rounded or geometric sans + clear weight contrast",
+      "palette_direction": "light or black base + three balanced bright accents",
+      "jobs": ["teach", "explain"],
+      "evidence": ["diagram", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["playful", "calm"],
+      "surface_axis": ["open-light", "split-field"],
+      "focal_anchors": ["headline", "system"],
+      "subject_cues": ["onboarding", "workshop", "test", "qa", "learning path", "테스트", "워크숍", "온보딩"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FFFDF5", "text": "#172033", "accent": "#6D28D9", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Soft Kinetic",
+      "cover_family": "sensory-image-field",
+      "surface": "soft-photo-depth",
+      "title_anchor": "soft-asymmetric-edge",
+      "hero_form": "generous-close-up-photography",
+      "type_direction": "elegant sans or soft serif/sans pair",
+      "palette_direction": "balanced light/dark surfaces + photo-derived accents",
+      "jobs": ["inspire", "document"],
+      "evidence": ["authentic-photography", "mixed"],
+      "density": ["sparse-keynote", "editorial-medium"],
+      "emotion": ["calm", "premium"],
+      "surface_axis": ["full-bleed-image", "open-light"],
+      "focal_anchors": ["person-place", "artifact"],
+      "subject_cues": ["wellness", "hospitality", "consumer app", "community story", "웰니스", "호스피탈리티"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8F4F0", "text": "#25212B", "accent": "#7C2D5A", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Retro Future",
+      "cover_family": "signal-boot-cover",
+      "surface": "retro-tech",
+      "title_anchor": "hard-frame-edge",
+      "hero_form": "masked-photo-or-feature-module",
+      "type_direction": "geometric display + restrained pixel accent + readable sans",
+      "palette_direction": "black or pale neutral + controlled electric accents",
+      "jobs": ["launch", "inspire", "explain"],
+      "evidence": ["artifact-ui", "diagram", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["playful", "provocative"],
+      "surface_axis": ["open-dark", "technical-canvas"],
+      "focal_anchors": ["artifact", "headline"],
+      "subject_cues": ["experimental technology", "speculative concept", "retro game", "music technology", "실험 기술", "레트로 게임"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#0B0F14", "text": "#E9FFF5", "accent": "#A3E635", "on_accent": "#14200A"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Constructivist Impact",
+      "cover_family": "diagonal-manifesto",
+      "surface": "hard-paper",
+      "title_anchor": "compressed-diagonal",
+      "hero_form": "cutout-photography-and-type",
+      "type_direction": "heavy condensed or geometric sans + disciplined body",
+      "palette_direction": "paper + black + red + at most one support color",
+      "jobs": ["inspire", "decide"],
+      "evidence": ["sourced-text", "authentic-photography", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["urgent", "provocative"],
+      "surface_axis": ["paper-editorial", "split-field"],
+      "focal_anchors": ["headline", "person-place"],
+      "subject_cues": ["change campaign", "social issue", "action manifesto", "internal change", "변화 캠페인", "사회 이슈"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F4EBDD", "text": "#151515", "accent": "#B91C1C", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Museum Catalog",
+      "cover_family": "isolated-object-catalog",
+      "surface": "gallery-paper",
+      "title_anchor": "measured-catalog-margin",
+      "hero_form": "isolated-object-or-detail-crop",
+      "type_direction": "refined serif display + neutral sans metadata",
+      "palette_direction": "white + charcoal + one object-derived accent + black gallery resets",
+      "jobs": ["document", "prove"],
+      "evidence": ["artifact-ui", "sourced-text", "authentic-photography"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["premium", "institutional"],
+      "surface_axis": ["open-light", "paper-editorial"],
+      "focal_anchors": ["artifact", "annotation"],
+      "subject_cues": ["museum", "archive collection", "provenance", "historical object", "박물관", "소장품", "유물"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FAFAF8", "text": "#1C1B19", "accent": "#7C3A2D", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Neo Brutalist",
+      "cover_family": "oversized-typographic-stamp",
+      "surface": "hard-light",
+      "title_anchor": "full-height-left-edge",
+      "hero_form": "type-as-image-with-one-hard-cutout",
+      "type_direction": "heavy grotesk + plain sans + terse mono",
+      "palette_direction": "white or near-black + two hard primary accents",
+      "jobs": ["decide", "inspire", "compare"],
+      "evidence": ["sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["provocative", "urgent"],
+      "surface_axis": ["open-light", "open-dark", "split-field"],
+      "focal_anchors": ["headline", "comparison-axis"],
+      "subject_cues": ["startup provocation", "creative technology", "decisive proposal", "technology stack", "tech stack", "기술 스택", "스타트업 제안"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FFFDF8", "text": "#101010", "accent": "#0057B8", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Riso Zine",
+      "cover_family": "poster-collage",
+      "surface": "inked-paper",
+      "title_anchor": "hand-set-asymmetric",
+      "hero_form": "halftone-contact-sheet",
+      "type_direction": "condensed display + readable serif or humanist sans",
+      "palette_direction": "paper + two or three overprint-safe ink colors",
+      "jobs": ["inspire", "document"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["playful", "provocative"],
+      "surface_axis": ["paper-editorial"],
+      "focal_anchors": ["headline", "person-place"],
+      "subject_cues": ["independent culture", "subculture", "community campaign", "zine", "인디 문화", "서브컬처"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F6E9D3", "text": "#202020", "accent": "#A21CAF", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Scientific Atlas",
+      "cover_family": "specimen-plate",
+      "surface": "laboratory-paper",
+      "title_anchor": "plate-number-margin",
+      "hero_form": "annotated-specimen-or-section",
+      "type_direction": "precise serif/specimen labels + highly legible sans + tabular numerals",
+      "palette_direction": "warm laboratory white + ink + specimen accent + semantic finding colors",
+      "jobs": ["prove", "explain", "document"],
+      "evidence": ["authentic-photography", "diagram", "quantitative", "mixed"],
+      "density": ["analytical-dense", "editorial-medium"],
+      "emotion": ["institutional", "documentary", "calm"],
+      "surface_axis": ["paper-editorial", "open-light"],
+      "focal_anchors": ["annotation", "artifact", "chart"],
+      "subject_cues": ["biology", "microscopy", "pathology", "specimen", "climate science", "materials science", "생물학", "현미경", "병리", "표본"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8F5EC", "text": "#18212B", "accent": "#0F766E", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Blueprint Workshop",
+      "cover_family": "full-canvas-blueprint",
+      "surface": "blueprint",
+      "title_anchor": "upper-left-with-measured-grid",
+      "hero_form": "exploded-system-drawing",
+      "type_direction": "sturdy technical sans + mono dimensions",
+      "palette_direction": "blueprint blue or drafting paper + linework + one safety accent",
+      "jobs": ["explain", "compare", "decide"],
+      "evidence": ["diagram", "artifact-ui", "mixed"],
+      "density": ["analytical-dense", "operational-dense"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["technical-canvas"],
+      "focal_anchors": ["system", "artifact", "annotation"],
+      "subject_cues": ["robotics", "hardware assembly", "manufacturing protocol", "implementation drawing", "hardware blueprint", "로보틱스", "조립 설계", "구현 도면"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#0B3A66", "text": "#F7FAFC", "accent": "#FACC15", "on_accent": "#172033"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Documentary Photo Essay",
+      "cover_family": "establishing-photo-story",
+      "surface": "documentary-image",
+      "title_anchor": "photo-safe-caption-edge",
+      "hero_form": "full-frame-photographic-sequence",
+      "type_direction": "editorial serif or humanist sans + compact caption/source roles",
+      "palette_direction": "true photographic color + black/white resets + one documentary accent",
+      "jobs": ["document", "prove", "inspire"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["documentary", "calm"],
+      "surface_axis": ["full-bleed-image", "open-dark"],
+      "focal_anchors": ["person-place", "annotation"],
+      "subject_cues": ["field reporting", "oral history", "travel reportage", "social impact story", "현장 취재", "구술사", "다큐 사진"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#111315", "text": "#F4F2EC", "accent": "#B45309", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Ledger Trust",
+      "cover_family": "trust-thesis-ledger",
+      "surface": "institutional-ledger",
+      "title_anchor": "ledger-header",
+      "hero_form": "money-movement-or-reserve-map",
+      "type_direction": "institutional sans + tabular numerals + restrained serif + mono chain labels",
+      "palette_direction": "warm white + deep ink + reserve green + settlement blue + semantic risk colors",
+      "jobs": ["prove", "explain", "decide"],
+      "evidence": ["quantitative", "sourced-text", "diagram", "mixed"],
+      "density": ["analytical-dense", "operational-dense"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["open-light", "paper-editorial"],
+      "focal_anchors": ["chart", "system", "annotation"],
+      "subject_cues": ["stablecoin", "stable coin", "reserve backing", "payment settlement", "treasury", "mint burn", "스테이블코인", "준비금", "결제 정산"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8F6EF", "text": "#10231D", "accent": "#166534", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Idol Editorial Index",
+      "cover_family": "multi-subject-index",
+      "surface": "indexed-editorial",
+      "title_anchor": "issue-index-margin",
+      "hero_form": "authentic-contact-sheet-and-profile-split",
+      "type_direction": "bold grotesk + restrained editorial serif + compact mono index labels",
+      "palette_direction": "black or paper + one sharp index accent + authentic act-specific color",
+      "jobs": ["document", "compare", "teach"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["playful", "documentary"],
+      "surface_axis": ["paper-editorial", "full-bleed-image"],
+      "focal_anchors": ["person-place", "comparison-axis", "annotation"],
+      "subject_cues": ["idol", "k pop group guide", "k-pop group guide", "lineup overview", "listening guide", "아이돌", "그룹 입문", "세대 가이드"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FAF8F3", "text": "#151515", "accent": "#9D174D", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Consulting Precision",
+      "cover_family": "action-title-grid",
+      "surface": "executive-light",
+      "title_anchor": "top-left-action-title",
+      "hero_form": "one-chart-or-decision-matrix",
+      "type_direction": "disciplined grotesk + tabular numerals + compact source captions",
+      "palette_direction": "white or quiet navy + ink + decision accent + semantic risk colors",
+      "jobs": ["decide", "prove"],
+      "evidence": ["quantitative", "sourced-text", "mixed"],
+      "density": ["analytical-dense", "editorial-medium"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["open-light"],
+      "focal_anchors": ["headline", "chart", "comparison-axis"],
+      "subject_cues": ["board recommendation", "due diligence", "operating review", "executive recommendation", "이사회 전략", "실사 보고"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FFFFFF", "text": "#172033", "accent": "#1E40AF", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Keynote Minimal Full-Bleed",
+      "cover_family": "single-message-full-bleed",
+      "surface": "cinematic-open",
+      "title_anchor": "subject-aware-negative-space",
+      "hero_form": "one-authentic-image-or-object",
+      "type_direction": "large restrained sans + minimal support copy",
+      "palette_direction": "image-derived neutrals + one controlled brand accent",
+      "jobs": ["launch", "inspire"],
+      "evidence": ["artifact-ui", "authentic-photography", "mixed"],
+      "density": ["sparse-keynote"],
+      "emotion": ["premium", "calm"],
+      "surface_axis": ["full-bleed-image", "open-dark", "open-light"],
+      "focal_anchors": ["artifact", "headline"],
+      "subject_cues": ["vision keynote", "premium announcement", "artifact reveal", "single message keynote", "비전 키노트", "프리미엄 발표"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#0E1116", "text": "#F8FAFC", "accent": "#1D4ED8", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Duotone Split",
+      "cover_family": "hard-split-tension",
+      "surface": "two-field-contrast",
+      "title_anchor": "split-axis",
+      "hero_form": "before-after-or-choice-pair",
+      "type_direction": "bold grotesk + concise neutral body",
+      "palette_direction": "two high-contrast fields + one shared neutral",
+      "jobs": ["compare", "decide"],
+      "evidence": ["quantitative", "sourced-text", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["provocative", "urgent"],
+      "surface_axis": ["split-field"],
+      "focal_anchors": ["comparison-axis", "headline"],
+      "subject_cues": ["before after", "versus", "vs", "trade off", "migration choice", "전후 비교", "대안 비교"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8FAFC", "text": "#172033", "accent": "#7C2D12", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Typographic Editorial Poster",
+      "cover_family": "type-as-primary-image",
+      "surface": "poster-paper",
+      "title_anchor": "oversized-crop",
+      "hero_form": "headline-led-with-one-evidence-cutout",
+      "type_direction": "expressive display + quiet reading face",
+      "palette_direction": "paper or black + one saturated editorial ink",
+      "jobs": ["inspire", "launch"],
+      "evidence": ["sourced-text", "authentic-photography", "mixed"],
+      "density": ["sparse-keynote", "editorial-medium"],
+      "emotion": ["provocative", "playful"],
+      "surface_axis": ["paper-editorial", "open-dark"],
+      "focal_anchors": ["headline"],
+      "subject_cues": ["brand manifesto", "event identity", "culture campaign", "typographic statement", "브랜드 선언", "행사 아이덴티티"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F6F0E5", "text": "#161616", "accent": "#A1123F", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Organic Material",
+      "cover_family": "tactile-photo-and-type",
+      "surface": "warm-material",
+      "title_anchor": "soft-asymmetric-edge",
+      "hero_form": "honest-close-up-photography",
+      "type_direction": "humanist sans or soft serif + plain utility text",
+      "palette_direction": "natural material tones + one living accent, never beige-only",
+      "jobs": ["document", "inspire", "prove"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["calm", "documentary"],
+      "surface_axis": ["full-bleed-image", "paper-editorial"],
+      "focal_anchors": ["artifact", "person-place"],
+      "subject_cues": ["sustainability", "food craft", "material product", "maker story", "지속가능성", "푸드", "소재 제품"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F5F0E5", "text": "#1E2922", "accent": "#356B3F", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Isometric Systems",
+      "cover_family": "exploded-spatial-system",
+      "surface": "technical-light-depth",
+      "title_anchor": "upper-left-with-spatial-counterweight",
+      "hero_form": "isometric-topology-or-exploded-interface",
+      "type_direction": "precise geometric sans + mono component labels",
+      "palette_direction": "light neutral planes + two functional system colors",
+      "jobs": ["explain", "decide"],
+      "evidence": ["diagram", "artifact-ui", "mixed"],
+      "density": ["analytical-dense", "operational-dense"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["technical-canvas", "open-light"],
+      "focal_anchors": ["system", "artifact"],
+      "subject_cues": ["service architecture", "system architecture", "msa", "cilium", "hubble", "logistics system", "digital twin topology", "서비스 아키텍처", "시스템 구조", "물류 시스템"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F2F5F7", "text": "#172033", "accent": "#075985", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Sports Broadcast",
+      "cover_family": "scoreline-action-hero",
+      "surface": "broadcast-dark",
+      "title_anchor": "scorebug-aligned-edge",
+      "hero_form": "authentic-action-frame-and-stat-line",
+      "type_direction": "condensed athletic display + sturdy sans + tabular score numerals",
+      "palette_direction": "broadcast charcoal + field white + team-derived accent + semantic score colors",
+      "jobs": ["prove", "explain", "document"],
+      "evidence": ["authentic-photography", "quantitative", "mixed"],
+      "density": ["operational-dense", "editorial-medium"],
+      "emotion": ["urgent", "playful"],
+      "surface_axis": ["open-dark", "full-bleed-image"],
+      "focal_anchors": ["person-place", "chart"],
+      "subject_cues": ["sports", "football", "baseball", "basketball", "match recap", "scouting report", "league standings", "스포츠", "축구", "야구", "농구", "경기 분석"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#111820", "text": "#F7FAFC", "accent": "#B42318", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Clinical Clarity",
+      "cover_family": "care-pathway-thesis",
+      "surface": "clinical-light",
+      "title_anchor": "calm-upper-left",
+      "hero_form": "patient-pathway-or-evidence-panel",
+      "type_direction": "high-legibility humanist sans + tabular clinical data + restrained serif emphasis",
+      "palette_direction": "clean white + deep clinical ink + care teal + semantic alert colors",
+      "jobs": ["explain", "prove", "teach", "decide"],
+      "evidence": ["quantitative", "sourced-text", "diagram", "mixed"],
+      "density": ["analytical-dense", "editorial-medium"],
+      "emotion": ["calm", "institutional"],
+      "surface_axis": ["open-light", "paper-editorial"],
+      "focal_anchors": ["system", "chart", "annotation"],
+      "subject_cues": ["clinical", "patient care", "care pathway", "healthcare delivery", "clinical trial", "진료", "환자 경로", "임상", "의료 서비스"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F7FBFA", "text": "#12302E", "accent": "#0F766E", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Fashion Lookbook",
+      "cover_family": "collection-image-sequence",
+      "surface": "fashion-editorial",
+      "title_anchor": "runway-negative-space",
+      "hero_form": "full-look-and-detail-pair",
+      "type_direction": "fashion serif display + spare grotesk captions",
+      "palette_direction": "black/white foundation + collection-derived seasonal accent",
+      "jobs": ["launch", "document", "inspire"],
+      "evidence": ["authentic-photography", "mixed"],
+      "density": ["sparse-keynote", "editorial-medium"],
+      "emotion": ["premium", "provocative"],
+      "surface_axis": ["full-bleed-image", "paper-editorial"],
+      "focal_anchors": ["person-place", "artifact"],
+      "subject_cues": ["fashion collection", "lookbook", "runway", "styling guide", "couture", "패션 컬렉션", "룩북", "런웨이"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FCFBF9", "text": "#171717", "accent": "#7F1D3A", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Civic Service",
+      "cover_family": "public-service-action",
+      "surface": "civic-light",
+      "title_anchor": "plain-language-top-band",
+      "hero_form": "service-step-map-or-community-photo",
+      "type_direction": "accessible civic sans + strong hierarchy + plain tabular details",
+      "palette_direction": "bright neutral + civic blue + accessible action green + semantic warning",
+      "jobs": ["teach", "explain", "decide"],
+      "evidence": ["diagram", "sourced-text", "authentic-photography", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["open-light"],
+      "focal_anchors": ["headline", "system", "person-place"],
+      "subject_cues": ["public service", "municipal service", "civic participation", "resident guide", "government service", "공공 서비스", "시민 안내", "행정 서비스"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8FAFC", "text": "#10233E", "accent": "#075985", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Event Wayfinding",
+      "cover_family": "venue-route-signal",
+      "surface": "wayfinding-bright",
+      "title_anchor": "directional-signage-grid",
+      "hero_form": "agenda-route-and-zone-map",
+      "type_direction": "high-visibility grotesk + condensed labels + tabular time",
+      "palette_direction": "neutral field + high-contrast zone colors + black/white wayfinding text",
+      "jobs": ["teach", "explain", "launch"],
+      "evidence": ["diagram", "sourced-text", "mixed"],
+      "density": ["operational-dense", "editorial-medium"],
+      "emotion": ["urgent", "playful"],
+      "surface_axis": ["open-light", "split-field"],
+      "focal_anchors": ["system", "headline", "annotation"],
+      "subject_cues": ["conference agenda", "event schedule", "venue map", "wayfinding", "festival program", "행사 일정", "장소 안내", "동선 안내"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#FFFDF7", "text": "#171717", "accent": "#9A3412", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Portfolio Casebook",
+      "cover_family": "case-study-artifact",
+      "surface": "casebook-paper",
+      "title_anchor": "project-index-margin",
+      "hero_form": "artifact-process-and-outcome",
+      "type_direction": "confident sans display + readable case-study body + mono project metadata",
+      "palette_direction": "warm paper or white + deep ink + project-derived accent",
+      "jobs": ["document", "prove", "inspire"],
+      "evidence": ["artifact-ui", "authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["premium", "documentary"],
+      "surface_axis": ["paper-editorial", "open-light"],
+      "focal_anchors": ["artifact", "annotation", "headline"],
+      "subject_cues": ["portfolio case study", "design portfolio", "project casebook", "creative case study", "포트폴리오", "프로젝트 사례"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F8F4EC", "text": "#1C2430", "accent": "#4338CA", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Crafted Modern",
+      "cover_family": "maker-object-portrait",
+      "surface": "crafted-light",
+      "title_anchor": "material-aware-edge",
+      "hero_form": "finished-object-and-process-detail",
+      "type_direction": "warm modern sans + restrained craft serif + plain process labels",
+      "palette_direction": "clean warm neutral + material-derived earth accent + deep ink",
+      "jobs": ["document", "inspire", "launch"],
+      "evidence": ["authentic-photography", "artifact-ui", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["calm", "premium"],
+      "surface_axis": ["paper-editorial", "full-bleed-image"],
+      "focal_anchors": ["artifact", "person-place"],
+      "subject_cues": ["craft product", "artisan", "maker process", "furniture design", "ceramics", "공예", "장인", "제작 과정", "가구 디자인"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F4EFE7", "text": "#28211B", "accent": "#79512D", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Kinetic Type",
+      "cover_family": "typographic-motion-stage",
+      "surface": "kinetic-dark",
+      "title_anchor": "moving-baseline-crop",
+      "hero_form": "type-as-motion-with-one-factual-anchor",
+      "type_direction": "variable grotesk display + compact neutral body + rhythmic mono labels",
+      "palette_direction": "black or white stage + one electric accent + one counter-accent",
+      "jobs": ["launch", "inspire", "teach"],
+      "evidence": ["sourced-text", "artifact-ui", "mixed"],
+      "density": ["sparse-keynote", "editorial-medium"],
+      "emotion": ["urgent", "playful", "provocative"],
+      "surface_axis": ["open-dark", "split-field"],
+      "focal_anchors": ["headline", "artifact"],
+      "subject_cues": ["motion typography", "kinetic type", "music event", "creative conference", "type workshop", "모션 타이포", "뮤직 이벤트", "타이포 워크숍"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#101014", "text": "#FAFAF7", "accent": "#7C3AED", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Travel Editorial Collage",
+      "cover_family": "asymmetric-photo-journal",
+      "surface": "travel-editorial-paper",
+      "title_anchor": "serif-title-on-dark-photo-field",
+      "hero_form": "one-dominant-photo-plus-two-detail-crops",
+      "type_direction": "Korean or Japanese editorial serif + neutral sans body + mono route metadata",
+      "palette_direction": "warm paper + deep ink + ochre marker + seasonal photo-derived colors",
+      "jobs": ["inspire", "document", "teach"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["documentary", "calm", "premium"],
+      "surface_axis": ["paper-editorial", "full-bleed-image", "open-light"],
+      "focal_anchors": ["person-place", "annotation", "headline"],
+      "subject_cues": ["japan regional photo journal", "regional travel editorial", "city and village journey", "photo travel journal", "일본 지역 여행", "도시와 마을 여행", "여행 사진 에디토리얼"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F3EFE4", "text": "#191815", "accent": "#A55A22", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Protocol Proof",
+      "cover_family": "claim-and-proof-diagram",
+      "surface": "midnight-protocol",
+      "title_anchor": "left-thesis-right-mechanism",
+      "hero_form": "single-proof-or-trust-boundary-diagram",
+      "type_direction": "heavy Korean sans display + readable sans body + mono math and protocol labels",
+      "palette_direction": "midnight indigo + warm peach marker + electric violet and cyan proof paths",
+      "jobs": ["explain", "prove", "teach"],
+      "evidence": ["diagram", "sourced-text", "mixed"],
+      "density": ["analytical-dense", "editorial-medium"],
+      "emotion": ["calm", "institutional"],
+      "surface_axis": ["open-dark", "technical-canvas"],
+      "focal_anchors": ["system", "headline", "annotation"],
+      "subject_cues": ["zero knowledge proof", "cryptographic proof", "commitment scheme", "proof protocol", "영지식 증명", "암호 프로토콜", "증명 시스템"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#151A36", "text": "#F7F3EA", "accent": "#B9937D", "on_accent": "#211A17"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Pop Culture Scrapbook",
+      "cover_family": "campaign-photo-scrapbook",
+      "surface": "saturated-editorial",
+      "title_anchor": "bold-left-with-photo-counterweight",
+      "hero_form": "one-authentic-group-or-artist-photo-in-paper-frame",
+      "type_direction": "bold Korean grotesk + restrained editorial serif accent + mono credits",
+      "palette_direction": "one saturated campaign field + white type + one sharp label color + authentic photo color",
+      "jobs": ["inspire", "document", "launch"],
+      "evidence": ["authentic-photography", "sourced-text", "mixed"],
+      "density": ["editorial-medium"],
+      "emotion": ["playful", "premium", "documentary"],
+      "surface_axis": ["full-bleed-image", "paper-editorial"],
+      "focal_anchors": ["person-place", "headline"],
+      "subject_cues": ["single act profile", "music promotion", "fan editorial", "comeback guide", "싱글 아티스트", "걸그룹 프로모션", "팬 에디토리얼", "컴백 가이드"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#A9365B", "text": "#FFF9F3", "accent": "#F3DE63", "on_accent": "#241B11"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Technical Conference",
+      "cover_family": "event-signal-and-system-anchor",
+      "surface": "conference-identity",
+      "title_anchor": "stage-readable-asymmetric-grid",
+      "hero_form": "literal-system-anchor-or-authentic-artifact",
+      "type_direction": "high-impact Korean sans + neutral reading sans + mono code and session metadata",
+      "palette_direction": "event-led light or dark field + one high-visibility signal + one functional technical accent",
+      "jobs": ["teach", "explain", "prove"],
+      "evidence": ["diagram", "artifact-ui", "mixed"],
+      "density": ["editorial-medium", "analytical-dense"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["open-light", "technical-canvas", "split-field"],
+      "focal_anchors": ["system", "headline", "artifact"],
+      "subject_cues": ["technical conference", "engineering seminar", "devops study", "architecture talk", "기술 공유회", "기술 세미나", "개발자 컨퍼런스", "데브옵스 스터디"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F4F6F8", "text": "#141820", "accent": "#3159D8", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    },
+    {
+      "theme": "Research Report Editorial",
+      "cover_family": "finding-and-evidence-publication",
+      "surface": "report-editorial",
+      "title_anchor": "publication-grid-top-left",
+      "hero_form": "one-lead-finding-chart-or-factual-artifact",
+      "type_direction": "authoritative Korean serif or high-contrast sans display + neutral sans body + tabular mono",
+      "palette_direction": "warm white + deep ink + one publication accent + semantic finding colors",
+      "jobs": ["prove", "decide", "explain"],
+      "evidence": ["quantitative", "sourced-text", "mixed"],
+      "density": ["analytical-dense", "editorial-medium", "operational-dense"],
+      "emotion": ["institutional", "calm"],
+      "surface_axis": ["paper-editorial", "open-light"],
+      "focal_anchors": ["chart", "headline", "annotation"],
+      "subject_cues": ["annual research report", "technical whitepaper", "formal findings report", "board research report", "연구 보고서", "연차 보고서", "기술 백서", "공식 분석 보고서"],
+      "semantic_colors": {
+        "tokens": {"canvas": "#F7F3EA", "text": "#172033", "accent": "#9A3412", "on_accent": "#FFFFFF"},
+        "contrast_pairs": [
+          {"foreground": "text", "background": "canvas", "usage": "normal-text"},
+          {"foreground": "on_accent", "background": "accent", "usage": "normal-text"}
+        ]
+      }
+    }
+  ]
+}

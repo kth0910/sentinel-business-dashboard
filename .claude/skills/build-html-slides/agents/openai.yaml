@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Presentation Builder"
+  short_description: "HTML decks with notes, optional study guides, and visual QA"
+  default_prompt: "Use $build-html-slides to create a deck with notes, the chosen mode, an optional study guide, mandatory humanize-korean polishing for Korean guides, and browser-page-scale zoom150 evidence in Full Validation."

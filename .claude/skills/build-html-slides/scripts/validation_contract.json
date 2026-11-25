@@ -1,0 +1,116 @@
+{
+  "schema_version": 17,
+  "playwright_version": "1.61.1",
+  "review_batch_size": 4,
+  "impact_scopes": ["direct", "neighbors", "full"],
+  "content_change_categories": ["text", "image", "structure", "style", "runtime"],
+  "profiles": {
+    "normal": {
+      "viewport": [1920, 1080],
+      "visual_viewport": [1920, 1080],
+      "screenshot": [1920, 1080],
+      "zoom": 1,
+      "scale_mode": "none",
+      "device_pixel_ratio": 1
+    },
+    "short": {
+      "viewport": [1366, 650],
+      "visual_viewport": [1366, 650],
+      "screenshot": [1366, 650],
+      "zoom": 1,
+      "scale_mode": "none",
+      "device_pixel_ratio": 1
+    },
+    "zoom150": {
+      "viewport": [1920, 1080],
+      "visual_viewport": [1280, 720],
+      "screenshot": [1920, 1080],
+      "zoom": 1.5,
+      "scale_mode": "browser-page",
+      "device_pixel_ratio": 1
+    },
+    "tablet": {
+      "viewport": [1024, 768],
+      "visual_viewport": [1024, 768],
+      "screenshot": [1024, 768],
+      "zoom": 1,
+      "scale_mode": "none",
+      "device_pixel_ratio": 1
+    },
+    "mobile": {
+      "viewport": [390, 844],
+      "visual_viewport": [390, 844],
+      "screenshot": [390, 844],
+      "zoom": 1,
+      "scale_mode": "none",
+      "device_pixel_ratio": 1
+    }
+  },
+  "base_profiles": ["normal", "short", "zoom150"],
+  "responsive_profiles": ["tablet", "mobile"],
+  "checks_by_change": {
+    "all": ["design_adherence", "aesthetic_quality", "readability", "layout_integrity", "surface_integrity", "diagram_semantics", "crop", "aspect_ratio", "resolution", "content_match", "completion", "overflow", "occlusion", "text", "text_bounds", "density", "component_repetition", "controls"],
+    "text": ["aesthetic_quality", "readability", "layout_integrity", "surface_integrity", "text", "text_bounds", "density", "component_repetition"],
+    "image": ["aesthetic_quality", "layout_integrity", "diagram_semantics", "crop", "aspect_ratio", "resolution", "content_match", "completion"],
+    "navigation": ["controls"]
+  },
+  "cover_checks": [
+    "cover_focal_hierarchy",
+    "cover_subject_clarity",
+    "cover_art_direction",
+    "cover_distinctiveness",
+    "cover_title_readability",
+    "cover_surface_integrity"
+  ],
+  "final_overview_checks": [
+    "deck_rhythm",
+    "composition_variety",
+    "density_balance",
+    "media_balance",
+    "visual_consistency",
+    "design_system_adherence",
+    "component_repetition"
+  ],
+  "automation_checks_by_change": {
+    "all": ["text_bounds", "font_integrity", "container_density", "controls", "image_geometry", "layer_alignment"],
+    "text": ["text_bounds", "font_integrity", "container_density"],
+    "image": ["image_geometry", "layer_alignment"],
+    "navigation": ["controls"]
+  },
+  "workflow_limits": {
+    "full_validation_seconds": 3600,
+    "warning_seconds": 2700,
+    "validation_restart_reasons": [
+      "theme-invalidated"
+    ],
+    "post_deadline_cover_rescue": {
+      "slide": 1,
+      "allowed_phases": ["prepare", "cover-verify"],
+      "blocks_finalization": true
+    },
+    "high_risk_reasons": [
+      "legal",
+      "public-release",
+      "consequential-decision"
+    ],
+    "common_preflight": {
+      "minimum_slides": 2,
+      "maximum_slides": 3
+    },
+    "parallel_deterministic_checks": {
+      "default_workers": 4,
+      "max_workers": 8
+    },
+    "final_cross_review": {
+      "standard_max_slides": 5,
+      "high_max_slides": 6,
+      "standard_ordinary_sample_ratio": 0.15,
+      "standard_minimum_ordinary": 1
+    },
+    "final_overview": {
+      "max_slides_per_sheet": 16,
+      "columns": 4,
+      "viewport": [1920, 1080]
+    }
+  }
+}
