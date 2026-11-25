@@ -1,4 +1,4 @@
-// 매출 블록들이 같은 날짜 데이터를 한 번만 불러오고, 업로드·구분 변경 후 함께 새로고침하도록 묶는다.
+// 매출 블록들이 같은 날짜 데이터를 한 번만 불러오고, 구분 변경 후 함께 새로고침하도록 묶는다.
 import { useEffect, useState } from 'react';
 import { biz, type SalesView } from './api.ts';
 
@@ -15,7 +15,7 @@ function load(date: string): Promise<SalesView> {
   return p;
 }
 
-/** 업로드·구분 변경 뒤 호출: 캐시를 비우고 열려 있는 매출 블록을 모두 다시 불러온다. */
+/** 구분 변경 뒤 호출: 캐시를 비우고 열려 있는 매출 블록을 모두 다시 불러온다. */
 export function refreshSales() {
   cache.clear();
   window.dispatchEvent(new Event(EVENT));

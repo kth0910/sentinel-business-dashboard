@@ -102,7 +102,7 @@ export function CalendarPage() {
           </button>
           <button type="button" disabled={busy !== null} onClick={() => open('sales')}>
             <b>본영업 목표매출 관리 현황</b>
-            <span>{day?.hasSnapshot ? `매출 반영 · 증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : '엑셀 미반영'}</span>
+            <span>{day?.hasSnapshot ? `매출 반영 · 증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : '매출 미반영'}</span>
           </button>
         </div>
       </section>

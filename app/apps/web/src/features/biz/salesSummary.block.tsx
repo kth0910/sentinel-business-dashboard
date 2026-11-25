@@ -1,10 +1,9 @@
-// 매출 요약 블록 (biz_sales_summary): 당일 증감액, 연·분기·월 실적과 목표, 엑셀 업로드(설계 5.4).
+// 매출 요약 블록 (biz_sales_summary): 당일 증감액, 연·분기·월 실적과 목표(설계 5.4). 데이터는 서버가 넣는다(biz/importer.ts).
 import { useEffect, useState } from 'react';
 import type { Targets } from '@nc/biz';
 import { useUI } from '../../lib/store/ui.ts';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { arrow, biz, signed, won } from './api.ts';
-import { ExcelUpload } from './ExcelUpload.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
 import './biz.css';
@@ -65,14 +64,11 @@ function SalesSummaryBlock({ block, readOnly }: BlockProps) {
     <div className="biz-block" contentEditable={false} data-biz="sales-summary">
       <div className="biz-block-head">
         <h3>{s ? `${s.year}년 본영업 매출` : '본영업 매출'}</h3>
-        <span className="biz-row">
-          {!readOnly && <ExcelUpload date={date} />}
-        </span>
       </div>
       {error && <p className="biz-note">{error}</p>}
       {data && !data.hasSnapshot && (
         <p className="biz-note">
-          {shortDate(date)} 엑셀 미반영{data.basisDate ? ` · ${shortDate(data.basisDate)} 데이터로 표시` : ' · 엑셀을 올리면 매출이 표시됩니다'}
+          {shortDate(date)} 매출 데이터 없음{data.basisDate ? ` · ${shortDate(data.basisDate)} 데이터로 표시` : ''}
         </p>
       )}
       {data && s && (
@@ -81,7 +77,7 @@ function SalesSummaryBlock({ block, readOnly }: BlockProps) {
             <span className="biz-note">당일 증감액</span>
             <b className={`biz-delta ${data.dayDelta > 0 ? 'up' : data.dayDelta < 0 ? 'down' : ''}`}>{data.hasSnapshot ? `${signed(data.dayDelta)}원 ${arrow(data.dayDelta)}` : '—'}</b>
             <span className="biz-note">
-              {data.baseline ? '기준 데이터 — 다음 업로드부터 비교' : data.prevDate ? `변동 ${data.changes.length}건 · ${shortDate(data.prevDate)} 대비` : ''}
+              {data.baseline ? '기준 데이터 — 다음 날부터 비교' : data.prevDate ? `변동 ${data.changes.length}건 · ${shortDate(data.prevDate)} 대비` : ''}
             </span>
           </div>
           <div className="biz-kpis">
