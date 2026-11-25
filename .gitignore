@@ -7,3 +7,6 @@ app/apps/server/data/
 # 빌드·의존성
 node_modules/
 app/apps/web/dist/
+
+# 디자인 검사기(impeccable) 설정·캐시
+.impeccable/
