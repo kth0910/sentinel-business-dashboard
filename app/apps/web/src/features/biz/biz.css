@@ -136,7 +136,6 @@
 }
 
 /* 업무 표 크기 조절(table.tsx): 열 너비 끌기, 행 높이, 표 영역 모서리 끌기 */
-.biz-table-wrap.resizable { resize: both; overflow: auto; }
 .biz-table.fixed { table-layout: fixed; }
 .biz-table.fixed th { position: relative; overflow: hidden; text-overflow: ellipsis; }
 .biz-table.fixed td { white-space: normal; overflow-wrap: anywhere; }
@@ -158,7 +157,20 @@
 /* 블록 전체 너비 끌기(table.tsx BizBlock) */
 .biz-block { position: relative; box-sizing: border-box; }
 .biz-block.sized { position: relative; z-index: 1; background: var(--lp-bg-primary, #fff); }
-.biz-block-grip { position: absolute; top: 8px; bottom: 8px; right: -5px; width: 10px; cursor: ew-resize; touch-action: none; border-radius: 4px; }
-.biz-block-grip::after { content: ''; position: absolute; top: 50%; left: 3px; width: 4px; height: 32px; margin-top: -16px; border-radius: 2px; background: var(--lp-border-primary, #d1d5db); opacity: 0; transition: opacity 0.12s; }
+.biz-block-grip { position: absolute; top: 8px; bottom: 16px; right: 0; width: 8px; cursor: ew-resize; touch-action: none; border-radius: 4px; }
+.biz-block-grip::after { content: ''; position: absolute; top: 50%; left: 2px; width: 4px; height: 32px; margin-top: -16px; border-radius: 2px; background: var(--lp-border-primary, #d1d5db); opacity: 0; transition: opacity 0.12s; }
 .biz-block:hover > .biz-block-grip::after { opacity: 1; }
 .biz-block-grip:hover::after, .biz-block-grip:active::after { background: var(--biz-up); opacity: 1; }
+
+/* 블록 높이를 정하면 안쪽(표·차트·일정)이 남는 높이를 채우고, 넘치면 그 안에서 스크롤 */
+.biz-block.h-sized { overflow: auto; }
+.biz-block.h-sized > .biz-table-wrap, .biz-block.h-sized > .biz-sched { flex: 1 1 0; min-height: 0; overflow: auto; }
+.biz-block.h-sized > .biz-chart { flex: 1 1 0; min-height: 120px; height: auto; }
+.biz-block-corner { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; touch-action: none; }
+.biz-block-corner::after { content: ''; position: absolute; right: 3px; bottom: 3px; width: 7px; height: 7px; border-right: 2px solid var(--lp-border-primary, #d1d5db); border-bottom: 2px solid var(--lp-border-primary, #d1d5db); border-bottom-right-radius: 2px; opacity: 0; transition: opacity 0.12s; }
+.biz-block:hover > .biz-block-corner::after { opacity: 1; }
+.biz-block-corner:hover::after, .biz-block-corner:active::after { border-color: var(--biz-up); opacity: 1; }
+.biz-block-grip-y { position: absolute; left: 8px; right: 16px; bottom: 0; height: 8px; cursor: ns-resize; touch-action: none; border-radius: 4px; }
+.biz-block-grip-y::after { content: ''; position: absolute; left: 50%; top: 2px; width: 32px; height: 4px; margin-left: -16px; border-radius: 2px; background: var(--lp-border-primary, #d1d5db); opacity: 0; transition: opacity 0.12s; }
+.biz-block:hover > .biz-block-grip-y::after { opacity: 1; }
+.biz-block-grip-y:hover::after, .biz-block-grip-y:active::after { background: var(--biz-up); opacity: 1; }
