@@ -1,6 +1,7 @@
 // Coordinates the AI panel, inline writer, and keyboard or editor entry points.
 
 import { useEffect, useLayoutEffect, useState } from 'react';
+import { TRIM } from '../biz/flags.ts';
 import { createPortal } from 'react-dom';
 import { length, type RichText } from '@nc/shared/richtext.ts';
 import { getBlock } from '../../lib/blocks.ts';
@@ -145,6 +146,7 @@ interface AskAiDetail {
 
 
 function onAskAi(e: Event) {
+  if (TRIM.ai) return; // 업무관리 시연판: AI 진입(스페이스·⌘J·메뉴) 모두 무시
   const ce = e as CustomEvent<AskAiDetail>;
   const d = ce.detail ?? {};
   if (d.action === 'use-as-agent-instructions' && d.pageId) {

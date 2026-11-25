@@ -3,6 +3,7 @@
 
 // Callout, code and page links live in their own *.block.tsx modules.
 import { useEffect, useMemo, useState } from 'react';
+import { TRIM } from '../../biz/flags.ts';
 import { ChevronDown } from 'lucide-react';
 import type { BlockRecord } from '@nc/shared/records.ts';
 import type { RichText } from '@nc/shared/richtext.ts';
@@ -24,7 +25,7 @@ import './icons.tsx';
 import './blocks.css';
 
 const PLACEHOLDER: Record<string, string> = {
-  text: 'Press ‘space’ for AI or ‘/’ to open commands',
+  text: TRIM.ai ? 'Press ‘/’ to open commands' : 'Press ‘space’ for AI or ‘/’ to open commands',
   header: 'Heading 1',
   sub_header: 'Heading 2',
   sub_sub_header: 'Heading 3',
