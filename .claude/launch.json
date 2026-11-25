@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "app-server",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["-C", "app", "--filter", "@nc/server", "dev"],
+      "port": 3001
+    },
+    {
+      "name": "app-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["-C", "app", "--filter", "@nc/web", "dev"],
+      "port": 5173
+    }
+  ]
+}
