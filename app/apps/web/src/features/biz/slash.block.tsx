@@ -6,6 +6,8 @@ import { hideSlashItemWhen, registerSlashItems } from '../editor/blocks/registry
 import { place, type SlashContext, type SlashItem } from '../editor/slashItems.ts';
 import { biz, today } from './api.ts';
 import { HIDDEN_SLASH_IDS } from './flags.ts';
+import { openMenu } from '../../components/Menu.tsx';
+import { cachedCustomBlocks, deleteCustomBlock, insertCustomBlock, renameCustomBlock, type CustomBlock } from './customBlocks.ts';
 
 for (const id of HIDDEN_SLASH_IDS) hideSlashItemWhen(id, () => true);
 
@@ -42,4 +44,37 @@ registerSlashItems((): SlashItem[] => [
   salesItem('biz-changes', '변동사항', 'biz_changes', '전일 대비 바뀐 영업 건'),
   salesItem('biz-monthly-chart', '월별 매출 차트', 'biz_monthly_chart', '월별 확정 매출'),
   salesItem('biz-pipeline', '진행 중 영업 건', 'biz_pipeline', '본 영업 진행·장기관리'),
+  ...customItems(),
 ]);
+
+/** 사용자가 저장한 업무 블록(블록 메뉴 › 업무 블록으로 저장)과 관리 항목. */
+function customItems(): SlashItem[] {
+  const list = cachedCustomBlocks();
+  if (!list.length) return [];
+  return [
+    ...list.map((c): SlashItem => ({
+      id: `biz-custom-${c.id}`, label: c.name, section: '업무', icon: 'duplicate', hint: '저장한 업무 블록', keywords: ['업무', '사용자', c.name],
+      apply: (ctx) => void insertCustomBlock(c.id, ctx.blockId, ctx.empty),
+    })),
+    {
+      id: 'biz-custom-manage', label: '업무 블록 관리', section: '업무', icon: 'slidersTwo', hint: '저장한 블록 이름 변경·삭제', keywords: ['업무', '관리', '사용자 블록'],
+      apply: (ctx) => manageMenu(ctx.anchor, list),
+    },
+  ];
+}
+
+function manageMenu(anchor: DOMRect, list: CustomBlock[]) {
+  openMenu(anchor, {
+    width: 260,
+    sections: [{
+      title: '저장한 업무 블록',
+      items: list.map((c) => ({
+        label: c.name, icon: 'duplicate',
+        submenu: () => ({ sections: [{ items: [
+          { label: '이름 변경', icon: 'pencilLine', onSelect: () => void renameCustomBlock(c) },
+          { label: '삭제', icon: 'trash', danger: true, onSelect: () => void deleteCustomBlock(c) },
+        ] }] }),
+      })),
+    }],
+  });
+}

@@ -1,6 +1,7 @@
 // Block action menu (⋮⋮ handle click / ⌘/):
 
 import { TRIM } from '../biz/flags.ts';
+import { saveAsCustomBlock } from '../biz/customBlocks.ts';
 import type { BlockRecord } from '@nc/shared/records.ts';
 import { BLOCK_LABELS, TEXT_BLOCKS } from '@nc/shared/blocks.ts';
 import { COLOR_LABELS, COLOR_NAMES } from '@nc/shared/colors.ts';
@@ -154,6 +155,8 @@ export function blockActionMenu(ids: string[]): MenuDef {
       ],
     },
     ]),
+    // 업무관리: 고른 블록을 '/' 업무 묶음에서 다시 넣을 수 있게 저장(features/biz/customBlocks.ts)
+    { items: [{ label: '업무 블록으로 저장', icon: 'duplicate', onSelect: () => void saveAsCustomBlock(ids) }] },
     { items: [{ label: '여기서부터 발표 시작', icon: 'playButton', badge: '베타', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
     // Settings › Developer › Enable developer features: Copy block / database / data source ID 
     ...(!multi && developerMenuSection(b.id) ? [developerMenuSection(b.id)!] : []),
@@ -171,7 +174,7 @@ export function blockActionMenu(ids: string[]): MenuDef {
       out.push({ title: '전환', items: turnIntoMenu(ids).sections[0].items.map((it) => ({ ...it, keywords: ['turn into', 'turn', 'convert'] })) });
     }
     if (!custom || custom.includes(colorItem)) {
-      out.push({ title: '색상', items: colorMenu(ids).sections.filter((sec) => sec.title !== 'Last used').flatMap((sec) => sec.items).map((it) => ({ ...it, keywords: ['color', 'colour', ...(String(it.label).startsWith('Gray') ? ['grey'] : [])] })) });
+      out.push({ title: '색상', items: colorMenu(ids).sections.filter((sec) => sec.title !== 'Last used' && sec.title !== '최근 사용').flatMap((sec) => sec.items).map((it) => ({ ...it, keywords: ['color', 'colour', ...(String(it.label).startsWith('Gray') ? ['grey'] : [])] })) });
     }
     return out;
   };
