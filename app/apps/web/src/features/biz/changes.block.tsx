@@ -40,7 +40,6 @@ function ChangesBlock({ block, readOnly }: BlockProps) {
       <div className="biz-block-head">
         <h3>변동사항{data?.prevDate && data.hasSnapshot ? ` · ${shortDate(data.prevDate)} 대비` : ''}</h3>
         <span className="biz-row">
-          <span className="biz-tag auto">전일 비교 · 자동 분류</span>
           {!readOnly && data && <button {...isolate} type="button" className="biz-btn" onClick={() => setManaging((v) => !v)}>구분 관리</button>}
         </span>
       </div>

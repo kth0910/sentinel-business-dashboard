@@ -66,7 +66,6 @@ function SalesSummaryBlock({ block, readOnly }: BlockProps) {
       <div className="biz-block-head">
         <h3>{s ? `${s.year}년 본영업 매출` : '본영업 매출'}</h3>
         <span className="biz-row">
-          <span className="biz-tag auto">자동 계산 · 확도 '확정' 기준</span>
           {!readOnly && <ExcelUpload date={date} />}
         </span>
       </div>

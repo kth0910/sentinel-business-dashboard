@@ -45,7 +45,6 @@ function MonthlyChartBlock({ block }: BlockProps) {
     <div className="biz-block" contentEditable={false} data-biz="monthly-chart">
       <div className="biz-block-head">
         <h3>{year}년 월별 확정 매출</h3>
-        <span className="biz-tag auto">계약일 기준</span>
       </div>
       <div ref={el} className="biz-chart" role="img" aria-label={`${year}년 월별 확정 매출 막대그래프`} />
     </div>

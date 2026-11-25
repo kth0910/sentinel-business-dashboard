@@ -37,7 +37,6 @@ function ScheduleBlock({ block, readOnly }: BlockProps) {
     <div className="biz-block" contentEditable={false} data-biz="schedule">
       <div className="biz-block-head">
         <h3>일정</h3>
-        <span className="biz-tag hand">직접 입력 · 업무관리시스템 연동 예정</span>
       </div>
       <div className="biz-sched">
         {group('오전', morning)}

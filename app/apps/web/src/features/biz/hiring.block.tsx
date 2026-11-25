@@ -20,7 +20,6 @@ function HiringBlock({ block, readOnly }: BlockProps) {
     <div className="biz-block" contentEditable={false} data-biz="hiring">
       <div className="biz-block-head">
         <h3>채용 현황</h3>
-        <span className="biz-tag hand">직접 입력 · 전일 내용 반영</span>
       </div>
       <div className="biz-row">
         <span className="biz-note">구인 사이트</span>
