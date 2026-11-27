@@ -1,10 +1,14 @@
 import asyncio
-from collections.abc import AsyncIterator
+import os
+from collections.abc import AsyncIterator, Iterator
 
 import httpx
+import pytest
 import pytest_asyncio
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+import app.auth.models  # noqa: F401  (테이블을 Base.metadata에 등록)
 from app.config import get_settings
 from app.db import Base, get_db, make_engine
 from app.main import app
@@ -27,6 +31,27 @@ async def db(test_engine) -> AsyncIterator[AsyncSession]:
     session_factory = async_sessionmaker(test_engine, expire_on_commit=False)
     async with session_factory() as session:
         yield session
+
+
+@pytest.fixture
+def test_database_url_env(test_engine) -> Iterator[dict[str, str]]:
+    """테이블을 모두 지우고 DATABASE_URL을 테스트 DB로 바꾼 환경 변수를 돌려준다. 끝나면 create_all로 복구."""
+    url = get_settings().test_database_url
+    sync_engine = create_engine(url)
+
+    def reset() -> None:
+        with sync_engine.begin() as conn:
+            Base.metadata.drop_all(conn)
+            conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
+
+    reset()
+    try:
+        yield {**os.environ, "DATABASE_URL": url}
+    finally:
+        reset()
+        with sync_engine.begin() as conn:
+            Base.metadata.create_all(conn)
+        sync_engine.dispose()
 
 
 @pytest_asyncio.fixture

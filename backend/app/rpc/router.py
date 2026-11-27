@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.sessions import user_for_token
 from app.db import get_db
 from app.rpc.errors import NotFoundError, RpcError, ValidationError
 from app.rpc.registry import HANDLERS, RpcContext
@@ -20,11 +21,11 @@ SESSION_COOKIE = "lit_session"
 INTERNAL_MESSAGE = "요청을 처리하는 중 문제가 발생했습니다."
 
 
-def build_context(request: Request, db: AsyncSession) -> RpcContext:
-    # 세션 쿠키에서 사용자를 찾는 일은 Task 5에서 붙인다.
+async def build_context(request: Request, db: AsyncSession) -> RpcContext:
+    token = request.cookies.get(SESSION_COOKIE)
     return RpcContext(
-        user_id=None,
-        token=request.cookies.get(SESSION_COOKIE),
+        user_id=await user_for_token(db, token),
+        token=token,
         client_id=(request.headers.get("x-lit-client-id") or None) and request.headers["x-lit-client-id"][:100],
         ip=request.client.host if request.client else "",
         secure=request.url.scheme == "https",
@@ -79,7 +80,7 @@ async def call_rpc(name: str, request: Request, db: Annotated[AsyncSession, Depe
         if handler is None:
             raise NotFoundError("알 수 없는 요청입니다.")
         body = await _read_body(request)
-        ctx = build_context(request, db)
+        ctx = await build_context(request, db)
         result = await handler(ctx, body)
     except RpcError as err:
         return _error_response(err.status, err.name, err.message)
