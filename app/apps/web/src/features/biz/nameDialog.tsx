@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './biz.css';
 
-function NameDialog({ title, initial, okLabel, onDone }: { title: string; initial: string; okLabel: string; onDone: (v: string | null) => void }) {
+function NameDialog({ title, initial, okLabel, placeholder, maxLength, onDone }: {
+  title: string; initial: string; okLabel: string; placeholder: string; maxLength: number; onDone: (v: string | null) => void;
+}) {
   const [value, setValue] = useState(initial);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => { input.current?.select(); }, []);
@@ -13,7 +15,7 @@ function NameDialog({ title, initial, okLabel, onDone }: { title: string; initia
       <div className="biz-dialog" role="dialog" aria-modal="true" aria-label={title}>
         <h3>{title}</h3>
         <input
-          ref={input} autoFocus className="biz-input" value={value} maxLength={60} placeholder="예: 주간 회의록"
+          ref={input} autoFocus className="biz-input" value={value} maxLength={maxLength} placeholder={placeholder}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             e.stopPropagation();
@@ -30,7 +32,7 @@ function NameDialog({ title, initial, okLabel, onDone }: { title: string; initia
   );
 }
 
-export function askName(title: string, initial = '', okLabel = '저장'): Promise<string | null> {
+export function askName(title: string, initial = '', okLabel = '저장', placeholder = '예: 주간 회의록', maxLength = 60): Promise<string | null> {
   return new Promise((resolve) => {
     const host = document.createElement('div');
     document.body.appendChild(host);
@@ -40,6 +42,6 @@ export function askName(title: string, initial = '', okLabel = '저장'): Promis
       host.remove();
       resolve(v);
     };
-    root.render(<NameDialog title={title} initial={initial} okLabel={okLabel} onDone={done} />);
+    root.render(<NameDialog title={title} initial={initial} okLabel={okLabel} placeholder={placeholder} maxLength={maxLength} onDone={done} />);
   });
 }

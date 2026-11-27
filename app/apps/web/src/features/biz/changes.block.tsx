@@ -53,7 +53,7 @@ function openEditor(date: string, c: StoredChange, data: SalesView) {
     rowSpec(r, 'customer', '고객명', 'text', o, gone),
     {
       field: 'category', label: '구분', kind: 'category', value: catLabel(data.categories, c.categoryId),
-      choices: data.categories.map((x) => ({ value: x.label, id: x.id, removable: !x.system })),
+      choices: data.categories.map((x) => ({ value: x.label, id: x.id, removable: !x.system, editable: !x.system })),
     },
     rowSpec(r, 'product', '제품', 'option', o, gone),
     rowSpec(r, 'amount', '순매출', 'number', o, gone),

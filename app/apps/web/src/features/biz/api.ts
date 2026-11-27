@@ -23,6 +23,7 @@ export const biz = {
   saveCategory: (c: { id?: string; label: string }) => api<{ category: Category; categories: Category[] }>('bizSaveCategory', c),
   deleteCategory: (id: string) => api<{ categories: Category[] }>('bizDeleteCategory', { id }),
   removeOption: (field: string, value: string) => api<{ ok: true }>('bizRemoveOption', { field, value }),
+  renameOption: (field: string, from: string, to: string) => api<{ ok: true }>('bizRenameOption', { field, from, to }),
   getTargets: (year: number) => api<{ targets: Targets }>('bizGetTargets', { year }),
   setTargets: (t: Targets) => api<{ targets: Targets }>('bizSetTargets', t),
 };

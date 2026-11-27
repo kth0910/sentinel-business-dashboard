@@ -92,6 +92,13 @@ export const handlers = {
     return { ok: true };
   },
 
+  /** 값 이름 바꾸기(제품·매출 구분): 그 값을 쓰는 모든 건에 적용 */
+  async bizRenameOption(ctx: Ctx, body: { field?: unknown; from?: unknown; to?: unknown }) {
+    requireUser(ctx);
+    badRequest(() => store.renameOption(String(body.field ?? ''), String(body.from ?? ''), String(body.to ?? '')));
+    return { ok: true };
+  },
+
   async bizRemoveOption(ctx: Ctx, body: { field?: unknown; value?: unknown }) {
     requireUser(ctx);
     badRequest(() => store.removeOption(String(body.field ?? ''), String(body.value ?? '')));

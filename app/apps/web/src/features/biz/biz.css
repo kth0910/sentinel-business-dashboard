@@ -220,4 +220,7 @@
 .biz-combo-item.selected .biz-combo-value { font-weight: 600; color: var(--biz-up); }
 .biz-combo-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .biz-combo-x { flex: none; width: 22px; height: 22px; border: 0; border-radius: 4px; background: transparent; color: var(--lp-text-tertiary, #9ca3af); font-size: 15px; line-height: 1; cursor: pointer; }
-.biz-combo-x:hover { background: var(--biz-line); color: #dc2626; }
+.biz-combo-x { display: inline-flex; align-items: center; justify-content: center; opacity: 0; }
+.biz-combo-item.active .biz-combo-x, .biz-combo-x:focus-visible { opacity: 1; }
+.biz-combo-x:hover { background: var(--biz-line); color: var(--lp-text-primary); }
+.biz-combo-x.del:hover { color: #dc2626; }

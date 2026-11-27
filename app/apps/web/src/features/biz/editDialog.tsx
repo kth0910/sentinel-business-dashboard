@@ -1,15 +1,27 @@
 // 영업 건 수정 창: 표의 행을 누르면 뜬다. 칸을 고치고 저장하면 한 번에 서버(bizEditSale)로 간다.
 // 구분·제품·확도·가중치·매출 구분·진행사항은 목록에서 고르거나, 없는 값을 입력해 바로 추가한다.
+// 구분·제품·매출 구분은 목록에서 이름 바꾸기·지우기도 된다(그 값을 쓰는 모든 건에 적용).
 import { useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Category, EditableField, OptionField, OptionItem, SalesRow } from '@nc/biz';
 import { api } from '../../lib/api.ts';
+import { Icon } from '../../components/Icon.tsx';
 import { biz } from './api.ts';
+import { askName } from './nameDialog.tsx';
 import { refreshSales } from './sales.ts';
 import { buildSaleEdit, type FieldKind, type FieldState } from './saleEdit.ts';
 import './biz.css';
 
-export interface Choice { value: string; removable: boolean; /** 구분이면 id */ id?: string }
+export interface Choice {
+  value: string;
+  removable: boolean;
+  /** 이름을 바꿀 수 있다 */
+  editable?: boolean;
+  /** 지금 이 값을 쓰는 건 수(지울 때 안내) */
+  count?: number;
+  /** 구분이면 id */
+  id?: string;
+}
 
 export interface EditSpec {
   field: string;
@@ -35,8 +47,9 @@ interface Props {
 }
 
 /** 목록에서 고르거나 새 값을 입력하는 칸. ↑↓로 고르고 Enter, Esc는 목록만 닫는다. */
-function Picker({ value, choices, onChange, onRemove, ariaLabel, autoFocus, disabled }: {
-  value: string; choices: Choice[]; onChange: (v: string) => void; onRemove: (c: Choice) => void; ariaLabel: string; autoFocus?: boolean; disabled?: boolean;
+function Picker({ value, choices, onChange, onRemove, onRename, ariaLabel, autoFocus, disabled }: {
+  value: string; choices: Choice[]; onChange: (v: string) => void; onRemove: (c: Choice) => void; onRename: (c: Choice) => void;
+  ariaLabel: string; autoFocus?: boolean; disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState(false);
@@ -82,9 +95,13 @@ function Picker({ value, choices, onChange, onRemove, ariaLabel, autoFocus, disa
               onMouseEnter={() => setActive(i)} onClick={() => pick(it.value)}
             >
               {it.add ? <span className="biz-combo-value biz-combo-add">새로 추가: <b>{it.value}</b></span> : <span className="biz-combo-value">{it.value}</span>}
+              {!it.add && it.editable && (
+                <button type="button" className="biz-combo-x" aria-label={`${it.value} 이름 바꾸기`} title="이름 바꾸기"
+                  onClick={(e) => { e.stopPropagation(); setOpen(false); onRename(it); }}><Icon name="pencil" size={13} /></button>
+              )}
               {!it.add && it.removable && (
-                <button type="button" className="biz-combo-x" aria-label={`${it.value} 목록에서 지우기`} title="목록에서 지우기"
-                  onClick={(e) => { e.stopPropagation(); onRemove(it); }}>×</button>
+                <button type="button" className="biz-combo-x del" aria-label={`${it.value} 지우기`} title="지우기"
+                  onClick={(e) => { e.stopPropagation(); onRemove(it); }}><Icon name="xMarkFillSmall" size={13} /></button>
               )}
             </div>
           ))}
@@ -97,17 +114,26 @@ function Picker({ value, choices, onChange, onRemove, ariaLabel, autoFocus, disa
 function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, onDone }: Props) {
   const [states, setStates] = useState<FieldState[]>(() => specs.map((s) => ({ field: s.field, kind: s.kind, initial: s.value, draft: s.value, reset: false })));
   const [choices, setChoices] = useState<Record<string, Choice[]>>(() => Object.fromEntries(specs.map((s) => [s.field, s.choices ?? []])));
+  const [cats, setCats] = useState(categories);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const set = (i: number, patch: Partial<FieldState>) => setStates((xs) => xs.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  /** 목록 값이 바뀌거나 지워지면, 그 값을 보이던 칸도 같이 바꾼다(바뀐 것으로 저장되지 않게 처음 값도). */
+  const replaceValue = (field: string, from: string, to: string) =>
+    setStates((xs) => xs.map((x) => (x.field !== field ? x : { ...x, initial: x.initial === from ? to : x.initial, draft: x.draft === from ? to : x.draft })));
+  const labelOf = (field: string) => specs.find((s) => s.field === field)?.label ?? '';
 
   const remove = async (field: string, c: Choice) => {
     try {
       if (field === 'category') {
-        if (!c.id || !confirm(`'${c.value}' 구분을 목록에서 지울까요? 이 구분이 붙은 변동은 미분류로 옮겨집니다.`)) return;
-        await biz.deleteCategory(c.id);
+        if (!c.id || !confirm(`'${c.value}' 구분을 지울까요? 이 구분이 붙은 변동은 미분류로 옮겨집니다.`)) return;
+        setCats((await biz.deleteCategory(c.id)).categories);
+        replaceValue(field, c.value, '미분류');
       } else {
+        const used = c.count ? `\n지금 ${c.count.toLocaleString('ko-KR')}건이 이 값을 쓰고 있고, 지우면 그 건들의 ${labelOf(field)} 칸이 비워집니다.` : '';
+        if (!confirm(`'${c.value}' 값을 지울까요?${used}`)) return;
         await biz.removeOption(field, c.value);
+        replaceValue(field, c.value, '');
       }
       setChoices((m) => ({ ...m, [field]: (m[field] ?? []).filter((x) => x.value !== c.value) }));
       refreshSales();
@@ -116,8 +142,31 @@ function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, o
     }
   };
 
+  const rename = async (field: string, c: Choice) => {
+    const label = field === 'category' ? '구분' : labelOf(field);
+    const to = await askName(`${label} 이름 바꾸기`, c.value, '바꾸기', '새 이름', 200);
+    if (!to || to === c.value) return;
+    try {
+      if (field === 'category') setCats((await biz.saveCategory({ id: c.id, label: to })).categories);
+      else await biz.renameOption(field, c.value, to);
+      // 이미 있는 이름으로 바꾸면 두 값이 하나로 합쳐진다
+      setChoices((m) => {
+        const list = m[field] ?? [];
+        const target = list.find((x) => x.value === to);
+        const next = target
+          ? list.filter((x) => x.value !== c.value).map((x) => (x === target ? { ...x, count: (x.count ?? 0) + (c.count ?? 0) } : x))
+          : list.map((x) => (x.value === c.value ? { ...x, value: to } : x)).sort((a, b) => a.value.localeCompare(b.value, 'ko'));
+        return { ...m, [field]: next };
+      });
+      replaceValue(field, c.value, to);
+      refreshSales();
+    } catch (e: any) {
+      setError(e?.message ?? '이름을 바꾸지 못했습니다');
+    }
+  };
+
   const save = async () => {
-    const { edit, error: err } = buildSaleEdit(states, categories);
+    const { edit, error: err } = buildSaleEdit(states, cats);
     if (err) { setError(err); return; }
     if (!Object.keys(edit).length) { onDone(); return; }
     setSaving(true);
@@ -155,7 +204,7 @@ function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, o
                 <div className="biz-form-ctl">
                   {s.kind === 'option' || s.kind === 'category'
                     ? <Picker value={st.draft} choices={choices[s.field] ?? []} ariaLabel={s.label} autoFocus={i === firstEnabled} disabled={s.disabled}
-                        onChange={(v) => set(i, { draft: v, reset: false })} onRemove={(c) => void remove(s.field, c)} />
+                        onChange={(v) => set(i, { draft: v, reset: false })} onRemove={(c) => void remove(s.field, c)} onRename={(c) => void rename(s.field, c)} />
                     : (
                       <input
                         id={id} className="biz-input" aria-label={s.label} autoFocus={i === firstEnabled} disabled={s.disabled}
@@ -210,7 +259,7 @@ export function rowSpec(row: SalesRow, field: EditableField, label: string, kind
     field, label, kind, disabled,
     value: fmt((row as any)[field]),
     original: edited ? fmt(row.edited![field]) : undefined,
-    choices: kind === 'option' ? (options?.[field as OptionField] ?? []).map((o) => ({ value: o.value, removable: o.removable })) : undefined,
+    choices: kind === 'option' ? (options?.[field as OptionField] ?? []).map((o) => ({ value: o.value, removable: o.removable, editable: o.editable, count: o.count })) : undefined,
   };
 }
 

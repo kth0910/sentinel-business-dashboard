@@ -1,5 +1,5 @@
 // 업무 데이터 저장소(SQLite, litpage와 같은 DB 파일). 스냅샷·변동·구분·목표·날짜별 페이지.
-import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, OPTION_FIELDS, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Targets } from '@nc/biz';
+import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, MANAGED_OPTION_FIELDS, OPTION_FIELDS, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Targets } from '@nc/biz';
 import { newId } from '@nc/shared/ids.ts';
 import { db, tx } from '../db.ts';
 
@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS biz_override (
 );
 CREATE TABLE IF NOT EXISTS biz_delta_edit (date TEXT NOT NULL, key TEXT NOT NULL, delta INTEGER NOT NULL, edited_by TEXT, edited_time INTEGER NOT NULL, PRIMARY KEY (date, key));
 CREATE TABLE IF NOT EXISTS biz_option (field TEXT NOT NULL, value TEXT NOT NULL, added_time INTEGER NOT NULL, PRIMARY KEY (field, value));
+-- 값 이름 바꾸기·지우기: 받아온 값(from_value)을 to_value로 보여 준다('' = 지움). to_value는 늘 최종 이름
+CREATE TABLE IF NOT EXISTS biz_value_map (field TEXT NOT NULL, from_value TEXT NOT NULL, to_value TEXT NOT NULL, PRIMARY KEY (field, from_value));
 `);
 
 if (!(db.prepare('SELECT COUNT(*) AS n FROM biz_category').get() as { n: number }).n) {
@@ -49,10 +51,26 @@ export function latestSnapshotOnOrBefore(date: string): string | null {
   return (db.prepare('SELECT MAX(date) AS d FROM biz_snapshot_day WHERE date <= ?').get(date) as { d: string | null }).d;
 }
 
-/** 그 날짜 데이터(직접 수정한 값을 적용한 것). 원래 값은 row.edited에 남긴다. */
+/** 값 이름 바꾸기·지우기를 받아온 행에 적용한다. */
+function applyValueMap(rows: SalesRow[]): SalesRow[] {
+  const maps = db.prepare('SELECT field, from_value, to_value FROM biz_value_map').all() as { field: string; from_value: string; to_value: string }[];
+  if (!maps.length) return rows;
+  const byField = new Map<string, Map<string, string>>();
+  for (const m of maps) byField.set(m.field, (byField.get(m.field) ?? new Map()).set(m.from_value, m.to_value));
+  return rows.map((row) => {
+    let out: SalesRow | null = null;
+    for (const [field, map] of byField) {
+      const v = (row as any)[field];
+      if (typeof v === 'string' && map.has(v)) (out ??= { ...row } as any)[field] = map.get(v);
+    }
+    return out ?? row;
+  });
+}
+
+/** 그 날짜 데이터(값 이름 바꾸기와 직접 수정한 값을 적용한 것). 원래 값은 row.edited에 남긴다. */
 export function snapshotRows(date: string): SalesRow[] | null {
   if (!hasSnapshot(date)) return null;
-  const rows = (db.prepare('SELECT row_json FROM biz_snapshot WHERE date = ?').all(date) as { row_json: string }[]).map((r) => JSON.parse(r.row_json) as SalesRow);
+  const rows = applyValueMap((db.prepare('SELECT row_json FROM biz_snapshot WHERE date = ?').all(date) as { row_json: string }[]).map((r) => JSON.parse(r.row_json) as SalesRow));
   const ov = db.prepare('SELECT key, field, value_json FROM biz_override WHERE from_date <= ?').all(date) as { key: string; field: string; value_json: string }[];
   if (!ov.length) return rows;
   const byKey = new Map<string, { field: string; value: unknown }[]>();
@@ -185,8 +203,41 @@ export function addOption(field: OptionField, value: string): void {
   if (v) db.prepare('INSERT OR IGNORE INTO biz_option (field, value, added_time) VALUES (?, ?, ?)').run(optionField(field), v, Date.now());
 }
 
+/** 목록에서 지우기. 편집 칸(제품·매출 구분)은 그 값을 쓰는 건에서도 값을 비운다. */
 export function removeOption(field: string, value: string): void {
+  if ((MANAGED_OPTION_FIELDS as readonly string[]).includes(field)) return deleteOptionValue(field, value);
   db.prepare('DELETE FROM biz_option WHERE field = ? AND value = ?').run(optionField(field), value);
+}
+
+function managedField(field: string): OptionField {
+  if (!(MANAGED_OPTION_FIELDS as readonly string[]).includes(field)) throw new Error('이름을 바꿀 수 없는 칸입니다');
+  return field as OptionField;
+}
+
+/** from을 to로 바꾼다(받아온 값·직접 고친 값·목록 모두). to가 ''이면 지움. 모든 날짜의 변동을 다시 계산한다. */
+function remapValue(field: OptionField, from: string, to: string): void {
+  tx(() => {
+    db.prepare('UPDATE biz_value_map SET to_value = ? WHERE field = ? AND to_value = ?').run(to, field, from);
+    db.prepare('INSERT INTO biz_value_map (field, from_value, to_value) VALUES (?, ?, ?) ON CONFLICT(field, from_value) DO UPDATE SET to_value = excluded.to_value').run(field, from, to);
+    db.prepare('DELETE FROM biz_value_map WHERE field = ? AND from_value = to_value').run(field);
+    db.prepare('UPDATE biz_override SET value_json = ? WHERE field = ? AND value_json = ?').run(JSON.stringify(to), field, JSON.stringify(from));
+    const listed = db.prepare('DELETE FROM biz_option WHERE field = ? AND value = ?').run(field, from).changes > 0;
+    if (listed && to) addOption(field, to);
+    const first = (db.prepare('SELECT MIN(date) AS d FROM biz_snapshot_day').get() as { d: string | null }).d;
+    if (first) recomputeFrom(first);
+  });
+}
+
+export function renameOption(field: string, from: string, to: string): void {
+  const f = managedField(field);
+  const name = to.trim();
+  if (!name) throw new Error('이름이 비어 있습니다');
+  if (name.length > 200) throw new Error('200자까지 넣을 수 있습니다');
+  if (name !== from) remapValue(f, from, name);
+}
+
+export function deleteOptionValue(field: string, value: string): void {
+  remapValue(managedField(field), value, '');
 }
 
 /** 칸마다 고를 값: 데이터에 있는 값 + 추가한 값(가나다순). */
@@ -194,10 +245,17 @@ export function listOptions(rows: SalesRow[]): Record<OptionField, OptionItem[]>
   const added = db.prepare('SELECT field, value FROM biz_option').all() as { field: string; value: string }[];
   const out = {} as Record<OptionField, OptionItem[]>;
   for (const f of OPTION_FIELDS) {
-    const inData = new Set(rows.map((r) => r[f]).filter((v): v is string => typeof v === 'string' && v.trim() !== ''));
-    const extra = added.filter((a) => a.field === f && !inData.has(a.value)).map((a) => a.value);
-    out[f] = [...[...inData].map((value) => ({ value, removable: false })), ...extra.map((value) => ({ value, removable: true }))]
-      .sort((a, b) => a.value.localeCompare(b.value, 'ko'));
+    const managed = (MANAGED_OPTION_FIELDS as readonly string[]).includes(f);
+    const counts = new Map<string, number>();
+    for (const r of rows) {
+      const v = r[f];
+      if (typeof v === 'string' && v.trim() !== '') counts.set(v, (counts.get(v) ?? 0) + 1);
+    }
+    const extra = added.filter((a) => a.field === f && !counts.has(a.value)).map((a) => a.value);
+    out[f] = [
+      ...[...counts].map(([value, count]) => ({ value, count, editable: managed, removable: managed })),
+      ...extra.map((value) => ({ value, count: 0, editable: managed, removable: true })),
+    ].sort((a, b) => a.value.localeCompare(b.value, 'ko'));
   }
   return out;
 }
@@ -266,6 +324,8 @@ export function listCategories(): Category[] {
 export function saveCategory(c: { id?: string; label: string }): Category {
   const label = c.label.trim();
   if (!label) throw new Error('구분 이름이 비어 있습니다');
+  if (c.id === 'unclassified') throw new Error('미분류는 이름을 바꿀 수 없습니다');
+  if (db.prepare('SELECT 1 FROM biz_category WHERE label = ? AND id <> ?').get(label, c.id ?? '')) throw new Error('같은 이름의 구분이 있습니다');
   if (c.id && db.prepare('SELECT 1 FROM biz_category WHERE id = ?').get(c.id)) {
     db.prepare('UPDATE biz_category SET label = ? WHERE id = ?').run(label, c.id);
   } else {
