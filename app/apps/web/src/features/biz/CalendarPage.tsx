@@ -102,11 +102,13 @@ export function CalendarPage() {
                   aria-label={`${m}월 ${num}일${isToday ? ' (오늘)' : ''}`}
                 >
                   <span className="biz-cal-num">{num}</span>
-                  <span className="biz-cal-marks">
-                    {d.reportPageId && <i className="biz-dot report" title="업무보고" />}
-                    {d.hasSnapshot && <i className="biz-dot sales" title="매출 반영" />}
+                  <span className="biz-cal-info">
+                    <span className="biz-cal-marks">
+                      {d.reportPageId && <i className="biz-dot report" title="업무보고" />}
+                      {d.hasSnapshot && <i className="biz-dot sales" title="매출 반영" />}
+                    </span>
+                    <span className={`biz-delta ${d.dayDelta > 0 ? 'up' : d.dayDelta < 0 ? 'down' : ''}`}>{d.dayDelta !== 0 ? `${signed(d.dayDelta)} ${arrow(d.dayDelta)}` : ''}</span>
                   </span>
-                  <span className={`biz-delta ${d.dayDelta > 0 ? 'up' : d.dayDelta < 0 ? 'down' : ''}`}>{d.dayDelta !== 0 ? `${signed(d.dayDelta)} ${arrow(d.dayDelta)}` : ''}</span>
                 </button>
               );
             })}

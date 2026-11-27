@@ -21,7 +21,8 @@
 
 /* ---------- 캘린더 ---------- */
 /* 화면 틀(nc-frame-content)에는 스크롤이 없어 달력 화면이 직접 세로 스크롤을 가진다(회의록 화면의 nc-lib-scroll과 같은 방식). */
-.biz-cal-scroller { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+/* 화면 높이를 꽉 채우고(날짜 줄이 남는 높이를 나눠 가짐), 정말 모자랄 때만 스크롤한다. */
+.biz-cal-scroller { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; }
 /* 월 달력: Figma "Calendar Building Blocks"(Example Calendar) 기준. 카드·연월 제목·요일·날짜 숫자·오늘 빨간 원. */
 .biz-cal {
   --biz-cal-card-bg: rgba(255, 255, 255, 0.8);
@@ -32,8 +33,8 @@
   --biz-cal-pick: #f2f2f2;
   --biz-cal-pick-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
   --biz-cal-today: #fb3f4a;
-  box-sizing: border-box; width: 100%; min-width: 0; max-width: 1080px; margin: 0 auto; padding: 32px 40px 64px;
-  display: flex; flex-direction: column; gap: 20px; color: var(--lp-text-primary);
+  box-sizing: border-box; width: 100%; min-width: 0; max-width: 1080px; margin: 0 auto; padding: 16px 40px 20px;
+  flex: 1 0 auto; display: flex; flex-direction: column; gap: 14px; color: var(--lp-text-primary);
 }
 .lit-dark-theme .biz-cal {
   --biz-cal-card-bg: var(--lp-bg-secondary);
@@ -54,7 +55,8 @@
 .biz-btn:hover { background: var(--biz-soft); }
 
 .biz-cal-card {
-  box-sizing: border-box; padding: 49px 40px 36px; border: 2px solid var(--biz-cal-card-edge); border-radius: 20px;
+  flex: 1 1 auto; display: flex; flex-direction: column;
+  box-sizing: border-box; padding: 32px 32px 16px; border: 2px solid var(--biz-cal-card-edge); border-radius: 20px;
   background: var(--biz-cal-card-bg); box-shadow: var(--biz-cal-card-shadow); backdrop-filter: blur(7.5px); color: var(--biz-cal-ink);
 }
 .biz-cal-title { display: grid; grid-template-columns: 40px auto 40px; justify-content: center; align-items: center; gap: 24px; }
@@ -68,52 +70,62 @@
 }
 .biz-cal-arrow:hover { background: var(--biz-cal-pick); color: var(--biz-cal-ink); }
 
-.biz-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 10px; margin-top: 37px; }
-.biz-cal-wd { margin-bottom: 24px; text-align: center; font-size: 16px; font-weight: 600; letter-spacing: 0.16px; line-height: 1; }
+/* 첫 줄(요일)은 글자 높이, 날짜 줄은 남은 높이를 똑같이 나눔(최소 52px) */
+.biz-cal-grid {
+  flex: 1 1 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: auto; grid-auto-rows: minmax(52px, 1fr); row-gap: 2px; margin-top: 24px;
+}
+.biz-cal-wd { margin-bottom: 14px; text-align: center; font-size: 16px; font-weight: 600; letter-spacing: 0.16px; line-height: 1; }
 .biz-cal-wd .short { display: none; }
 .biz-cal-cell {
-  min-width: 0; padding: 0 2px 6px; border: 0; border-radius: 12px; background: transparent;
-  display: flex; flex-direction: column; align-items: center; gap: 4px; font: inherit; color: inherit; cursor: pointer;
+  min-width: 0; min-height: 0; padding: 0 2px 2px; border: 0; border-radius: 12px; background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: inherit; color: inherit; cursor: pointer;
+  /* 칸 높이를 기준으로 날짜 원 크기를 정한다 */
+  container-type: size;
 }
 .biz-cal-cell.other { cursor: default; color: var(--biz-cal-muted); }
 .biz-cal-cell:focus-visible { outline: 2px solid var(--biz-up); outline-offset: 2px; }
+/* 원 지름: 칸 높이에서 아래 점·증감액 줄(약 20px)을 뺀 만큼, 32~56px(디자인 원래 크기). 숫자는 지름의 43%(56→24px) */
 .biz-cal-num {
-  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
-  font-size: 24px; font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums;
+  --biz-cal-d: clamp(32px, calc(100cqh - 20px), 56px);
+  flex: none; width: var(--biz-cal-d); height: var(--biz-cal-d); border-radius: 50%; display: grid; place-items: center;
+  font-size: calc(var(--biz-cal-d) * 0.43); font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums;
 }
 .biz-cal-cell:not(.other):hover .biz-cal-num { background-color: var(--biz-cal-pick); }
 .biz-cal-cell.selected .biz-cal-num { background-color: var(--biz-cal-pick); box-shadow: var(--biz-cal-pick-shadow); }
-/* 오늘: Figma Current Day=Main(지름 56 빨간 원) */
+/* 오늘: Figma Current Day=Main 빨간 원(칸이 넉넉하면 지름 56) */
 .biz-cal-cell.today .biz-cal-num,
 .biz-cal-cell.today:hover .biz-cal-num { background: url('./assets/current-day.svg') center / 100% 100% no-repeat; color: #ffffff; }
-.biz-cal-marks { display: flex; justify-content: center; min-height: 8px; }
+/* 업무보고·매출 점과 증감액을 숫자 아래 한 줄에 */
+.biz-cal-info { flex: none; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 4px; min-height: 14px; }
+.biz-cal-marks { display: inline-flex; }
 .biz-cal-marks .biz-dot:last-child { margin-right: 0; }
-.biz-cal-cell .biz-delta { min-height: 15px; font-size: 12px; font-weight: 600; line-height: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.biz-cal-day { border: 1px solid var(--biz-line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
-.biz-cal-day h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.biz-cal-cell .biz-delta { font-size: 12px; font-weight: 600; line-height: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.biz-cal-day { border: 1px solid var(--biz-line); border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.biz-cal-day h2 { margin: 0; font-size: 16px; font-weight: 700; }
 .biz-cal-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .biz-cal-actions button {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: 8px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 14px; border-radius: 8px;
   border: 1px solid var(--biz-line); background: var(--biz-soft); color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
 .biz-cal-actions button:hover:not(:disabled) { border-color: var(--biz-up); }
 .biz-cal-actions button:disabled { opacity: 0.6; cursor: progress; }
-.biz-cal-actions b { font-size: 16px; }
+.biz-cal-actions b { font-size: 15px; }
 .biz-cal-actions span { font-size: 13px; color: var(--lp-text-secondary); }
 @media (max-width: 640px) {
-  .biz-cal { padding: 20px 12px 48px; }
+  .biz-cal { padding: 16px 12px 24px; }
   .biz-cal-actions { grid-template-columns: 1fr; }
-  .biz-cal-card { padding: 28px 6px 18px; border-radius: 16px; }
+  .biz-cal-card { padding: 20px 6px 14px; border-radius: 16px; }
   .biz-cal-title { gap: 8px; }
   .biz-cal-title h1 { gap: 8px; }
   .biz-cal-year { font-size: 18px; }
   .biz-cal-month { font-size: 14px; letter-spacing: 4.2px; padding-left: 4.2px; }
-  .biz-cal-grid { margin-top: 24px; row-gap: 6px; }
-  .biz-cal-wd { margin-bottom: 12px; font-size: 13px; }
+  .biz-cal-grid { margin-top: 16px; row-gap: 4px; }
+  .biz-cal-wd { margin-bottom: 10px; font-size: 13px; }
   .biz-cal-wd .full { display: none; }
   .biz-cal-wd .short { display: inline; }
   .biz-cal-cell { padding: 0 0 4px; gap: 2px; }
-  .biz-cal-num { width: 34px; height: 34px; font-size: 16px; }
+  .biz-cal-num { width: 32px; height: 32px; font-size: 16px; }
   .biz-cal-cell .biz-delta { font-size: 10px; letter-spacing: -0.2px; white-space: normal; word-break: break-all; text-align: center; }
 }
 
