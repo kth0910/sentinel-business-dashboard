@@ -1,6 +1,6 @@
 // 매출 요약 블록 (biz_sales_summary): 당일 증감액, 연·분기·월 실적과 목표(설계 5.4).
 // 당일 증감액 = 변동사항 표 증감액의 합. 실적은 받아온 데이터로 계산하거나 '실적 입력'으로 직접 넣는다.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ActualPeriod, Summary, Targets } from '@nc/biz';
 import { useUI } from '../../lib/store/ui.ts';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
@@ -8,6 +8,7 @@ import { arrow, biz, signed, won } from './api.ts';
 import { isolate } from './fields.tsx';
 import { blockDate, refreshSales, shortDate, useSalesView } from './sales.ts';
 import { parseAmount } from './saleEdit.ts';
+import { openPopover } from './popover.tsx';
 import './biz.css';
 import { BizBlock } from './table.tsx';
 
@@ -104,8 +105,10 @@ function ActualsEditor({ date, s, onDone }: { date: string; s: Summary; onDone: 
 function SalesSummaryBlock({ block, readOnly }: BlockProps) {
   const date = blockDate(block.format);
   const { data, error } = useSalesView(date);
-  const [editTargets, setEditTargets] = useState(false);
-  const [editActuals, setEditActuals] = useState(false);
+  // 실적 입력·목표 설정: 버튼 옆에 뜨는 창(문서를 밀지 않음). 같은 버튼을 다시 누르면 닫힌다
+  const [panel, setPanel] = useState<'actuals' | 'targets' | null>(null);
+  const closePanel = useRef<(() => void) | null>(null);
+  useEffect(() => () => closePanel.current?.(), []);
   if (!date) return <div className="biz-block" contentEditable={false}><p className="biz-note">날짜가 없는 매출 블록입니다. 날짜별 매출 페이지에서 사용하세요.</p></div>;
 
   const s = data?.summary;
@@ -141,14 +144,28 @@ function SalesSummaryBlock({ block, readOnly }: BlockProps) {
             {card('quarter', `${s.quarter}분기 실적`, s.quarterActual, s.quarterTarget)}
             {card('month', `${s.month}월 실적`, s.monthActual, s.monthTarget)}
           </div>
-          {!readOnly && !editTargets && !editActuals && (
+          {!readOnly && (
             <span className="biz-row">
-              <button {...isolate} type="button" className="biz-link" onClick={() => setEditActuals(true)}>실적 입력</button>
-              <button {...isolate} type="button" className="biz-link" onClick={() => setEditTargets(true)}>목표 설정</button>
+              {([['actuals', '실적 입력'], ['targets', '목표 설정']] as const).map(([kind, label]) => (
+                <button
+                  key={kind} {...isolate} type="button" className={`biz-link biz-toggle ${panel === kind ? 'on' : ''}`} aria-expanded={panel === kind}
+                  onClick={(e) => {
+                    const was = panel;
+                    closePanel.current?.();
+                    if (was === kind) return;
+                    closePanel.current = openPopover(
+                      e.currentTarget, label,
+                      (close) => (kind === 'actuals' ? <ActualsEditor date={date} s={s} onDone={close} /> : <TargetsEditor year={s.year} onDone={close} />),
+                      () => { closePanel.current = null; setPanel(null); },
+                    );
+                    setPanel(kind);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </span>
           )}
-          {editActuals && <ActualsEditor date={date} s={s} onDone={() => setEditActuals(false)} />}
-          {editTargets && <TargetsEditor year={s.year} onDone={() => setEditTargets(false)} />}
         </>
       )}
     </BizBlock>
