@@ -1,0 +1,30 @@
+[project]
+name = "sentinel-backend"
+version = "0.1.0"
+description = "CoolNotion! backend"
+requires-python = ">=3.15"
+dependencies = [
+    "alembic>=1.20.1",
+    "argon2-cffi>=25.1.0",
+    "fastapi>=0.165.0",
+    "psycopg>=3.2",
+    "pydantic-settings>=2.16.3",
+    "sqlalchemy[asyncio]>=2.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[tool.uv]
+python-preference = "only-system"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.29.0",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+]
