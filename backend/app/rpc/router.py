@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.sessions import user_for_token
+from app.config import get_settings
 from app.db import get_db
 from app.rpc.errors import NotFoundError, RpcError, ValidationError
 from app.rpc.registry import HANDLERS, RpcContext
@@ -28,7 +29,7 @@ async def build_context(request: Request, db: AsyncSession) -> RpcContext:
         token=token,
         client_id=(request.headers.get("x-lit-client-id") or None) and request.headers["x-lit-client-id"][:100],
         ip=request.client.host if request.client else "",
-        secure=request.url.scheme == "https",
+        secure=get_settings().cookie_secure or request.url.scheme == "https",
         db=db,
         auth_provider=request.app.state.auth_provider,
     )

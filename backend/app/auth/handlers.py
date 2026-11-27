@@ -9,6 +9,7 @@ from app.rpc.errors import UnauthorizedError, ValidationError
 from app.rpc.registry import RpcContext, rpc
 
 SIGN_IN_FAILED = "이메일 또는 비밀번호가 올바르지 않습니다."
+NOT_REGISTERED = "등록되지 않은 이메일입니다. 주소를 확인하거나 관리자에게 문의해 주세요."
 CODE_NOT_SUPPORTED = "이메일 코드 로그인은 지원하지 않습니다. 비밀번호로 로그인해 주세요."
 
 
@@ -29,6 +30,10 @@ async def check_sign_in_methods(ctx: RpcContext, body: dict[str, Any]) -> dict[s
 
 @rpc("sendSignInCode")
 async def send_sign_in_code(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    if not ctx.auth_provider.allows_provisioning:
+        email = normalize_email(_text(body, "email"))
+        if not email or await find_user_by_email(ctx.db, email) is None:
+            raise ValidationError(NOT_REGISTERED)
     raise ValidationError(CODE_NOT_SUPPORTED)
 
 

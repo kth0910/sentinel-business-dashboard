@@ -2,6 +2,7 @@ import pytest
 
 from app.auth.providers import Identity
 from app.auth.users import create_user
+from app.config import get_settings
 
 
 @pytest.fixture
@@ -106,3 +107,18 @@ async def test_sign_out_clears_session(client, user):
     r = await call(client, "signOut")
     assert "Max-Age=0" in r.headers["set-cookie"]
     assert (await call(client, "loadAccountData")).status_code == 401
+
+
+async def test_cookie_secure_setting_applies_over_http(client, user, monkeypatch):
+    creds = {"email": "hong@example.com", "password": "secret-123"}
+    plain = await call(client, "signInWithEmail", creds)
+    assert not plain.headers["set-cookie"].endswith("; Secure")
+    monkeypatch.setattr(get_settings(), "cookie_secure", True)
+    secured = await call(client, "signInWithEmail", creds)
+    assert secured.headers["set-cookie"].endswith("; Secure")
+
+
+async def test_send_code_unknown_email_says_not_registered(client, user):
+    r = await call(client, "sendSignInCode", {"email": "ghost@example.com"})
+    assert r.status_code == 400
+    assert r.json()["message"] == "등록되지 않은 이메일입니다. 주소를 확인하거나 관리자에게 문의해 주세요."
