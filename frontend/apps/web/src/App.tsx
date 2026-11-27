@@ -79,7 +79,7 @@ export function App() {
   else if (route.name === 'form') body = <PublicFormPage viewId={route.viewId} />;
   else if (route.name === 'site') body = <SiteRoot domain={route.domain} />;
   else if (status === 'loading') body = <div className="nc-boot" />;
-  else if (status === 'anonymous') body = <LoginPage mode={route.name === 'signup' ? 'signup' : 'login'} />;
+  else if (status === 'anonymous') body = <LoginPage />;
   else if (route.name === 'teamInvite' && (status === 'ready' || status === 'onboarding')) body = <TeamInvitePage code={route.code} />;
   else if (status === 'onboarding') body = <OnboardingPage />;
   else body = <Workspace />;

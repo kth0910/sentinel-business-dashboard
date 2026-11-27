@@ -5,12 +5,10 @@ from sqlalchemy import select
 from app.auth.models import User
 from app.auth.sessions import clear_session_cookie, create_session, destroy_session, session_cookie
 from app.auth.users import find_user_by_email, normalize_email, provision_external_user
-from app.rpc.errors import UnauthorizedError, ValidationError
+from app.rpc.errors import UnauthorizedError
 from app.rpc.registry import RpcContext, rpc
 
 SIGN_IN_FAILED = "이메일 또는 비밀번호가 올바르지 않습니다."
-NOT_REGISTERED = "등록되지 않은 이메일입니다. 주소를 확인하거나 관리자에게 문의해 주세요."
-CODE_NOT_SUPPORTED = "이메일 코드 로그인은 지원하지 않습니다. 비밀번호로 로그인해 주세요."
 
 
 def _text(body: dict[str, Any], key: str) -> str:
@@ -28,24 +26,11 @@ async def check_sign_in_methods(ctx: RpcContext, body: dict[str, Any]) -> dict[s
     return {"hasAccount": has_account, "passwordSignIn": has_account, "mustReverify": False}
 
 
-@rpc("sendSignInCode")
-async def send_sign_in_code(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
-    if not ctx.auth_provider.allows_provisioning:
-        email = normalize_email(_text(body, "email"))
-        if not email or await find_user_by_email(ctx.db, email) is None:
-            raise ValidationError(NOT_REGISTERED)
-    raise ValidationError(CODE_NOT_SUPPORTED)
-
-
 @rpc("signInWithEmail")
 async def sign_in_with_email(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
     email = normalize_email(_text(body, "email"))
     password = body.get("password")
-    if not isinstance(password, str) or not password:
-        if body.get("code") is not None:
-            raise ValidationError(CODE_NOT_SUPPORTED)
-        raise UnauthorizedError(SIGN_IN_FAILED)
-    if not email:
+    if not email or not isinstance(password, str) or not password:
         raise UnauthorizedError(SIGN_IN_FAILED)
 
     provider = ctx.auth_provider

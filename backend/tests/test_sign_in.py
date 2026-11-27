@@ -55,13 +55,11 @@ async def test_sign_in_wrong_password_and_unknown_email_look_the_same(client, us
         assert "set-cookie" not in r.headers
 
 
-async def test_code_sign_in_not_supported(client, user):
-    for name, body in (
-        ("sendSignInCode", {"email": "hong@example.com"}),
-        ("signInWithEmail", {"email": "hong@example.com", "code": "123456"}),
-    ):
-        r = await call(client, name, body)
-        assert r.status_code == 400 and "비밀번호로 로그인" in r.json()["message"]
+async def test_code_sign_in_is_removed(client, user):
+    assert (await call(client, "sendSignInCode", {"email": "hong@example.com"})).status_code == 404
+    r = await call(client, "signInWithEmail", {"email": "hong@example.com", "code": "123456"})
+    assert r.status_code == 401
+    assert r.json()["message"] == "이메일 또는 비밀번호가 올바르지 않습니다."
 
 
 class FakeMailProvider:
@@ -116,9 +114,3 @@ async def test_cookie_secure_setting_applies_over_http(client, user, monkeypatch
     monkeypatch.setattr(get_settings(), "cookie_secure", True)
     secured = await call(client, "signInWithEmail", creds)
     assert secured.headers["set-cookie"].endswith("; Secure")
-
-
-async def test_send_code_unknown_email_says_not_registered(client, user):
-    r = await call(client, "sendSignInCode", {"email": "ghost@example.com"})
-    assert r.status_code == 400
-    assert r.json()["message"] == "등록되지 않은 이메일입니다. 주소를 확인하거나 관리자에게 문의해 주세요."
