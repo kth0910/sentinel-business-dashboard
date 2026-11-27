@@ -5,6 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
+from app.rpc.router import router as rpc_router
 
 
 def create_app() -> FastAPI:
@@ -15,6 +16,7 @@ def create_app() -> FastAPI:
         await db.execute(text("SELECT 1"))
         return {"status": "ok", "db": "ok"}
 
+    app.include_router(rpc_router)
     return app
 
 
