@@ -20,6 +20,7 @@
 - **로그인:** 회원가입 없음. 로그인 확인은 `AuthProvider` 인터페이스로만 한다. 개발 단계 공급자는 `local`(샘플 계정 비밀번호). 나중에 사내 메일 시스템 공급자를 추가할 때 RPC 처리 함수와 화면은 바꾸지 않는다.
 - 로컬 비밀번호는 argon2로 해시한다. 원문은 저장·기록하지 않는다. 샘플 계정은 `APP_ENV=production`에서 만들 수 없다.
 - **언어:** 한국어 전용. 언어 선택 기능과 영어 등 다른 언어 설정은 없앤다. 서버가 사용자에게 보내는 메시지도 한국어.
+- **제품 이름:** 사용자에게 보이는 "Litpage"는 모두 **`CoolNotion!`**(느낌표 포함)으로 바꾼다(한국어 카탈로그 값, `t()` 기본 문구, `<title>`, 대체 텍스트 등). i18n 키·CSS 클래스·저장소 키·패키지 이름 같은 내부 식별자는 바꾸지 않는다. litpage 저작권 고지(`frontend/LICENSE`, `frontend/THIRD_PARTY_NOTICES.md`)는 MIT 조건이라 원래 이름 그대로 둔다.
 - **업무관리시스템 엑셀 기능, 캘린더 첫 화면, 업무 전용 블록은 만들지 않는다.** 목표는 바닐라 노션과 같은 워크스페이스다.
 - **코드와 문서가 아닌 임시 파일은 절대 커밋하지 않는다**(pytest 캐시, 커버리지, 빌드 결과, 로그, 실행 데이터, 내려받은 원본 포함). 커밋은 경로를 하나씩 지정하고(`git add -A`, `git add .` 금지), 커밋 전에 `git status`로 확인한다.
 - 개발 서버 포트: API `8000`, 화면 `5173`. 빌드(`pnpm build`) 없이 개발 모드로 실행한다.
@@ -536,7 +537,7 @@ git commit -m "feat: 인증 공급자를 쓰는 로그인 RPC(확인·로그인�
 
 ---
 
-### Task 7: litpage 화면 가져오기, 한국어 고정, 개발 서버 실행
+### Task 7: litpage 화면 가져오기, 한국어 고정, CoolNotion! 이름, 개발 서버 실행
 
 **Files:**
 - Create: `frontend/package.json`, `frontend/pnpm-workspace.yaml`, `frontend/tsconfig.base.json`, `frontend/LICENSE`(litpage 원본), `frontend/THIRD_PARTY_NOTICES.md`(litpage 원본), `frontend/apps/web/**`, `frontend/packages/shared/**`(litpage `f55fead`에서 복사), `.claude/launch.json`
@@ -594,6 +595,26 @@ describe('한국어 고정', () => {
     expect(missing).toEqual([]);
   });
 });
+
+describe('제품 이름 CoolNotion!', () => {
+  it('Korean catalog values never show Litpage', () => {
+    const bad = Object.entries(ko as Record<string, string>).filter(([, v]) => /litpage/i.test(v)).map(([k]) => k);
+    expect(bad).toEqual([]);
+  });
+
+  it('t() default messages never show Litpage', () => {
+    const src = fileURLToPath(new URL('../..', import.meta.url));
+    const bad = sourceFiles(src).flatMap((f) =>
+      [...readFileSync(f, 'utf8').matchAll(/\bt\(\s*'lp\.[^']+'\s*,\s*'((?:[^'\\]|\\.)*)'/g)].filter((m) => /litpage/i.test(m[1])).map((m) => `${f}: ${m[1]}`),
+    );
+    expect(bad).toEqual([]);
+  });
+
+  it('page title is CoolNotion!', () => {
+    const html = readFileSync(fileURLToPath(new URL('../../../index.html', import.meta.url)), 'utf8');
+    expect(html).toMatch(/<title>CoolNotion!<\/title>/);
+  });
+});
 ```
 
 - [ ] **Step 4: 실패 확인**
@@ -603,6 +624,8 @@ Run: `pnpm --dir frontend install`, `pnpm --dir frontend --filter @nc/web exec v
 - [ ] **Step 5: 한국어 고정 구현**
 
 `i18n.ts`를 Interfaces대로 줄이고, `setLocale`·`LOCALES`를 쓰는 곳(로그인 화면 언어 선택, 설정 › 기본 설정의 언어 항목, `userSettings.ts`의 서버 언어 반영)에서 해당 UI와 호출을 지운다. 그 밖의 `getLocale()` 사용처는 그대로 둔다(항상 `ko-KR`).
+
+**이름 바꾸기:** `frontend/apps/web`의 사용자에게 보이는 "Litpage"(대소문자 무관)를 `CoolNotion!`으로 바꾼다 — 한국어 카탈로그 값, `t()` 기본 문구, `index.html`의 `<title>`, `alt`·`aria-label`·`title` 속성, 화면에 직접 적힌 문구. i18n 키(`lp.….litpage_ai` 등), 클래스·저장소 키·URL·패키지 이름은 그대로 둔다. 원본 검사 기준 `apps/web`·`packages/shared`에 "Litpage" 표기 약 470곳, 한국어 카탈로그 값 140곳.
 
 - [ ] **Step 6: 테스트와 타입 검사 통과 확인**
 
@@ -624,7 +647,7 @@ Run: `pnpm --dir frontend typecheck` → 오류 없음
 - [ ] **Step 8: 개발 서버로 확인**
 
 `api`, `web` 서버를 띄우고 `http://127.0.0.1:5173` 접속.
-Expected: 한국어 로그인 화면(언어 선택 없음) → `admin@example.com` 입력 시 비밀번호 칸 → 샘플 비밀번호로 로그인 → 워크스페이스 만들기(온보딩) 화면. 새로고침해도 로그인 유지. 워크스페이스 만들기는 아직 동작하지 않음(`createWorkspace`는 다음 계획).
+Expected: 브라우저 탭 제목 `CoolNotion!`, 한국어 로그인 화면(언어 선택 없음, "Litpage" 표기 없음) → `admin@example.com` 입력 시 비밀번호 칸 → 샘플 비밀번호로 로그인 → 워크스페이스 만들기(온보딩) 화면. 새로고침해도 로그인 유지. 워크스페이스 만들기는 아직 동작하지 않음(`createWorkspace`는 다음 계획).
 
 - [ ] **Step 9: 커밋**
 
@@ -632,7 +655,7 @@ Expected: 한국어 로그인 화면(언어 선택 없음) → `admin@example.co
 ```bash
 git status
 git add frontend/package.json frontend/pnpm-workspace.yaml frontend/pnpm-lock.yaml frontend/tsconfig.base.json frontend/LICENSE frontend/THIRD_PARTY_NOTICES.md frontend/apps frontend/packages .claude/launch.json
-git commit -m "feat: litpage 화면 가져오기, 한국어 고정, FastAPI 개발 서버 연결"
+git commit -m "feat: litpage 화면 가져오기, 한국어 고정, CoolNotion! 이름, FastAPI 개발 서버 연결"
 ```
 
 ---
