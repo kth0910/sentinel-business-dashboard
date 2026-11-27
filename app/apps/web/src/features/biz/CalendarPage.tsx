@@ -7,6 +7,7 @@ import { arrow, biz, signed, today, type CalendarDay, type DailyKind } from './a
 import './biz.css';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAYS_FULL = WEEKDAYS.map((w) => `${w}요일`);
 
 const monthOf = (date: string) => date.slice(0, 7);
 
@@ -29,9 +30,17 @@ export function CalendarPage() {
     return () => { live = false; };
   }, [month]);
 
-  const lead = useMemo(() => {
+  // 디자인처럼 앞뒤 달 날짜를 회색으로 채워 주 단위로 맞춘다.
+  const { lead, trail } = useMemo(() => {
     const [y, m] = month.split('-').map(Number);
-    return new Date(y, m - 1, 1).getDay();
+    const first = new Date(y, m - 1, 1).getDay();
+    const total = new Date(y, m, 0).getDate();
+    const prevTotal = new Date(y, m - 1, 0).getDate();
+    const used = first + total;
+    return {
+      lead: Array.from({ length: first }, (_, i) => prevTotal - first + 1 + i),
+      trail: Array.from({ length: (7 - (used % 7)) % 7 }, (_, i) => i + 1),
+    };
   }, [month]);
 
   const open = async (kind: DailyKind) => {
@@ -52,24 +61,32 @@ export function CalendarPage() {
 
   return (
     <div className="biz-cal">
-      <div className="biz-cal-head">
-        <h1>{y}년 {m}월</h1>
-        <div className="biz-cal-nav">
-          <button type="button" aria-label="이전 달" onClick={() => setMonth(shiftMonth(month, -1))}>‹</button>
-          <button type="button" aria-label="다음 달" onClick={() => setMonth(shiftMonth(month, 1))}>›</button>
-          <button type="button" onClick={() => { setMonth(monthOf(today())); setSelected(today()); }}>오늘</button>
-        </div>
+      <div className="biz-cal-bar">
         <div className="biz-cal-legend">
           <span><i className="biz-dot report" />업무보고</span>
           <span><i className="biz-dot sales" />매출 반영</span>
           <span>▲ 증가 · ▼ 감소</span>
         </div>
+        <button type="button" className="biz-btn" onClick={() => { setMonth(monthOf(today())); setSelected(today()); }}>오늘</button>
       </div>
 
-      <div className="biz-cal-scroll">
+      <div className="biz-cal-card">
+        <div className="biz-cal-title">
+          <button type="button" className="biz-cal-arrow" aria-label="이전 달" onClick={() => setMonth(shiftMonth(month, -1))}>‹</button>
+          <h1 aria-label={`${y}년 ${m}월`}>
+            <span className="biz-cal-year">{y}</span>
+            <span className="biz-cal-month">{m}월</span>
+          </h1>
+          <button type="button" className="biz-cal-arrow" aria-label="다음 달" onClick={() => setMonth(shiftMonth(month, 1))}>›</button>
+        </div>
+
         <div className="biz-cal-grid" role="grid" aria-label={`${y}년 ${m}월 달력`}>
-          {WEEKDAYS.map((w) => <div key={w} className="biz-cal-wd">{w}</div>)}
-          {Array.from({ length: lead }, (_, i) => <div key={`lead-${i}`} className="biz-cal-cell empty" />)}
+          {WEEKDAYS.map((w, i) => (
+            <div key={w} className="biz-cal-wd" role="columnheader" aria-label={WEEKDAYS_FULL[i]}>
+              <span className="full">{WEEKDAYS_FULL[i]}</span><span className="short">{w}</span>
+            </div>
+          ))}
+          {lead.map((n) => <div key={`lead-${n}`} className="biz-cal-cell other" aria-hidden="true"><span className="biz-cal-num">{n}</span></div>)}
           {days.map((d) => {
             const num = Number(d.date.slice(8));
             const isToday = d.date === today();
@@ -80,16 +97,19 @@ export function CalendarPage() {
                 className={`biz-cal-cell ${d.date === selected ? 'selected' : ''} ${isToday ? 'today' : ''}`}
                 onClick={() => setSelected(d.date)}
                 aria-pressed={d.date === selected}
+                aria-current={isToday ? 'date' : undefined}
+                aria-label={`${m}월 ${num}일${isToday ? ' (오늘)' : ''}`}
               >
-                <span className="biz-cal-num">{num}{isToday && <em>오늘</em>}</span>
+                <span className="biz-cal-num">{num}</span>
                 <span className="biz-cal-marks">
                   {d.reportPageId && <i className="biz-dot report" title="업무보고" />}
                   {d.hasSnapshot && <i className="biz-dot sales" title="매출 반영" />}
                 </span>
-                {d.dayDelta !== 0 && <span className={`biz-delta ${d.dayDelta > 0 ? 'up' : 'down'}`}>{signed(d.dayDelta)} {arrow(d.dayDelta)}</span>}
+                <span className={`biz-delta ${d.dayDelta > 0 ? 'up' : d.dayDelta < 0 ? 'down' : ''}`}>{d.dayDelta !== 0 ? `${signed(d.dayDelta)} ${arrow(d.dayDelta)}` : ''}</span>
               </button>
             );
           })}
+          {trail.map((n) => <div key={`trail-${n}`} className="biz-cal-cell other" aria-hidden="true"><span className="biz-cal-num">{n}</span></div>)}
         </div>
       </div>
 
