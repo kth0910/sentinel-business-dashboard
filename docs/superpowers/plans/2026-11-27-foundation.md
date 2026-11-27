@@ -284,7 +284,7 @@ git commit -m "feat: litpage 규격의 RPC 처리 틀"
   - 모델 `User`(테이블 `users`): `id: str`(PK, `uuid4().hex`), `email: str`(유일, 소문자), `name: str`, `password_hash: str | None`, `auth_source: str`(`"local"` 등 공급자 이름), `external_id: str | None`, `is_admin: bool = False`, `created_at: datetime`(timezone). `(auth_source, external_id)` 유일
   - 모델 `AuthSession`(테이블 `sessions`): `token_hash: str`(PK, 토큰 sha256 hex), `user_id: str`(FK `users.id`, 삭제 시 함께 삭제), `created_at`, `expires_at`
   - `app.auth.passwords.hash_password(password: str) -> str`, `verify_password(hash: str, password: str) -> bool`
-  - `app.auth.users.normalize_email(email: str) -> str`, `create_user(db, email, name, password: str | None, is_admin: bool = False, auth_source: str = "local", external_id: str | None = None) -> User`(이메일 중복 시 `ValueError`), `find_user_by_email(db, email) -> User | None`, `provision_external_user(db, identity: Identity, source: str) -> User`(같은 `source`+`external_id`나 같은 이메일이 있으면 그 사용자, 없으면 새로 만듦)
+  - `app.auth.users.normalize_email(email: str) -> str`, `create_user(db, email, name, password: str | None, is_admin: bool = False, auth_source: str = "local", external_id: str | None = None) -> User`(이메일 중복 시 `ValueError`), `find_user_by_email(db, email) -> User | None`, `provision_external_user(db, identity: Identity, source: str) -> User` — 같은 `source`+`external_id`인 사용자가 있으면 그 사용자. 없으면 같은 이메일이면서 `auth_source == source`인 사용자(그때 `external_id`가 비어 있으면 채움). 같은 이메일이 **다른** `auth_source`로 있으면 `ValueError`(출처가 다른 계정은 절대 합치지 않음 — 외부 로그인으로 로컬·관리자 계정을 가로채지 못하게). 그 밖에는 새로 만듦
   - `app.auth.providers.Identity` (dataclass): `email: str`, `name: str`, `external_id: str | None`
   - `app.auth.providers.AuthProvider` (Protocol): `name: str`, `allows_provisioning: bool`, `async def authenticate(self, db, email: str, password: str) -> Identity | None`
   - `app.auth.providers.LocalPasswordProvider`: `name="local"`, `allows_provisioning=False`, `users.password_hash`로 확인
@@ -370,6 +370,11 @@ async def test_provision_external_user_once(db):
     second = await provision_external_user(db, ident, source="mail")
     assert first.id == second.id
     assert first.email == "park@company.co.kr" and first.auth_source == "mail" and first.password_hash is None
+
+async def test_provision_never_takes_over_other_source(db):
+    await create_user(db, "admin@example.com", "관리자", "secret-123", is_admin=True)
+    with pytest.raises(ValueError):
+        await provision_external_user(db, Identity(email="admin@example.com", name="가짜", external_id="mail-9"), source="mail")
 ```
 
 ```python
@@ -439,7 +444,7 @@ git commit -m "feat: 사용자·세션 저장, 인증 공급자 구조, 샘플 �
 - Consumes: Task 4 `rpc`, `RpcContext`, 오류 클래스 · Task 5 사용자·세션 함수, `get_auth_provider`, `provision_external_user`
 - Produces (RPC 이름 = litpage 화면이 부르는 이름):
   - `checkSignInMethods({email})` → `{"hasAccount": bool, "passwordSignIn": bool, "mustReverify": False}`. 로컬 공급자: 계정이 있으면 둘 다 `True`. 자동 생성 공급자(`allows_provisioning`): 둘 다 항상 `True`
-  - `signInWithEmail({email, password})` → 공급자 `authenticate` 성공 시 사용자 확인(없으면 `allows_provisioning`일 때만 `provision_external_user`), 세션 생성, `{"userId": str, "isNewUser": bool}` + `Set-Cookie`. 실패는 401 `"이메일 또는 비밀번호가 올바르지 않습니다."`. `password` 없이 `code`만 오면 400 `"이메일 코드 로그인은 지원하지 않습니다. 비밀번호로 로그인해 주세요."`
+  - `signInWithEmail({email, password})` → 공급자 `authenticate` 성공 시 사용자 확인(없으면 `allows_provisioning`일 때만 `provision_external_user`, 이것이 `ValueError`를 내면 실패와 같은 401), 세션 생성, `{"userId": str, "isNewUser": bool}` + `Set-Cookie`. 실패는 401 `"이메일 또는 비밀번호가 올바르지 않습니다."`. `password` 없이 `code`만 오면 400 `"이메일 코드 로그인은 지원하지 않습니다. 비밀번호로 로그인해 주세요."`
   - `sendSignInCode({email})` → 항상 400, 위와 같은 메시지
   - `signOut({})` → `{}` + `clear_session_cookie`, 세션 삭제
   - `loadAccountData({})` → 로그인 안 됨 401 `UnauthorizedError` / 로그인됨 `{"recordMap": {...}, "lsn": 0, "demoMode": {"enabled": False}}`. `recordMap`은 litpage `RecordMap` 형식: `{"lit_user": {uid: {"value": {"value": <UserRecord>, "role": "editor"}}}, "user_root": {uid: {"value": {"value": {"id": uid, "version": 1, "space_views": []}, "role": "editor"}}}, "user_settings": {uid: {"value": {"value": {"id": uid, "version": 1, "settings": {"locale": "ko-KR"}}, "role": "editor"}}}}`. `UserRecord` = `{"id", "version": 1, "email", "name", "onboarding_completed": False, "created_time": <ms>}`
