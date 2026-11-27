@@ -485,7 +485,7 @@ export const RELEASES: { label: string; date: string; url: string }[] = HELP_URL
   { label: 'CoolNotion! 3.7', date: '2026-09-15', url: HELP_URL },
 ] : [];
 
-export const APP_VERSION = 'CoolNotion! 0.1.0';
+export const APP_VERSION = 'CoolNotion! beta';
 
 
 const SEEN_KEY = 'nc:whatsNewSeen';
@@ -561,9 +561,7 @@ function helpMoreMenu(): MenuDef {
       {
         items: [
           { label: t('lp.shell.keyboard_shortcuts', 'Keyboard shortcuts'), shortcut: '⌘⌥/', onSelect: () => useUI.getState().set({ shortcutsOpen: true }) },
-          { label: t('lp.shell.x_formerly_twitter', 'X, formerly Twitter'), onSelect: () => window.open('https://x.com/LitHQ', '_blank') },
           ...(HELP_URL ? [{ label: t('lp.shell.terms_privacy', 'Terms & privacy'), onSelect: () => window.open(HELP_URL!, '_blank') }] : []),
-          { label: t('lp.shell.status', 'Status'), onSelect: () => window.open('https://www.lit-status.com', '_blank') },
           { label: t('lp.shell.local_backups', 'Local backups'), onSelect: () => useUI.getState().toast(t('lp.shell.local_backups_are_only_available_in', 'Local backups are only available in the desktop app')) },
           {
             label: t('lp.shell.empty_page_cache', 'Empty page cache'),
