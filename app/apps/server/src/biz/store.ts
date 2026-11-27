@@ -1,5 +1,5 @@
 // 업무 데이터 저장소(SQLite, litpage와 같은 DB 파일). 스냅샷·변동·구분·목표·날짜별 페이지.
-import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, isCloudProduct, MANAGED_OPTION_FIELDS, OPTION_FIELDS, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Targets } from '@nc/biz';
+import { ACTUAL_PERIODS, DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, isCloudProduct, MAIN_DIVISION, MANAGED_OPTION_FIELDS, OPTION_FIELDS, type ActualPeriod, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Summary, type Targets } from '@nc/biz';
 import { newId } from '@nc/shared/ids.ts';
 import { db, tx } from '../db.ts';
 
@@ -21,6 +21,12 @@ CREATE TABLE IF NOT EXISTS biz_override (
 CREATE TABLE IF NOT EXISTS biz_delta_edit (date TEXT NOT NULL, key TEXT NOT NULL, delta INTEGER NOT NULL, edited_by TEXT, edited_time INTEGER NOT NULL, PRIMARY KEY (date, key));
 CREATE TABLE IF NOT EXISTS biz_option (field TEXT NOT NULL, value TEXT NOT NULL, added_time INTEGER NOT NULL, PRIMARY KEY (field, value));
 -- 값 이름 바꾸기·지우기: 받아온 값(from_value)을 to_value로 보여 준다('' = 지움). to_value는 늘 최종 이름
+-- 직접 적은 변동 행(받아온 데이터와 무관). data_json은 영업 건 칸 일부
+CREATE TABLE IF NOT EXISTS biz_manual_change (id TEXT PRIMARY KEY, date TEXT NOT NULL, position INTEGER NOT NULL, data_json TEXT NOT NULL, category_id TEXT NOT NULL, delta INTEGER NOT NULL DEFAULT 0, created_by TEXT, created_time INTEGER NOT NULL);
+-- 표에서 지운 받아온 변동(다시 받아도 숨김)
+CREATE TABLE IF NOT EXISTS biz_change_hidden (date TEXT NOT NULL, key TEXT NOT NULL, hidden_by TEXT, hidden_time INTEGER NOT NULL, PRIMARY KEY (date, key));
+-- 직접 입력한 실적: 그 날짜부터 같은 기간(연·분기·월) 끝까지 적용. value NULL = 그 날짜부터 계산값
+CREATE TABLE IF NOT EXISTS biz_actual_edit (date TEXT NOT NULL, period TEXT NOT NULL, value INTEGER, edited_by TEXT, edited_time INTEGER NOT NULL, PRIMARY KEY (date, period));
 CREATE TABLE IF NOT EXISTS biz_value_map (field TEXT NOT NULL, from_value TEXT NOT NULL, to_value TEXT NOT NULL, PRIMARY KEY (field, from_value));
 `);
 
@@ -31,8 +37,8 @@ if (!(db.prepare('SELECT COUNT(*) AS n FROM biz_category').get() as { n: number 
 
 const KIND_CATEGORY: Record<ChangeKind, string> = { new: 'new', confirm: 'confirm', exclude: 'exclude', raise: 'raise', advance: 'advance', unclassified: 'unclassified' };
 
-/** delta는 실제로 쓰는 값(직접 넣었으면 그 값). 직접 넣었을 때만 autoDelta에 계산값이 있다. */
-export type StoredChange = Change & { categoryId: string; manual: boolean; autoDelta?: number };
+/** delta는 실제로 쓰는 값(직접 넣었으면 그 값). 직접 넣었을 때만 autoDelta에 계산값이 있다. entry = 직접 적은 행 */
+export type StoredChange = Change & { categoryId: string; manual: boolean; autoDelta?: number; entry?: boolean };
 
 export function hasSnapshot(date: string): boolean {
   return !!db.prepare('SELECT 1 FROM biz_snapshot_day WHERE date = ?').get(date);
@@ -160,18 +166,38 @@ export interface SaleEdit {
   delta?: number | null;
 }
 
-/** 수정 창 저장: 칸 여러 개·구분·증감액을 한 번에(하나라도 잘못되면 아무것도 바꾸지 않는다). */
-export function editSale(date: string, key: string, edit: SaleEdit, uid: string | null): void {
-  const fields = Object.entries(edit.fields ?? {}).map(([f, v]) => {
+function parseFields(edit: SaleEdit) {
+  return Object.entries(edit.fields ?? {}).map(([f, v]) => {
     if (!(f in EDITABLE_FIELDS)) throw new Error('고칠 수 없는 칸입니다');
-    return [f, v === null ? null : checkOverride(f, v)] as const;
+    return [f as EditableField, v === null ? null : checkOverride(f, v)] as const;
   });
-  let delta: number | null | undefined = edit.delta;
-  if (delta !== undefined && delta !== null) {
-    const n = typeof delta === 'number' ? delta : Number(String(delta).replace(/[,원\s]/g, ''));
-    if (!Number.isFinite(n)) throw new Error('증감액은 숫자로 넣으세요');
-    delta = Math.round(n);
+}
+
+function parseDelta(delta: unknown): number | null | undefined {
+  if (delta === undefined || delta === null) return delta as null | undefined;
+  const n = typeof delta === 'number' ? delta : Number(String(delta).replace(/[,원\s]/g, ''));
+  if (!Number.isFinite(n)) throw new Error('증감액은 숫자로 넣으세요');
+  return Math.round(n);
+}
+
+/** 구분 id(새 이름이면 만든다). 정하지 않았으면 undefined */
+function resolveCategory(edit: SaleEdit): string | undefined {
+  if (edit.categoryLabel !== undefined) {
+    const label = edit.categoryLabel.trim();
+    return listCategories().find((c) => c.label === label)?.id ?? saveCategory({ label }).id;
   }
+  if (edit.categoryId !== undefined) {
+    if (!db.prepare('SELECT 1 FROM biz_category WHERE id = ?').get(edit.categoryId)) throw new Error('없는 구분입니다');
+    return edit.categoryId;
+  }
+  return undefined;
+}
+
+/** 수정 창 저장: 칸 여러 개·구분·증감액을 한 번에(하나라도 잘못되면 아무것도 바꾸지 않는다). 직접 적은 행(m:…)도 같은 입구. */
+export function editSale(date: string, key: string, edit: SaleEdit, uid: string | null): void {
+  if (key.startsWith(MANUAL_PREFIX)) return editManualChange(date, key, edit);
+  const fields = parseFields(edit);
+  const delta = parseDelta(edit.delta);
   tx(() => {
     if (fields.length) {
       if (!(snapshotRows(date) ?? []).some((r) => r.key === key)) throw new Error('이 날짜 데이터에 없는 건이라 값을 고칠 수 없습니다');
@@ -182,13 +208,8 @@ export function editSale(date: string, key: string, edit: SaleEdit, uid: string 
       }
       if (from) recomputeFrom(from);
     }
-    if (edit.categoryLabel !== undefined) {
-      const label = edit.categoryLabel.trim();
-      const found = listCategories().find((c) => c.label === label);
-      setChangeCategory(date, key, found ? found.id : saveCategory({ label }).id);
-    } else if (edit.categoryId !== undefined) {
-      setChangeCategory(date, key, edit.categoryId);
-    }
+    const cat = resolveCategory(edit);
+    if (cat) setChangeCategory(date, key, cat);
     if (delta === null) db.prepare('DELETE FROM biz_delta_edit WHERE date = ? AND key = ?').run(date, key);
     else if (delta !== undefined) {
       if (!db.prepare('SELECT 1 FROM biz_change WHERE date = ? AND key = ?').get(date, key)) throw new Error('해당 변동이 없습니다');
@@ -229,6 +250,10 @@ function remapValue(field: OptionField, from: string, to: string): void {
     db.prepare('UPDATE biz_override SET value_json = ? WHERE field = ? AND value_json = ?').run(JSON.stringify(to), field, JSON.stringify(from));
     const listed = db.prepare('DELETE FROM biz_option WHERE field = ? AND value = ?').run(field, from).changes > 0;
     if (listed && to) addOption(field, to);
+    for (const m of db.prepare('SELECT id, data_json FROM biz_manual_change').all() as { id: string; data_json: string }[]) {
+      const data = JSON.parse(m.data_json);
+      if (data[field] === from) db.prepare('UPDATE biz_manual_change SET data_json = ? WHERE id = ?').run(JSON.stringify({ ...data, [field]: to }), m.id);
+    }
     const first = (db.prepare('SELECT MIN(date) AS d FROM biz_snapshot_day').get() as { d: string | null }).d;
     if (first) recomputeFrom(first);
   });
@@ -302,7 +327,8 @@ export function importSnapshot(date: string, rows: SalesRow[]): { changeCount: n
 export function changesFor(date: string): StoredChange[] {
   const rows = db.prepare(`SELECT c.category_id, c.manual, c.delta AS auto, e.delta AS edited, c.change_json FROM biz_change c
     LEFT JOIN biz_delta_edit e ON e.date = c.date AND e.key = c.key
-    WHERE c.date = ? ORDER BY ABS(COALESCE(e.delta, c.delta)) DESC, c.key`).all(date) as {
+    WHERE c.date = ? AND NOT EXISTS (SELECT 1 FROM biz_change_hidden h WHERE h.date = c.date AND h.key = c.key)
+    ORDER BY ABS(COALESCE(e.delta, c.delta)) DESC, c.key`).all(date) as {
     category_id: string; manual: number; auto: number; edited: number | null; change_json: string;
   }[];
   return rows.map((r) => {
@@ -312,10 +338,129 @@ export function changesFor(date: string): StoredChange[] {
   });
 }
 
-/** 본영업 매출 당일 증감액: 변동 건 증감액의 합(직접 넣은 증감액이 있으면 그 값). */
+/** 본영업 매출 당일 증감액: 변동사항 증감액의 합(받아온 변동 — 직접 넣은 증감액 우선, 지운 것 제외 — + 직접 적은 행). */
 export function dayDelta(date: string): number {
-  return (db.prepare(`SELECT COALESCE(SUM(COALESCE(e.delta, c.delta)), 0) AS s FROM biz_change c
-    LEFT JOIN biz_delta_edit e ON e.date = c.date AND e.key = c.key WHERE c.date = ?`).get(date) as { s: number }).s;
+  const auto = (db.prepare(`SELECT COALESCE(SUM(COALESCE(e.delta, c.delta)), 0) AS s FROM biz_change c
+    LEFT JOIN biz_delta_edit e ON e.date = c.date AND e.key = c.key
+    WHERE c.date = ? AND NOT EXISTS (SELECT 1 FROM biz_change_hidden h WHERE h.date = c.date AND h.key = c.key)`).get(date) as { s: number }).s;
+  const manual = (db.prepare('SELECT COALESCE(SUM(delta), 0) AS s FROM biz_manual_change WHERE date = ?').get(date) as { s: number }).s;
+  return auto + manual;
+}
+
+// ---------- 직접 적은 변동 행 ----------
+const MANUAL_PREFIX = 'm:';
+type ManualData = Partial<Record<EditableField, string | number | null>>;
+
+function manualRow(key: string, data: ManualData): SalesRow {
+  const s = (f: EditableField) => (typeof data[f] === 'string' ? (data[f] as string) : '');
+  const d = (f: EditableField) => (typeof data[f] === 'string' && data[f] ? (data[f] as string) : null);
+  return {
+    key, code: 0, product: s('product'), division: MAIN_DIVISION, rep: s('rep'), customer: s('customer'), contractor: s('contractor'),
+    amount: typeof data.amount === 'number' ? data.amount : 0, progress: s('progress'), contractDate: d('contractDate'), startDate: d('startDate'),
+    probability: s('probability'), isCloud: isCloudProduct(s('product')), weight: s('weight'), revenueType: s('revenueType'), revenueDate: d('revenueDate'),
+  };
+}
+
+/** 칸 값을 적용한다(null이면 비움). 새 값은 값 목록에 넣는다. */
+function applyManualFields(data: ManualData, fields: ReturnType<typeof parseFields>): ManualData {
+  const out = { ...data };
+  for (const [f, v] of fields) {
+    out[f] = v ?? (EDITABLE_FIELDS[f] === 'number' ? 0 : EDITABLE_FIELDS[f] === 'date' ? null : '');
+    if (typeof v === 'string' && v && (OPTION_FIELDS as readonly string[]).includes(f)) addOption(f as OptionField, v);
+  }
+  return out;
+}
+
+export function manualChanges(date: string): StoredChange[] {
+  return (db.prepare('SELECT id, data_json, category_id, delta FROM biz_manual_change WHERE date = ? ORDER BY position, created_time').all(date) as {
+    id: string; data_json: string; category_id: string; delta: number;
+  }[]).map((m) => ({
+    key: MANUAL_PREFIX + m.id, kind: 'unclassified', delta: m.delta, before: null, after: manualRow(MANUAL_PREFIX + m.id, JSON.parse(m.data_json)),
+    diffs: [], categoryId: m.category_id, manual: true, entry: true,
+  }));
+}
+
+/** 변동사항 표에 보일 전부: 받아온 변동(지운 것 제외) 다음에 직접 적은 행(적은 순서). */
+export function allChangesFor(date: string): StoredChange[] {
+  return [...changesFor(date), ...manualChanges(date)];
+}
+
+/** 행 추가. 고객명이나 제품 중 하나는 있어야 한다. 돌려주는 값은 행 키(m:…) */
+export function addManualChange(date: string, edit: SaleEdit, uid: string | null): string {
+  const fields = parseFields(edit);
+  const delta = parseDelta(edit.delta) ?? 0;
+  return tx(() => {
+    const data = applyManualFields({}, fields);
+    if (!String(data.customer ?? '').trim() && !String(data.product ?? '').trim()) throw new Error('고객명이나 제품을 넣으세요');
+    const category = resolveCategory(edit) ?? 'unclassified';
+    const pos = (db.prepare('SELECT COALESCE(MAX(position), 0) AS p FROM biz_manual_change WHERE date = ?').get(date) as { p: number }).p + 1;
+    const id = newId();
+    db.prepare('INSERT INTO biz_manual_change (id, date, position, data_json, category_id, delta, created_by, created_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(id, date, pos, JSON.stringify(data), category, delta, uid, Date.now());
+    return MANUAL_PREFIX + id;
+  });
+}
+
+function editManualChange(date: string, key: string, edit: SaleEdit): void {
+  const id = key.slice(MANUAL_PREFIX.length);
+  const fields = parseFields(edit);
+  const delta = parseDelta(edit.delta);
+  tx(() => {
+    const row = db.prepare('SELECT data_json FROM biz_manual_change WHERE id = ? AND date = ?').get(id, date) as { data_json: string } | undefined;
+    if (!row) throw new Error('해당 변동이 없습니다');
+    if (fields.length) db.prepare('UPDATE biz_manual_change SET data_json = ? WHERE id = ?').run(JSON.stringify(applyManualFields(JSON.parse(row.data_json), fields)), id);
+    const cat = resolveCategory(edit);
+    if (cat) db.prepare('UPDATE biz_manual_change SET category_id = ? WHERE id = ?').run(cat, id);
+    if (delta !== undefined) db.prepare('UPDATE biz_manual_change SET delta = ? WHERE id = ?').run(delta ?? 0, id);
+  });
+}
+
+/** 표에서 행 지우기: 직접 적은 행은 지우고, 받아온 변동은 숨긴다(다시 받아도 숨김). */
+export function deleteChange(date: string, key: string, uid: string | null = null): void {
+  if (key.startsWith(MANUAL_PREFIX)) {
+    if (!db.prepare('DELETE FROM biz_manual_change WHERE id = ? AND date = ?').run(key.slice(MANUAL_PREFIX.length), date).changes) throw new Error('해당 변동이 없습니다');
+    return;
+  }
+  if (!db.prepare('SELECT 1 FROM biz_change WHERE date = ? AND key = ?').get(date, key)) throw new Error('해당 변동이 없습니다');
+  db.prepare('INSERT OR IGNORE INTO biz_change_hidden (date, key, hidden_by, hidden_time) VALUES (?, ?, ?, ?)').run(date, key, uid, Date.now());
+}
+
+// ---------- 실적 직접 입력 ----------
+/** 그 날짜부터 같은 기간 끝까지 적용. null이면 그 날짜부터 계산값. */
+export function setActual(date: string, period: ActualPeriod, value: number | null): void {
+  if (!(ACTUAL_PERIODS as readonly string[]).includes(period)) throw new Error('기간은 annual·quarter·month입니다');
+  let v: number | null = null;
+  if (value !== null) {
+    const n = typeof value === 'number' ? value : Number(String(value).replace(/[,원\s]/g, ''));
+    if (!Number.isFinite(n) || n < 0) throw new Error('실적은 0 이상의 숫자로 넣으세요');
+    v = Math.round(n);
+  }
+  db.prepare(`INSERT INTO biz_actual_edit (date, period, value, edited_by, edited_time) VALUES (?, ?, ?, NULL, ?)
+    ON CONFLICT(date, period) DO UPDATE SET value = excluded.value, edited_time = excluded.edited_time`).run(date, period, v, Date.now());
+}
+
+/** 기간이 시작하는 날짜(YYYY-MM-DD) */
+function periodStart(date: string, period: ActualPeriod): string {
+  const y = date.slice(0, 4);
+  const m = Number(date.slice(5, 7));
+  if (period === 'annual') return `${y}-01-01`;
+  if (period === 'quarter') return `${y}-${String(Math.floor((m - 1) / 3) * 3 + 1).padStart(2, '0')}-01`;
+  return `${date.slice(0, 7)}-01`;
+}
+
+/** 요약에 직접 입력한 실적을 적용한다. 바꾼 기간은 edited에 계산값을 남긴다. */
+export function applyActuals(s: Summary, date: string): Summary {
+  const key = { annual: 'annualActual', quarter: 'quarterActual', month: 'monthActual' } as const;
+  const out: Summary = { ...s };
+  for (const p of ACTUAL_PERIODS) {
+    const row = db.prepare('SELECT value FROM biz_actual_edit WHERE period = ? AND date >= ? AND date <= ? ORDER BY date DESC LIMIT 1')
+      .get(p, periodStart(date, p), date) as { value: number | null } | undefined;
+    if (row && row.value !== null) {
+      out.edited = { ...out.edited, [p]: s[key[p]] };
+      out[key[p]] = row.value;
+    }
+  }
+  return out;
 }
 
 export function snapshotDaysBetween(from: string, to: string): string[] {
@@ -347,6 +492,7 @@ export function deleteCategory(id: string): void {
   if (row.system === 1) throw new Error('기본 구분은 삭제할 수 없습니다');
   tx(() => {
     db.prepare("UPDATE biz_change SET category_id = 'unclassified', manual = 1 WHERE category_id = ?").run(id);
+    db.prepare("UPDATE biz_manual_change SET category_id = 'unclassified' WHERE category_id = ?").run(id);
     db.prepare('DELETE FROM biz_category WHERE id = ?').run(id);
   });
 }

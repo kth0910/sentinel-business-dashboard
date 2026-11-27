@@ -9,7 +9,7 @@ import { Icon } from '../../components/Icon.tsx';
 import { biz } from './api.ts';
 import { askName } from './nameDialog.tsx';
 import { refreshSales } from './sales.ts';
-import { buildSaleEdit, type FieldKind, type FieldState } from './saleEdit.ts';
+import { buildSaleEdit, type FieldKind, type FieldState, type SaleEditPayload } from './saleEdit.ts';
 import './biz.css';
 
 export interface Choice {
@@ -43,6 +43,12 @@ interface Props {
   specs: EditSpec[];
   categories: Category[];
   note?: string;
+  /** 새 행 추가 창: 아무것도 안 넣으면 저장하지 않고 알린다 */
+  create?: boolean;
+  /** 저장 방법(기본: bizEditSale로 이 행 수정) */
+  submit?: (edit: SaleEditPayload) => Promise<unknown>;
+  /** 행 삭제 버튼(확인 문구와 실행) */
+  remove?: { confirm: string; run: () => Promise<unknown> };
   onDone: () => void;
 }
 
@@ -111,7 +117,7 @@ function Picker({ value, choices, onChange, onRemove, onRename, ariaLabel, autoF
   );
 }
 
-function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, onDone }: Props) {
+function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, create, submit, remove: removeRow, onDone }: Props) {
   const [states, setStates] = useState<FieldState[]>(() => specs.map((s) => ({ field: s.field, kind: s.kind, initial: s.value, draft: s.value, reset: false })));
   const [choices, setChoices] = useState<Record<string, Choice[]>>(() => Object.fromEntries(specs.map((s) => [s.field, s.choices ?? []])));
   const [cats, setCats] = useState(categories);
@@ -168,10 +174,15 @@ function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, o
   const save = async () => {
     const { edit, error: err } = buildSaleEdit(states, cats);
     if (err) { setError(err); return; }
-    if (!Object.keys(edit).length) { onDone(); return; }
+    if (!Object.keys(edit).length) {
+      if (create) setError('고객명이나 제품을 넣으세요');
+      else onDone();
+      return;
+    }
     setSaving(true);
     try {
-      await api('bizEditSale', { date, key: saleKey, ...edit });
+      if (submit) await submit(edit);
+      else await api('bizEditSale', { date, key: saleKey, ...edit });
       refreshSales();
       onDone();
     } catch (e: any) {
@@ -228,6 +239,20 @@ function EditDialog({ title, subtitle, date, saleKey, specs, categories, note, o
         </div>
         {error && <p className="biz-form-error" role="alert">{error}</p>}
         <div className="biz-dialog-actions">
+          {removeRow && (
+            <button type="button" className="biz-btn biz-del" disabled={saving} onClick={async () => {
+              if (!confirm(removeRow.confirm)) return;
+              setSaving(true);
+              try {
+                await removeRow.run();
+                refreshSales();
+                onDone();
+              } catch (e: any) {
+                setError(e?.message ?? '지우지 못했습니다');
+                setSaving(false);
+              }
+            }}>행 삭제</button>
+          )}
           <button type="button" className="biz-btn" onClick={onDone}>취소</button>
           <button type="submit" className="biz-btn biz-btn-primary" disabled={saving}>{saving ? '저장 중…' : '저장'}</button>
         </div>

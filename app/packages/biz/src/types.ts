@@ -92,6 +92,10 @@ export interface Targets {
   months: number[];
 }
 
+/** 직접 입력할 수 있는 실적 기간 */
+export const ACTUAL_PERIODS = ['annual', 'quarter', 'month'] as const;
+export type ActualPeriod = (typeof ACTUAL_PERIODS)[number];
+
 export interface Summary {
   date: string;
   year: number;
@@ -103,6 +107,8 @@ export interface Summary {
   annualTarget: number;
   quarterTarget: number;
   monthTarget: number;
+  /** 직접 입력한 실적이 있으면 기간 → 계산값 */
+  edited?: Partial<Record<ActualPeriod, number>>;
 }
 
 export const REQUIRED_COLUMNS = ['구분', '영업대표', '영업코드', '사용고객', '계약사', '제품/서비스', '공급가', '영업진행사항', '계약일', '영업개시일', '최종영업확도'] as const;

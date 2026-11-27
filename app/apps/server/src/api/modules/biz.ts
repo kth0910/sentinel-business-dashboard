@@ -53,11 +53,11 @@ export const handlers = {
     const rows = (basis && store.snapshotRows(basis)) || [];
     const year = Number(date.slice(0, 4));
     const prevDate = store.prevSnapshotDate(date);
-    const changes = has ? store.changesFor(date) : [];
+    const changes = store.allChangesFor(date);
     return {
       date, basisDate: basis, prevDate, hasSnapshot: has, baseline: has && prevDate === null,
-      summary: summarize(rows, store.getTargets(year), date),
-      dayDelta: has ? store.dayDelta(date) : 0,
+      summary: store.applyActuals(summarize(rows, store.getTargets(year), date), date),
+      dayDelta: store.dayDelta(date),
       changes, categories: store.listCategories(), options: store.listOptions(rows),
       monthly: monthlyConfirmed(rows, year), monthTargets: store.getTargets(year).months,
       pipeline: openPipeline(rows),
@@ -99,6 +99,35 @@ export const handlers = {
     return { ok: true };
   },
 
+  /** 변동사항 행 직접 추가: 칸(fields)·구분(categoryId 또는 새 이름 categoryLabel)·증감액(delta) */
+  async bizAddChange(ctx: Ctx, body: { date?: unknown; fields?: unknown; categoryId?: unknown; categoryLabel?: unknown; delta?: unknown }) {
+    const uid = requireUser(ctx);
+    const date = dateArg(body.date);
+    const edit: store.SaleEdit = {
+      fields: body.fields && typeof body.fields === 'object' ? (body.fields as store.SaleEdit['fields']) : undefined,
+      categoryId: typeof body.categoryId === 'string' ? body.categoryId : undefined,
+      categoryLabel: typeof body.categoryLabel === 'string' ? body.categoryLabel : undefined,
+      delta: body.delta === undefined ? undefined : (body.delta as number | null),
+    };
+    return { key: badRequest(() => store.addManualChange(date, edit, uid)) };
+  },
+
+  /** 변동사항 행 지우기: 직접 적은 행은 지우고 받아온 변동은 숨긴다 */
+  async bizDeleteChange(ctx: Ctx, body: { date?: unknown; key?: unknown }) {
+    const uid = requireUser(ctx);
+    const date = dateArg(body.date);
+    badRequest(() => store.deleteChange(date, String(body.key ?? ''), uid));
+    return { ok: true };
+  },
+
+  /** 실적 직접 입력(period: annual·quarter·month). value null이면 그 날짜부터 계산값 */
+  async bizSetActual(ctx: Ctx, body: { date?: unknown; period?: unknown; value?: unknown }) {
+    requireUser(ctx);
+    const date = dateArg(body.date);
+    badRequest(() => store.setActual(date, String(body.period ?? '') as any, body.value === null ? null : (body.value as number)));
+    return { ok: true };
+  },
+
   async bizRemoveOption(ctx: Ctx, body: { field?: unknown; value?: unknown }) {
     requireUser(ctx);
     badRequest(() => store.removeOption(String(body.field ?? ''), String(body.value ?? '')));
@@ -115,7 +144,7 @@ export const handlers = {
       const date = `${body.month}-${String(i + 1).padStart(2, '0')}`;
       const hasSnapshot = snaps.has(date);
       return {
-        date, hasSnapshot, dayDelta: hasSnapshot ? store.dayDelta(date) : 0,
+        date, hasSnapshot, dayDelta: store.dayDelta(date),
         reportPageId: store.dailyPageId(date, 'report'), salesPageId: store.dailyPageId(date, 'sales'),
       };
     });
