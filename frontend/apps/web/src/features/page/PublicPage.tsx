@@ -136,7 +136,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
   // <head>: title, description, social preview, robots, favicon
   const page = pageId ? records.get<BlockRecord>('block', pageId) : undefined;
   const root = site?.rootId ? records.get<BlockRecord>('block', site.rootId) : undefined;
-  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || 'Untitled') : 'Litpage';
+  const docTitle = page ? (page.id === site?.rootId && settings?.title ? settings.title : pageTitle(page) || 'Untitled') : 'CoolNotion!';
   useEffect(() => {
     document.title = docTitle;
   });
@@ -180,7 +180,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
         <div className="nc-public-message">
           <div className="title">We couldn’t find this page</div>
           <div className="sub">The page may not be published, or the link may have expired.</div>
-          <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open Litpage')}</button>
+          <button className="nc-dialog-btn outline" onClick={() => navigate('/')}>{t('lp.page.open_litpage', 'Open CoolNotion!')}</button>
         </div>
       </div>
     );
@@ -278,7 +278,7 @@ export function PublicPage({ pageId: routeId }: { pageId: string }) {
           </button>
         )}
         {status !== 'ready' && header?.signup !== false && (
-          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get Litpage for free')}</button>
+          <button className="nc-dialog-btn outline small" onClick={() => navigate('/login')}>{t('lp.page.get_litpage_for_free', 'Get CoolNotion! for free')}</button>
         )}
       </div>
       <PageView pageId={pageId} state={state} inPeek publicView />

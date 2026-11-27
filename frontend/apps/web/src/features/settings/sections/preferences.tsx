@@ -111,16 +111,16 @@ export function PreferencesSection() {
     { value: 'last_visited', label: t('lp.settings.last_opened_page', 'Last opened page') },
     { value: 'top_page', label: t('lp.settings.first_sidebar_page', 'First sidebar page') },
     { value: 'library', label: t('lp.settings.library', 'Library') },
-    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'Litpage AI') },
+    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'CoolNotion! AI') },
   ];
 
   return (
-    <SectionPage title={t('lp.settings.preferences', 'Preferences')} subtitle={t('lp.settings.set_how_litpage_looks_and_works', 'Set how Litpage looks and works')}>
+    <SectionPage title={t('lp.settings.preferences', 'Preferences')} subtitle={t('lp.settings.set_how_litpage_looks_and_works', 'Set how CoolNotion! looks and works')}>
       <Group title={t('lp.settings.appearance', 'Appearance')}>
         <Row
           id="theme"
           label={t('lp.settings.theme', 'Theme')}
-          description={t('lp.settings.set_litpage_s_appearance_for_this', 'Set Litpage’s appearance for this device')}
+          description={t('lp.settings.set_litpage_s_appearance_for_this', 'Set CoolNotion!’s appearance for this device')}
           control={<Dropdown label="Theme" value={theme} options={themeOpts} onChange={(v) => savePreferredTheme(v)} />}
         />
         <Row
@@ -145,7 +145,7 @@ export function PreferencesSection() {
         <Row
           id="number-format"
           label={t('lp.settings.number_format', 'Number format')}
-          description={t('lp.settings.choose_number_and_currency_formats_by', 'Choose number and currency formats. By default, Litpage follows your language.')}
+          description={t('lp.settings.choose_number_and_currency_formats_by', 'Choose number and currency formats. By default, CoolNotion! follows your language.')}
           control={<Dropdown label="Number format" value={prefValue(prefs, 'number_format')} options={numberOpts} onChange={(v) => savePref('number_format', v)} />}
         />
         <Row
@@ -157,7 +157,7 @@ export function PreferencesSection() {
         <Row
           id="week-start"
           label={t('lp.settings.begin_weeks_on_monday', 'Begin weeks on Monday')}
-          description={t('lp.settings.this_changes_how_calendars_are_shown', 'This changes how calendars are shown in Litpage')}
+          description={t('lp.settings.this_changes_how_calendars_are_shown', 'This changes how calendars are shown in CoolNotion!')}
           control={<Switch label="Begin weeks on Monday" checked={prefValue(prefs, 'start_day_of_week') === 1} onChange={(v) => savePref('start_day_of_week', v ? 1 : 0)} />}
         />
         <Row
@@ -185,7 +185,7 @@ export function PreferencesSection() {
           id="desktop-links"
           label={t('lp.settings.use_the_desktop_app_for_links', 'Use the desktop app for links')}
           description={rich(
-            msg('lp.settings.open_litpage_links_in_the_desktop', 'Open Litpage links in the desktop app. This is automatic when the <desktopAppLink>{platform} app</desktopAppLink> is installed.'),
+            msg('lp.settings.open_litpage_links_in_the_desktop', 'Open CoolNotion! links in the desktop app. This is automatic when the <desktopAppLink>{platform} app</desktopAppLink> is installed.'),
             { platform: /Mac/.test(navigator.platform) ? 'macOS' : 'Windows' },
             { desktopAppLink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c },
           )}
@@ -195,7 +195,7 @@ export function PreferencesSection() {
           id="desktop-browser"
           label=""
           description={rich(
-            msg('lp.settings.to_use_your_browser_for_links', 'To use your browser for links instead, open the desktop app’s <bold>Settings</bold> and enable <bold>Open Litpage links in browser</bold>.'),
+            msg('lp.settings.to_use_your_browser_for_links', 'To use your browser for links instead, open the desktop app’s <bold>Settings</bold> and enable <bold>Open CoolNotion! links in browser</bold>.'),
             {},
             { bold: (c) => <strong>{c}</strong> },
           )}
@@ -204,7 +204,7 @@ export function PreferencesSection() {
         <Row
           id="start-page"
           label={t('lp.settings.open_at_startup', 'Open at startup')}
-          description={t('lp.settings.choose_the_page_that_opens_when', 'Choose the page that opens when Litpage starts or you change workspaces')}
+          description={t('lp.settings.choose_the_page_that_opens_when', 'Choose the page that opens when CoolNotion! starts or you change workspaces')}
           control={<Dropdown label="Launch on startup" value={prefValue(prefs, 'start_page')} options={startOpts} onChange={(v) => savePref('start_page', v)} />}
         />
       </Group>
@@ -234,7 +234,7 @@ export function PreferencesSection() {
         <Row
           id="discoverability"
           label={t('lp.settings.profile_discoverability', 'Profile discoverability')}
-          description={rich(msg('lp.settings.when_someone_who_knows_your_email', 'When someone who knows your email invites you to a workspace, they’ll see your Litpage name and profile photo. <inlinelink>Learn more</inlinelink>'), {}, {
+          description={rich(msg('lp.settings.when_someone_who_knows_your_email', 'When someone who knows your email invites you to a workspace, they’ll see your CoolNotion! name and profile photo. <inlinelink>Learn more</inlinelink>'), {}, {
             inlinelink: (c) => HELP_URL ? <a href={HELP_URL} target="_blank" rel="noreferrer">{c}</a> : c,
           })}
           control={<Switch label="Profile discoverability" checked={prefValue(prefs, 'profile_discoverable')} onChange={(v) => savePref('profile_discoverable', v)} />}

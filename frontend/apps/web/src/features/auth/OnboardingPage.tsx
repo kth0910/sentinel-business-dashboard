@@ -160,7 +160,7 @@ export function OnboardingPage() {
           <form className="nc-onb-card" noValidate onSubmit={(e) => { e.preventDefault(); void saveProfile(); }}>
             <div className="nc-auth-heading">
               <h1>{t('lp.auth.set_up_your_profile', 'Set up your profile')}</h1>
-              <h2>{t('lp.auth.this_is_the_name_and_photo', 'This is the name and photo people see in Litpage')}</h2>
+              <h2>{t('lp.auth.this_is_the_name_and_photo', 'This is the name and photo people see in CoolNotion!')}</h2>
             </div>
             <div className="nc-onb-avatar-wrap">
               <div
@@ -207,8 +207,8 @@ export function OnboardingPage() {
         {step === 'use' && (
           <div className="nc-onb-card wide">
             <div className="nc-auth-heading">
-              <h1>{t('lp.auth.how_will_you_use_litpage', 'How will you use Litpage?')}</h1>
-              <h2>{t('lp.auth.we_ll_use_this_to_tailor', 'We’ll use this to tailor Litpage for you')}</h2>
+              <h1>{t('lp.auth.how_will_you_use_litpage', 'How will you use CoolNotion!?')}</h1>
+              <h2>{t('lp.auth.we_ll_use_this_to_tailor', 'We’ll use this to tailor CoolNotion! for you')}</h2>
             </div>
             <div className="nc-onb-choices" role="radiogroup">
               {([

@@ -6,7 +6,7 @@ import { openPage } from '../../lib/router.ts';
 import { createSseParser } from './sse.ts';
 
 
-export const NO_KEY_MESSAGE = 'Connect an AI provider to use Litpage AI';
+export const NO_KEY_MESSAGE = 'Connect an AI provider to use CoolNotion! AI';
 
 export interface AiModelOption {
   id: string;
@@ -230,7 +230,7 @@ export async function streamAi(body: Record<string, unknown>, h: StreamHandlers,
     });
   } catch (e) {
     if (signal?.aborted) return { status: 'stopped', text: '' };
-    throw new AiRequestError(0, 'network', 'Couldn’t connect to Litpage AI. Check your connection.');
+    throw new AiRequestError(0, 'network', 'Couldn’t connect to CoolNotion! AI. Check your connection.');
   }
   if (!res.ok) {
     let j: any = {};
@@ -271,10 +271,10 @@ export async function streamAi(body: Record<string, unknown>, h: StreamHandlers,
     parser.end();
   } catch (e) {
     if (signal?.aborted) return { status: 'stopped', text };
-    return { status: 'error', text, error: { code: 'network', message: 'The connection to Litpage AI was interrupted.' } };
+    return { status: 'error', text, error: { code: 'network', message: 'The connection to CoolNotion! AI was interrupted.' } };
   }
   if (signal?.aborted && !done) return { status: 'stopped', text };
-  return done ?? { status: 'error', text, error: { code: 'network', message: 'Litpage AI ended before completing the task.' } };
+  return done ?? { status: 'error', text, error: { code: 'network', message: 'CoolNotion! AI ended before completing the task.' } };
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import ko from './i18n.ko-KR.json';
+import indexHtml from '../../../index.html?raw';
 
 // 소스 전체를 문자열로 읽는다(테스트 파일 제외). node 타입 없이 vite 로더만 쓴다.
 const sources = import.meta.glob(['../../**/*.{ts,tsx}', '!../../**/*.test.{ts,tsx}'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
@@ -25,5 +26,23 @@ describe('한국어 고정', () => {
     expect(keys.size).toBeGreaterThan(1000);
     const missing = [...keys].filter((k) => !(k in (ko as Record<string, string>)));
     expect(missing).toEqual([]);
+  });
+});
+
+describe('제품 이름 CoolNotion!', () => {
+  it('Korean catalog values never show Litpage', () => {
+    const bad = Object.entries(ko as Record<string, string>).filter(([, v]) => /litpage/i.test(v)).map(([k]) => k);
+    expect(bad).toEqual([]);
+  });
+
+  it('t() default messages never show Litpage', () => {
+    const bad = Object.entries(sources).flatMap(([f, text]) =>
+      [...text.matchAll(/\bt\(\s*'lp\.[^']+'\s*,\s*'((?:[^'\\]|\\.)*)'/g)].filter((m) => /litpage/i.test(m[1])).map((m) => `${f}: ${m[1]}`),
+    );
+    expect(bad).toEqual([]);
+  });
+
+  it('page title is CoolNotion!', () => {
+    expect(indexHtml).toMatch(/<title>CoolNotion!<\/title>/);
   });
 });

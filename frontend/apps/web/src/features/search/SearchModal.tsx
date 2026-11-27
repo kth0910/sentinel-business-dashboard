@@ -327,7 +327,7 @@ export function SearchModal() {
 
   return createPortal(
     <div className="nc-qf-layer" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
-      <div role="dialog" aria-label={t('lp.search.search_litpage', 'Search Litpage')} className="lit-dialog nc-qf-dialog" style={{ width: showPane ? 1006 : 600 }}>
+      <div role="dialog" aria-label={t('lp.search.search_litpage', 'Search CoolNotion!')} className="lit-dialog nc-qf-dialog" style={{ width: showPane ? 1006 : 600 }}>
         <div className="search-snapshot-container nc-qf-grid">
           <div className="nc-qf-header">
             <div className="nc-qf-input-wrap">
