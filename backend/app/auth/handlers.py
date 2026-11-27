@@ -71,34 +71,3 @@ async def sign_out(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
     await destroy_session(ctx.db, ctx.token)
     ctx.cookies.append(clear_session_cookie(ctx.secure))
     return {}
-
-
-def _entry(value: dict[str, Any]) -> dict[str, Any]:
-    return {"value": {"value": value, "role": "editor"}}
-
-
-@rpc("loadAccountData")
-async def load_account_data(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
-    if ctx.user_id is None:
-        raise UnauthorizedError("로그인이 필요합니다.")
-    user = await ctx.db.get(User, ctx.user_id)
-    if user is None:
-        raise UnauthorizedError("로그인이 필요합니다.")
-    uid = user.id
-    user_record = {
-        "id": uid,
-        "version": 1,
-        "email": user.email,
-        "name": user.name,
-        "onboarding_completed": False,
-        "created_time": int(user.created_at.timestamp() * 1000),
-    }
-    return {
-        "recordMap": {
-            "lit_user": {uid: _entry(user_record)},
-            "user_root": {uid: _entry({"id": uid, "version": 1, "space_views": []})},
-            "user_settings": {uid: _entry({"id": uid, "version": 1, "settings": {"locale": "ko-KR"}})},
-        },
-        "lsn": 0,
-        "demoMode": {"enabled": False},
-    }

@@ -36,7 +36,7 @@ async def test_sign_in_sets_cookie_and_loads_account(client, user):
     assert record["value"]["created_time"] == int(user.created_at.timestamp() * 1000)
     assert data["recordMap"]["user_root"][user.id]["value"]["value"]["space_views"] == []
     assert data["recordMap"]["user_settings"][user.id]["value"]["value"]["settings"]["locale"] == "ko-KR"
-    assert data["lsn"] == 0
+    assert isinstance(data["lsn"], int) and data["lsn"] > 0  # 사용자 레코드를 만들며 변경 기록이 생긴다
     assert data["demoMode"] == {"enabled": False}
 
 

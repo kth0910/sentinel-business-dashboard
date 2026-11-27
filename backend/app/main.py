@@ -5,6 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.auth.handlers  # noqa: F401  (RPC 처리 함수 등록)
+import app.records.handlers  # noqa: F401  (레코드 RPC 처리 함수 등록)
 from app.auth.providers import get_auth_provider
 from app.config import get_settings
 from app.db import get_db
