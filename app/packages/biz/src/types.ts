@@ -121,6 +121,11 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'unclassified', label: '미분류', position: 99, system: true },
 ];
 
+/** 클라우드 제품: 제품 이름에 '(cloud)'(대소문자 무관)가 있으면. 화면 태그용 */
+export function isCloudProduct(product: string | null | undefined): boolean {
+  return /\(cloud\)/i.test(product ?? '');
+}
+
 export function isMain(r: SalesRow): boolean {
   return r.division === MAIN_DIVISION;
 }

@@ -1,5 +1,5 @@
 // 업무 데이터 저장소(SQLite, litpage와 같은 DB 파일). 스냅샷·변동·구분·목표·날짜별 페이지.
-import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, MANAGED_OPTION_FIELDS, OPTION_FIELDS, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Targets } from '@nc/biz';
+import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, isCloudProduct, MANAGED_OPTION_FIELDS, OPTION_FIELDS, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Targets } from '@nc/biz';
 import { newId } from '@nc/shared/ids.ts';
 import { db, tx } from '../db.ts';
 
@@ -67,8 +67,14 @@ function applyValueMap(rows: SalesRow[]): SalesRow[] {
   });
 }
 
-/** 그 날짜 데이터(값 이름 바꾸기와 직접 수정한 값을 적용한 것). 원래 값은 row.edited에 남긴다. */
+/** 그 날짜 데이터(값 이름 바꾸기와 직접 수정한 값을 적용한 것). 원래 값은 row.edited에 남긴다.
+ *  클라우드 태그는 최종 제품 이름으로 다시 판단한다. */
 export function snapshotRows(date: string): SalesRow[] | null {
+  const rows = editedRows(date);
+  return rows && rows.map((r) => (r.isCloud === isCloudProduct(r.product) ? r : { ...r, isCloud: !r.isCloud }));
+}
+
+function editedRows(date: string): SalesRow[] | null {
   if (!hasSnapshot(date)) return null;
   const rows = applyValueMap((db.prepare('SELECT row_json FROM biz_snapshot WHERE date = ?').all(date) as { row_json: string }[]).map((r) => JSON.parse(r.row_json) as SalesRow));
   const ov = db.prepare('SELECT key, field, value_json FROM biz_override WHERE from_date <= ?').all(date) as { key: string; field: string; value_json: string }[];

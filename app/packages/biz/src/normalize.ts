@@ -1,5 +1,5 @@
 // 업무관리시스템 엑셀(첫 시트, 첫 행이 헤더)을 SalesRow[]로 바꾼다.
-import { REQUIRED_COLUMNS, type SalesRow } from './types.ts';
+import { isCloudProduct, REQUIRED_COLUMNS, type SalesRow } from './types.ts';
 
 export class SalesImportError extends Error {
   missing: string[];
@@ -53,7 +53,7 @@ export function normalizeRows(table: unknown[][]): { rows: SalesRow[]; warnings:
       contractDate: date(cell('계약일')),
       startDate: date(cell('영업개시일')),
       probability: text(cell('최종영업확도')),
-      isCloud: /\(cloud\)/i.test(product),
+      isCloud: isCloudProduct(product),
       weight: optText(raw, optCol.weight),
       revenueType: optText(raw, optCol.revenueType),
       revenueDate: optCol.revenueDate < 0 ? null : date(raw?.[optCol.revenueDate]),

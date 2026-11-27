@@ -88,6 +88,24 @@ describe('delete a value', () => {
   });
 });
 
+describe('클라우드 태그', () => {
+  it('follows the product name after direct edits and renames', () => {
+    store.importSnapshot('2026-11-27', [r({ key: '5::C', code: 5, product: '서비스 C(Cloud)', isCloud: true })]);
+    const c5 = () => rows('2026-11-27').find((x) => x.key === '5::C')!;
+    expect(c5().isCloud).toBe(true);
+    // 직접 고쳐 (Cloud)를 빼면 태그도 빠진다
+    store.setOverride('5::C', 'product', '서비스 C', '2026-11-27', 'u1');
+    expect(c5().isCloud).toBe(false);
+    store.clearOverride('5::C', 'product');
+    expect(c5().isCloud).toBe(true);
+    // 목록에서 이름을 바꿔도 같다
+    store.renameOption('product', '서비스 C(Cloud)', '서비스 C');
+    expect(c5().isCloud).toBe(false);
+    store.renameOption('product', '서비스 C', '서비스 C (cloud)');
+    expect(c5().isCloud).toBe(true);
+  });
+});
+
 describe('구분', () => {
   it('rename keeps the id; a duplicate name or 미분류 is refused', () => {
     store.saveCategory({ id: 'raise', label: '목표 상향' });
