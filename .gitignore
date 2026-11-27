@@ -1,0 +1,49 @@
+# 업무관리시스템 엑셀과 실행 데이터는 저장소에 올리지 않음
+*.xlsx
+*.xls
+app/data/
+app/apps/server/data/
+
+# 빌드·의존성
+node_modules/
+app/apps/web/dist/
+dist/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# 테스트·실행 결과물 (코드와 문서가 아닌 임시 파일은 커밋하지 않음)
+coverage/
+test-results/
+playwright-report/
+.vite/
+*.tsbuildinfo
+*.log
+*.tmp
+*.bak
+tmp/
+temp/
+
+# 운영체제·편집기
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# 환경 변수·비밀 값
+.env
+.env.*
+!.env.example
+
+# 디자인 검사기(impeccable) 설정·캐시
+.impeccable/
