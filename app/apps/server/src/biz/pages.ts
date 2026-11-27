@@ -23,7 +23,7 @@ interface Spec { type: BlockType; title?: string; format?: Record<string, unknow
 function reportTemplate(): Spec[] {
   return [
     { type: 'header', title: '인사 관리' },
-    { type: 'biz_hiring', format: { biz: { sites: '', rows: DEFAULT_HIRING_ROLES.map((role) => ({ id: newId(), role, status: '해당자 없음', note: '' })), applicants: null } } },
+    { type: 'biz_hiring', format: { biz: { sites: '', rows: DEFAULT_HIRING_ROLES.map((role) => ({ id: newId(), role, status: 0, note: '' })), applicants: 0 } } },
     { type: 'header', title: '주요 보고' },
     { type: 'numbered_list' },
     { type: 'header', title: '당일 일정' },

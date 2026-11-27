@@ -11,7 +11,7 @@ import { cachedCustomBlocks, deleteCustomBlock, insertCustomBlock, renameCustomB
 
 for (const id of HIDDEN_SLASH_IDS) hideSlashItemWhen(id, () => true);
 
-const defaultHiring = () => ({ sites: '', rows: ['전략기획실', '엔지니어', '경리 및 총무', '경영지원', '병역일터'].map((role) => ({ id: newId(), role, status: '해당자 없음', note: '' })), applicants: null });
+const defaultHiring = () => ({ sites: '', rows: ['전략기획실', '엔지니어', '경리 및 총무', '경영지원', '병역일터'].map((role) => ({ id: newId(), role, status: 0, note: '' })), applicants: 0 });
 
 /** 지금 보고 있는 페이지가 날짜별 업무 페이지면 그 날짜, 아니면 오늘. */
 async function currentDate(): Promise<string> {

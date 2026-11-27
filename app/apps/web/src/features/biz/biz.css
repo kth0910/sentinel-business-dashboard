@@ -163,6 +163,8 @@
 .biz-row > .biz-input { flex: 1; }
 .biz-push { margin-left: auto; }
 .biz-narrow { width: 80px; flex: none !important; }
+/* 채용 현황 지원자 합계(현황을 더한 값, 직접 입력 불가) */
+.biz-applicants { min-width: 40px; padding: 0 6px; text-align: right; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .biz-time { width: 96px; flex: none; }
 .biz-time.h24 { width: 64px; }
 .biz-seg { display: inline-flex; border: 1px solid var(--lp-border-primary, #e5e7eb); border-radius: 6px; overflow: hidden; }

@@ -50,7 +50,7 @@ describe('ensureDailyPage', () => {
   it('next day copies previous report and skips gaps', () => {
     const first = pages.ensureDailyPage(uid, spaceId, '2026-11-20', 'report');
     const hiring = children(first).find((b) => b.type === 'biz_hiring')!;
-    db.putRecord('block', { ...hiring, version: hiring.version + 1, format: { biz: { sites: '사람인', rows: [{ role: '경영지원', status: '해당자 3명', note: '' }], applicants: 14 } } } as any);
+    db.putRecord('block', { ...hiring, version: hiring.version + 1, format: { biz: { sites: '사람인', rows: [{ role: '경영지원', status: 3, note: '전화면접 예정' }, { role: '엔지니어', status: 11, note: '' }], applicants: 14 } } } as any);
     const next = pages.ensureDailyPage(uid, spaceId, '2026-11-23', 'report');
     expect(next).not.toBe(first);
     expect(title(next)).toBe('업무보고 2026-11-23(월)');
