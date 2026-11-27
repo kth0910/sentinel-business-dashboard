@@ -6,7 +6,7 @@
 
 **Architecture:** 저장소를 `frontend/`(litpage 화면·공유 로직, pnpm)와 `backend/`(FastAPI, uv)로 나눈다. 서버는 litpage 화면 규격 그대로 `POST /api/rpc/{name}` 하나로 모든 호출을 받고 이름별 처리 함수를 등록한다. 로그인 확인은 "인증 공급자" 인터페이스 뒤에 두어, 지금은 로컬 비밀번호(샘플 계정)로, 나중에는 사내 메일 시스템 인증으로 공급자만 바꿔 끼운다. 로그인 상태는 `lit_session` HttpOnly 쿠키, 데이터는 PostgreSQL에 둔다.
 
-**Tech Stack:** Python 3.13(uv 관리), FastAPI, uvicorn, SQLAlchemy 2.0(async) + psycopg 3, Alembic, argon2-cffi, pydantic-settings, pytest + httpx · Node.js 26, pnpm 10, React + Vite, vitest(litpage `f55fead`) · PostgreSQL 17
+**Tech Stack:** Python 3.15(시스템 설치본 `C:\Python315`, uv로 의존성 관리), FastAPI, uvicorn, SQLAlchemy 2.0(async) + psycopg 3(순수 Python 모드 + PostgreSQL 설치본의 libpq), Alembic, argon2-cffi, pydantic-settings, pytest + httpx · Node.js 26, pnpm 10, React + Vite, vitest(litpage `f55fead`) · PostgreSQL 17
 
 **Spec:** `docs/superpowers/specs/2026-11-25-daily-report-dashboard-design.md` (0장의 2026-11-27 변경 사항이 우선)
 
@@ -23,6 +23,7 @@
 - **제품 이름:** 사용자에게 보이는 "Litpage"는 모두 **`CoolNotion!`**(느낌표 포함)으로 바꾼다(한국어 카탈로그 값, `t()` 기본 문구, `<title>`, 대체 텍스트 등). i18n 키·CSS 클래스·저장소 키·패키지 이름 같은 내부 식별자는 바꾸지 않는다. litpage 저작권 고지(`frontend/LICENSE`, `frontend/THIRD_PARTY_NOTICES.md`)는 MIT 조건이라 원래 이름 그대로 둔다.
 - **업무관리시스템 엑셀 기능, 캘린더 첫 화면, 업무 전용 블록은 만들지 않는다.** 목표는 바닐라 노션과 같은 워크스페이스다.
 - **코드와 문서가 아닌 임시 파일은 절대 커밋하지 않는다**(pytest 캐시, 커버리지, 빌드 결과, 로그, 실행 데이터, 내려받은 원본 포함). 커밋은 경로를 하나씩 지정하고(`git add -A`, `git add .` 금지), 커밋 전에 `git status`로 확인한다.
+- **Python 실행 환경(이 PC):** 애플리케이션 제어 정책이 서명되지 않은 DLL을 막는다. uv가 내려받는 Python과 `psycopg[binary]`의 libpq는 실행되지 않는다. 따라서 서명된 시스템 Python 3.15(`C:\Python315\python.exe`)를 쓰고(`pyproject.toml`에 `[tool.uv] python-preference = "only-system"`), psycopg는 `[binary]` 없이 설치해 PostgreSQL 설치본의 libpq(`C:\Program Files\PostgreSQL\17\bin`)를 쓴다. 설정 `LIBPQ_DIR`이 있으면 앱이 psycopg를 불러오기 전에 그 경로를 `PATH` 앞에 붙인다. Windows에서 psycopg 비동기는 SelectorEventLoop가 필요하며, Python 3.15에서 폐기 예정인 이벤트 루프 정책 API는 쓰지 않는다(테스트 출력에 경고가 없어야 함).
 - 개발 서버 포트: API `8000`, 화면 `5173`. 빌드(`pnpm build`) 없이 개발 모드로 실행한다.
 
 ## Review Focus
@@ -122,12 +123,12 @@ git commit -m "chore: 개발용 환경 변수 예시 추가"
 ### Task 3: FastAPI 뼈대와 DB 연결 확인
 
 **Files:**
-- Create: `backend/pyproject.toml`, `backend/.python-version`(`3.13`), `backend/app/__init__.py`, `backend/app/config.py`, `backend/app/db.py`, `backend/app/main.py`
+- Create: `backend/pyproject.toml`, `backend/.python-version`(`3.15`), `backend/app/__init__.py`, `backend/app/config.py`, `backend/app/db.py`, `backend/app/main.py`
 - Test: `backend/tests/conftest.py`, `backend/tests/test_health.py`
 
 **Interfaces:**
 - Produces:
-  - `app.config.Settings` (pydantic-settings, `backend/.env` 읽음): `app_env: Literal["development", "production"] = "development"`, `database_url: str`, `test_database_url: str`, `cookie_secure: bool = False`, `session_days: int = 30`, `auth_provider: str = "local"`, `sample_user_password: str | None = None`; `get_settings() -> Settings`(lru_cache)
+  - `app.config.Settings` (pydantic-settings, `backend/.env` 읽음): `app_env: Literal["development", "production"] = "development"`, `libpq_dir: str | None = None`, `database_url: str`, `test_database_url: str`, `cookie_secure: bool = False`, `session_days: int = 30`, `auth_provider: str = "local"`, `sample_user_password: str | None = None`; `get_settings() -> Settings`(lru_cache)
   - `app.db.Base`(DeclarativeBase), `make_engine(url: str) -> AsyncEngine`, `app.db.SessionLocal: async_sessionmaker[AsyncSession]`, 의존성 `get_db() -> AsyncIterator[AsyncSession]`
   - `app.main.create_app() -> FastAPI`, 모듈 수준 `app = create_app()`
   - 테스트 픽스처(`conftest.py`): `db`(테스트 DB `AsyncSession`, 테스트마다 모든 테이블 비움), `client`(`httpx.AsyncClient`, `ASGITransport(app)`, base_url `http://test`, `get_db`를 테스트 세션으로 교체)
@@ -135,8 +136,8 @@ git commit -m "chore: 개발용 환경 변수 예시 추가"
 - [ ] **Step 1: uv 프로젝트 생성과 의존성 추가**
 
 ```powershell
-cd backend; uv init --app --name sentinel-backend --python 3.13
-uv add fastapi "uvicorn[standard]" "sqlalchemy[asyncio]>=2.0" "psycopg[binary]>=3.2" alembic argon2-cffi pydantic-settings
+cd backend; uv init --app --name sentinel-backend --python C:\Python315\python.exe
+uv add fastapi "uvicorn[standard]" "sqlalchemy[asyncio]>=2.0" "psycopg>=3.2" alembic argon2-cffi pydantic-settings
 uv add --dev pytest pytest-asyncio httpx
 ```
 `pyproject.toml`에 `[tool.pytest.ini_options] asyncio_mode = "auto"`, `testpaths = ["tests"]`. `uv.lock`은 커밋 대상(의존성 고정 파일), `.venv`·`.pytest_cache`는 무시됨을 `git status`로 확인한다.
