@@ -114,21 +114,21 @@ export function CalendarPage() {
             })}
             {trail.map((n) => <div key={`trail-${n}`} className="biz-cal-cell other" aria-hidden="true"><span className="biz-cal-num">{n}</span></div>)}
           </div>
-        </div>
 
-        <section className="biz-cal-day" aria-label="선택한 날짜">
-          <h2>{Number(selected.slice(5, 7))}월 {Number(selected.slice(8))}일 ({WEEKDAYS[new Date(`${selected}T00:00:00`).getDay()]})</h2>
-          <div className="biz-cal-actions">
-            <button type="button" disabled={busy !== null} onClick={() => open('report')}>
-              <b>일일 업무보고</b>
-              <span>{day?.reportPageId ? '작성됨' : '새로 작성'}</span>
-            </button>
-            <button type="button" disabled={busy !== null} onClick={() => open('sales')}>
-              <b>본영업 목표매출 관리 현황</b>
-              <span>{day?.hasSnapshot ? `매출 반영 · 증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : day?.dayDelta ? `증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : '매출 미반영'}</span>
-            </button>
-          </div>
-        </section>
+          <section className="biz-cal-day" aria-label="선택한 날짜">
+            <h2>{Number(selected.slice(5, 7))}월 {Number(selected.slice(8))}일 ({WEEKDAYS[new Date(`${selected}T00:00:00`).getDay()]})</h2>
+            <div className="biz-cal-actions">
+              <button type="button" disabled={busy !== null} onClick={() => open('report')}>
+                <b>일일 업무보고</b>
+                <span>{day?.reportPageId ? '작성됨' : '새로 작성'}</span>
+              </button>
+              <button type="button" disabled={busy !== null} onClick={() => open('sales')}>
+                <b>본영업 목표매출 관리 현황</b>
+                <span>{day?.hasSnapshot ? `매출 반영 · 증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : day?.dayDelta ? `증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : '매출 미반영'}</span>
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );

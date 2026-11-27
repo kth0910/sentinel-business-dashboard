@@ -101,9 +101,10 @@
 .biz-cal-marks { display: flex; justify-content: center; height: 8px; }
 .biz-cal-marks .biz-dot:last-child { margin-right: 0; }
 .biz-cal-cell .biz-delta { min-height: 13px; font-size: 12px; font-weight: 600; line-height: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.biz-cal-day { border: 1px solid var(--biz-line); border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
-.biz-cal-day h2 { margin: 0; font-size: 16px; font-weight: 700; }
-.biz-cal-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+/* 선택한 날짜: 달력 카드 맨 아래, 구분선 아래 한 줄(날짜 + 버튼 두 개) */
+.biz-cal-day { flex: none; margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--biz-line); display: flex; align-items: center; gap: 20px; }
+.biz-cal-day h2 { flex: none; margin: 0 0 0 8px; font-size: 16px; font-weight: 700; color: var(--biz-cal-ink); }
+.biz-cal-actions { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .biz-cal-actions button {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 14px; border-radius: 8px;
   border: 1px solid var(--biz-line); background: var(--biz-soft); color: inherit; font: inherit; text-align: left; cursor: pointer;
@@ -114,6 +115,8 @@
 .biz-cal-actions span { font-size: 13px; color: var(--lp-text-secondary); }
 @media (max-width: 640px) {
   .biz-cal { padding: 16px 12px 24px; }
+  .biz-cal-day { flex-direction: column; align-items: stretch; gap: 10px; }
+  .biz-cal-day h2 { margin-left: 4px; }
   .biz-cal-actions { grid-template-columns: 1fr; }
   .biz-cal-card { padding: 20px 6px 14px; border-radius: 16px; }
   .biz-cal-title { gap: 8px; }
