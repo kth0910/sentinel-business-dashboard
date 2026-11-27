@@ -15,7 +15,7 @@ import { Icon } from '../../../components/Icon.tsx';
 import { getBlock, run, setFormat, setProperty } from '../../../lib/blocks.ts';
 import { useEditor } from '../editorState.ts';
 import { openBlockMenu } from '../BlockMenu.tsx';
-import { CODE_LANGUAGES } from './codeLanguages.ts';
+import { CODE_LANGUAGES, languageLabel } from './codeLanguages.ts';
 import { highlightCode } from './codeHighlight.ts';
 import { renderMermaid, svgToJpeg } from './mermaid.ts';
 import { registerBlockMenu } from './registry.ts';
@@ -38,7 +38,7 @@ export function openLanguagePicker(blockIds: string[], anchor: HTMLElement | DOM
   const current = b ? languageOf(b) : '';
   return openMenu(anchor as any, {
     search: 'Find a language…', width: 240, maxHeight: '50vh',
-    sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: l, checked: l === current, onSelect: () => setLanguage(blockIds, l) })) }],
+    sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: languageLabel(l), checked: l === current, onSelect: () => setLanguage(blockIds, l) })) }],
   }, { placement, offset: 8 });
 }
 
@@ -67,7 +67,7 @@ export function formatCode(blockId: string) {
     out = null;
   }
   if (out == null) {
-    toast(lang === 'json' ? 'Could not format: invalid JSON' : `Format code isn’t available for ${languageOf(b)}`);
+    toast(lang === 'json' ? 'Could not format: invalid JSON' : `Format code isn’t available for ${languageLabel(languageOf(b))}`);
     return;
   }
   if (out !== text) run('formatCode', (tx) => setProperty(tx, blockId, 'title', out ? [[out]] : []));
@@ -163,7 +163,7 @@ function CodeBlock({ block, readOnly }: BlockProps) {
         {!readOnly && (
           <ActionBar className="nc-code-actionbar">
             <div ref={langRef} role="button" tabIndex={0} aria-label="Choose a language" className="nc-blk-action with-text nc-code-lang-btn" onMouseDown={(e) => e.preventDefault()} onClick={() => langRef.current && openLanguagePicker([block.id], langRef.current)}>
-              {language}
+              {languageLabel(language)}
               <Icon name="chevronDown" size={12} />
             </div>
             <ActionDivider />
@@ -255,7 +255,7 @@ registerBlockMenu(['code'], ({ ids, block, turnInto }) => {
       label: 'Language', icon: 'curlyBraces',
       submenu: () => ({
         search: 'Find a language…', width: 240, maxHeight: '50vh',
-        sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: l, checked: l === languageOf(block), onSelect: () => setLanguage(ids, l) })) }],
+        sections: [{ items: CODE_LANGUAGES.map((l) => ({ label: languageLabel(l), checked: l === languageOf(block), onSelect: () => setLanguage(ids, l) })) }],
       }),
     },
     { label: 'Format code', icon: 'lightning', onSelect: () => formatCode(block.id) },

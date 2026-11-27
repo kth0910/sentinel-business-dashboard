@@ -38,7 +38,6 @@ export function settingsIndex(): SettingsHit[] {
     { section: 'preferences', id: 'theme', label: t('lp.settings.theme', 'Theme'), keywords: ['dark mode', 'light', 'appearance'] },
     { section: 'preferences', id: 'contrast', label: t('lp.settings.high_contrast', 'High contrast'), description: t('lp.settings.boost_contrast_for_easier_reading', 'Boost contrast for easier reading') },
     { section: 'preferences', id: 'enter', label: t('lp.settings.enter_key_inserts_a_line_break', 'Enter key inserts a line break') },
-    { section: 'preferences', id: 'language', label: t('lp.settings.language', 'Language') },
     { section: 'preferences', id: 'number-format', label: t('lp.settings.number_format', 'Number format') },
     { section: 'preferences', id: 'text-direction', label: t('lp.settings.keep_text_direction_controls_visible', 'Keep text direction controls visible'), keywords: ['rtl', 'right-to-left text'] },
     { section: 'preferences', id: 'week-start', label: t('lp.settings.begin_weeks_on_monday', 'Begin weeks on Monday'), keywords: ['calendar'] },
