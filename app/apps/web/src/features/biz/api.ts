@@ -1,15 +1,16 @@
 // 업무 화면 RPC 래퍼. 응답 타입은 apps/server/src/api/modules/biz.ts와 같다.
-import type { Category, Change, SalesRow, Summary, Targets } from '@nc/biz';
+import type { Category, Change, OptionField, OptionItem, SalesRow, Summary, Targets } from '@nc/biz';
 import { api } from '../../lib/api.ts';
 
 export type DailyKind = 'report' | 'sales';
-export type StoredChange = Change & { categoryId: string; manual: boolean };
+/** delta는 실제로 쓰는 값. 직접 넣었으면 autoDelta에 계산값이 있다. */
+export type StoredChange = Change & { categoryId: string; manual: boolean; autoDelta?: number };
 
 export interface CalendarDay { date: string; hasSnapshot: boolean; dayDelta: number; reportPageId: string | null; salesPageId: string | null }
 
 export interface SalesView {
   date: string; basisDate: string | null; prevDate: string | null; hasSnapshot: boolean; baseline: boolean;
-  summary: Summary; dayDelta: number; changes: StoredChange[]; categories: Category[];
+  summary: Summary; dayDelta: number; changes: StoredChange[]; categories: Category[]; options: Record<OptionField, OptionItem[]>;
   monthly: number[]; monthTargets: number[]; pipeline: SalesRow[];
 }
 
@@ -21,7 +22,7 @@ export const biz = {
   categories: () => api<{ categories: Category[] }>('bizCategories', {}),
   saveCategory: (c: { id?: string; label: string }) => api<{ category: Category; categories: Category[] }>('bizSaveCategory', c),
   deleteCategory: (id: string) => api<{ categories: Category[] }>('bizDeleteCategory', { id }),
-  setChangeCategory: (date: string, key: string, categoryId: string) => api<{ ok: true }>('bizSetChangeCategory', { date, key, categoryId }),
+  removeOption: (field: string, value: string) => api<{ ok: true }>('bizRemoveOption', { field, value }),
   getTargets: (year: number) => api<{ targets: Targets }>('bizGetTargets', { year }),
   setTargets: (t: Targets) => api<{ targets: Targets }>('bizSetTargets', t),
 };

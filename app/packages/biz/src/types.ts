@@ -44,6 +44,11 @@ export const EDITABLE_FIELDS = {
 } as const;
 export type EditableField = keyof typeof EDITABLE_FIELDS;
 
+/** 고를 값 목록이 있는 칸(데이터에 있는 값 + 사람이 추가한 값). 새 값을 넣으면 목록에 들어간다. */
+export const OPTION_FIELDS = ['product', 'probability', 'weight', 'revenueType', 'progress'] as const;
+export type OptionField = (typeof OPTION_FIELDS)[number];
+export interface OptionItem { value: string; /** 사람이 추가했고 지금 데이터에 없는 값만 목록에서 지울 수 있다 */ removable: boolean }
+
 export type ChangeKind = 'new' | 'confirm' | 'exclude' | 'raise' | 'advance' | 'unclassified';
 
 export interface FieldDiff {

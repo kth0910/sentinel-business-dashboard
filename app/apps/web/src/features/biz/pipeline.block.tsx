@@ -1,11 +1,12 @@
-// 진행 중 영업 건 블록 (biz_pipeline): 본 영업 중 진행사항 '진행'·'장기관리', 영업개시일 최신순.
+// 진행 중 영업 건 블록 (biz_pipeline): 본 영업 중 진행사항 '진행'·'장기관리', 영업개시일 최신순. 행을 누르면 수정 창.
 import { useState } from 'react';
 import { registerBlock, type BlockProps } from '../editor/Block.tsx';
 import { isolate } from './fields.tsx';
 import { blockDate, shortDate, useSalesView } from './sales.ts';
+import type { SalesView } from './api.ts';
 import type { SalesRow } from '@nc/biz';
 import { BizBlock, BizTable, FilterNote, useFilteredRows, type ColDef } from './table.tsx';
-import { EditCell } from './editCell.tsx';
+import { amountText, openRowProps, openSaleEditor, rowSpec, Shown } from './editDialog.tsx';
 import './biz.css';
 
 const PAGE = 50;
@@ -19,6 +20,22 @@ const COLS: ColDef[] = [
   { key: 'rep', label: '영업대표', width: 90, value: (r: SalesRow) => r.rep },
   { key: 'startDate', label: '영업개시일', width: 110, value: (r: SalesRow) => r.startDate },
 ];
+
+function openEditor(date: string, r: SalesRow, data: SalesView) {
+  const o = data.options;
+  openSaleEditor({
+    title: '영업 건 수정', subtitle: `${r.customer} · ${r.product}`, date, saleKey: r.key, categories: data.categories,
+    specs: [
+      rowSpec(r, 'customer', '고객', 'text', o),
+      rowSpec(r, 'product', '제품', 'option', o),
+      rowSpec(r, 'amount', '공급가', 'number', o),
+      rowSpec(r, 'probability', '확도', 'option', o),
+      rowSpec(r, 'progress', '진행사항', 'option', o),
+      rowSpec(r, 'rep', '영업대표', 'text', o),
+      rowSpec(r, 'startDate', '영업개시일', 'date', o),
+    ],
+  });
+}
 
 function PipelineBlock({ block, readOnly }: BlockProps) {
   const date = blockDate(block.format);
@@ -39,17 +56,17 @@ function PipelineBlock({ block, readOnly }: BlockProps) {
         </span>
       </div>
       {data && all.length === 0 && <p className="biz-note">진행 중인 건이 없습니다.</p>}
-      {all.length > 0 && (
+      {data && all.length > 0 && (
         <BizTable block={block} cols={COLS} readOnly={readOnly} filterRows={all}>
               {rows.slice(0, shown).map((r) => (
-                <tr key={r.key}>
-                  <td className="wrap"><EditCell date={date} row={r} field="customer" readOnly={readOnly} /></td>
-                  <td className="wrap"><EditCell date={date} row={r} field="product" readOnly={readOnly}>{r.product}{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</EditCell></td>
-                  <td className="num"><EditCell date={date} row={r} field="amount" readOnly={readOnly} fmt={(v) => Number(v ?? 0).toLocaleString('ko-KR')} /></td>
-                  <td><EditCell date={date} row={r} field="probability" readOnly={readOnly} /></td>
-                  <td><EditCell date={date} row={r} field="progress" readOnly={readOnly} /></td>
-                  <td><EditCell date={date} row={r} field="rep" readOnly={readOnly} /></td>
-                  <td><EditCell date={date} row={r} field="startDate" readOnly={readOnly} /></td>
+                <tr key={r.key} {...openRowProps(readOnly, () => openEditor(date, r, data))}>
+                  <td className="wrap"><Shown row={r} field="customer" /></td>
+                  <td className="wrap"><Shown row={r} field="product" />{r.isCloud && <span className="biz-tag auto biz-ml">클라우드</span>}</td>
+                  <td className="num"><Shown row={r} field="amount" fmt={amountText} /></td>
+                  <td><Shown row={r} field="probability" /></td>
+                  <td><Shown row={r} field="progress" /></td>
+                  <td><Shown row={r} field="rep" /></td>
+                  <td><Shown row={r} field="startDate" /></td>
                 </tr>
               ))}
         </BizTable>

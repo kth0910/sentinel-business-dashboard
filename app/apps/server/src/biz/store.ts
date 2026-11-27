@@ -1,5 +1,5 @@
 // 업무 데이터 저장소(SQLite, litpage와 같은 DB 파일). 스냅샷·변동·구분·목표·날짜별 페이지.
-import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, type Category, type Change, type ChangeKind, type EditableField, type SalesRow, type Targets } from '@nc/biz';
+import { DEFAULT_CATEGORIES, diffSnapshots, EDITABLE_FIELDS, emptyTargets, OPTION_FIELDS, type Category, type Change, type ChangeKind, type EditableField, type OptionField, type OptionItem, type SalesRow, type Targets } from '@nc/biz';
 import { newId } from '@nc/shared/ids.ts';
 import { db, tx } from '../db.ts';
 
@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS biz_override (
   key TEXT NOT NULL, field TEXT NOT NULL, value_json TEXT NOT NULL, from_date TEXT NOT NULL,
   edited_by TEXT, edited_time INTEGER NOT NULL, PRIMARY KEY (key, field)
 );
+CREATE TABLE IF NOT EXISTS biz_delta_edit (date TEXT NOT NULL, key TEXT NOT NULL, delta INTEGER NOT NULL, edited_by TEXT, edited_time INTEGER NOT NULL, PRIMARY KEY (date, key));
+CREATE TABLE IF NOT EXISTS biz_option (field TEXT NOT NULL, value TEXT NOT NULL, added_time INTEGER NOT NULL, PRIMARY KEY (field, value));
 `);
 
 if (!(db.prepare('SELECT COUNT(*) AS n FROM biz_category').get() as { n: number }).n) {
@@ -27,7 +29,8 @@ if (!(db.prepare('SELECT COUNT(*) AS n FROM biz_category').get() as { n: number 
 
 const KIND_CATEGORY: Record<ChangeKind, string> = { new: 'new', confirm: 'confirm', exclude: 'exclude', raise: 'raise', advance: 'advance', unclassified: 'unclassified' };
 
-export type StoredChange = Change & { categoryId: string; manual: boolean };
+/** delta는 실제로 쓰는 값(직접 넣었으면 그 값). 직접 넣었을 때만 autoDelta에 계산값이 있다. */
+export type StoredChange = Change & { categoryId: string; manual: boolean; autoDelta?: number };
 
 export function hasSnapshot(date: string): boolean {
   return !!db.prepare('SELECT 1 FROM biz_snapshot_day WHERE date = ?').get(date);
@@ -93,24 +96,110 @@ function recomputeFrom(fromDate: string) {
   for (const d of (db.prepare('SELECT date FROM biz_snapshot_day WHERE date >= ? ORDER BY date').all(first) as { date: string }[])) recompute(d.date);
 }
 
+/** 수정값 하나를 쓰고, 다시 계산을 시작할 날짜를 돌려준다(이전 수정이 더 이른 날짜부터였으면 그 날짜). */
+function writeOverride(key: string, field: string, v: string | number | null, fromDate: string, uid: string | null): string {
+  const old = db.prepare('SELECT from_date FROM biz_override WHERE key = ? AND field = ?').get(key, field) as { from_date: string } | undefined;
+  db.prepare(`INSERT INTO biz_override (key, field, value_json, from_date, edited_by, edited_time) VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT(key, field) DO UPDATE SET value_json = excluded.value_json, from_date = excluded.from_date, edited_by = excluded.edited_by, edited_time = excluded.edited_time`)
+    .run(key, field, JSON.stringify(v), fromDate, uid, Date.now());
+  if (typeof v === 'string' && v && (OPTION_FIELDS as readonly string[]).includes(field)) addOption(field as OptionField, v);
+  return old && old.from_date < fromDate ? old.from_date : fromDate;
+}
+
+function deleteOverride(key: string, field: string): string | null {
+  const old = db.prepare('SELECT from_date FROM biz_override WHERE key = ? AND field = ?').get(key, field) as { from_date: string } | undefined;
+  if (!old) return null;
+  db.prepare('DELETE FROM biz_override WHERE key = ? AND field = ?').run(key, field);
+  return old.from_date;
+}
+
 export function setOverride(key: string, field: EditableField | string, value: unknown, fromDate: string, uid: string | null): void {
   const v = checkOverride(field, value);
-  tx(() => {
-    const old = db.prepare('SELECT from_date FROM biz_override WHERE key = ? AND field = ?').get(key, field) as { from_date: string } | undefined;
-    db.prepare(`INSERT INTO biz_override (key, field, value_json, from_date, edited_by, edited_time) VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT(key, field) DO UPDATE SET value_json = excluded.value_json, from_date = excluded.from_date, edited_by = excluded.edited_by, edited_time = excluded.edited_time`)
-      .run(key, field, JSON.stringify(v), fromDate, uid, Date.now());
-    recomputeFrom(old && old.from_date < fromDate ? old.from_date : fromDate);
-  });
+  tx(() => recomputeFrom(writeOverride(key, field, v, fromDate, uid)));
 }
 
 export function clearOverride(key: string, field: string): void {
   tx(() => {
-    const old = db.prepare('SELECT from_date FROM biz_override WHERE key = ? AND field = ?').get(key, field) as { from_date: string } | undefined;
-    if (!old) return;
-    db.prepare('DELETE FROM biz_override WHERE key = ? AND field = ?').run(key, field);
-    recomputeFrom(old.from_date);
+    const from = deleteOverride(key, field);
+    if (from) recomputeFrom(from);
   });
+}
+
+export interface SaleEdit {
+  /** 칸 → 새 값(null이면 받아온 값으로) */
+  fields?: Partial<Record<EditableField, string | number | null>>;
+  /** 있는 구분 id */
+  categoryId?: string;
+  /** 새 구분 이름(같은 이름이 있으면 그 구분) */
+  categoryLabel?: string;
+  /** 직접 넣는 증감액(null이면 계산값으로) */
+  delta?: number | null;
+}
+
+/** 수정 창 저장: 칸 여러 개·구분·증감액을 한 번에(하나라도 잘못되면 아무것도 바꾸지 않는다). */
+export function editSale(date: string, key: string, edit: SaleEdit, uid: string | null): void {
+  const fields = Object.entries(edit.fields ?? {}).map(([f, v]) => {
+    if (!(f in EDITABLE_FIELDS)) throw new Error('고칠 수 없는 칸입니다');
+    return [f, v === null ? null : checkOverride(f, v)] as const;
+  });
+  let delta: number | null | undefined = edit.delta;
+  if (delta !== undefined && delta !== null) {
+    const n = typeof delta === 'number' ? delta : Number(String(delta).replace(/[,원\s]/g, ''));
+    if (!Number.isFinite(n)) throw new Error('증감액은 숫자로 넣으세요');
+    delta = Math.round(n);
+  }
+  tx(() => {
+    if (fields.length) {
+      if (!(snapshotRows(date) ?? []).some((r) => r.key === key)) throw new Error('이 날짜 데이터에 없는 건이라 값을 고칠 수 없습니다');
+      let from: string | null = null;
+      for (const [f, v] of fields) {
+        const d = v === null ? deleteOverride(key, f) : writeOverride(key, f, v, date, uid);
+        if (d && (!from || d < from)) from = d;
+      }
+      if (from) recomputeFrom(from);
+    }
+    if (edit.categoryLabel !== undefined) {
+      const label = edit.categoryLabel.trim();
+      const found = listCategories().find((c) => c.label === label);
+      setChangeCategory(date, key, found ? found.id : saveCategory({ label }).id);
+    } else if (edit.categoryId !== undefined) {
+      setChangeCategory(date, key, edit.categoryId);
+    }
+    if (delta === null) db.prepare('DELETE FROM biz_delta_edit WHERE date = ? AND key = ?').run(date, key);
+    else if (delta !== undefined) {
+      if (!db.prepare('SELECT 1 FROM biz_change WHERE date = ? AND key = ?').get(date, key)) throw new Error('해당 변동이 없습니다');
+      db.prepare(`INSERT INTO biz_delta_edit (date, key, delta, edited_by, edited_time) VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(date, key) DO UPDATE SET delta = excluded.delta, edited_by = excluded.edited_by, edited_time = excluded.edited_time`).run(date, key, delta, uid, Date.now());
+    }
+  });
+}
+
+// ---------- 값 목록 ----------
+function optionField(field: string): OptionField {
+  if (!(OPTION_FIELDS as readonly string[]).includes(field)) throw new Error('값 목록이 없는 칸입니다');
+  return field as OptionField;
+}
+
+export function addOption(field: OptionField, value: string): void {
+  const v = value.trim();
+  if (v) db.prepare('INSERT OR IGNORE INTO biz_option (field, value, added_time) VALUES (?, ?, ?)').run(optionField(field), v, Date.now());
+}
+
+export function removeOption(field: string, value: string): void {
+  db.prepare('DELETE FROM biz_option WHERE field = ? AND value = ?').run(optionField(field), value);
+}
+
+/** 칸마다 고를 값: 데이터에 있는 값 + 추가한 값(가나다순). */
+export function listOptions(rows: SalesRow[]): Record<OptionField, OptionItem[]> {
+  const added = db.prepare('SELECT field, value FROM biz_option').all() as { field: string; value: string }[];
+  const out = {} as Record<OptionField, OptionItem[]>;
+  for (const f of OPTION_FIELDS) {
+    const inData = new Set(rows.map((r) => r[f]).filter((v): v is string => typeof v === 'string' && v.trim() !== ''));
+    const extra = added.filter((a) => a.field === f && !inData.has(a.value)).map((a) => a.value);
+    out[f] = [...[...inData].map((value) => ({ value, removable: false })), ...extra.map((value) => ({ value, removable: true }))]
+      .sort((a, b) => a.value.localeCompare(b.value, 'ko'));
+  }
+  return out;
 }
 
 function recompute(date: string) {
@@ -147,14 +236,22 @@ export function importSnapshot(date: string, rows: SalesRow[]): { changeCount: n
 }
 
 export function changesFor(date: string): StoredChange[] {
-  const rows = db.prepare('SELECT category_id, manual, change_json FROM biz_change WHERE date = ? ORDER BY ABS(delta) DESC, key').all(date) as {
-    category_id: string; manual: number; change_json: string;
+  const rows = db.prepare(`SELECT c.category_id, c.manual, c.delta AS auto, e.delta AS edited, c.change_json FROM biz_change c
+    LEFT JOIN biz_delta_edit e ON e.date = c.date AND e.key = c.key
+    WHERE c.date = ? ORDER BY ABS(COALESCE(e.delta, c.delta)) DESC, c.key`).all(date) as {
+    category_id: string; manual: number; auto: number; edited: number | null; change_json: string;
   }[];
-  return rows.map((r) => ({ ...(JSON.parse(r.change_json) as Change), categoryId: r.category_id, manual: r.manual === 1 }));
+  return rows.map((r) => {
+    const c: StoredChange = { ...(JSON.parse(r.change_json) as Change), categoryId: r.category_id, manual: r.manual === 1 };
+    if (r.edited !== null) { c.autoDelta = r.auto; c.delta = r.edited; }
+    return c;
+  });
 }
 
+/** 본영업 매출 당일 증감액: 변동 건 증감액의 합(직접 넣은 증감액이 있으면 그 값). */
 export function dayDelta(date: string): number {
-  return (db.prepare('SELECT COALESCE(SUM(delta), 0) AS s FROM biz_change WHERE date = ?').get(date) as { s: number }).s;
+  return (db.prepare(`SELECT COALESCE(SUM(COALESCE(e.delta, c.delta)), 0) AS s FROM biz_change c
+    LEFT JOIN biz_delta_edit e ON e.date = c.date AND e.key = c.key WHERE c.date = ?`).get(date) as { s: number }).s;
 }
 
 export function snapshotDaysBetween(from: string, to: string): string[] {

@@ -58,7 +58,7 @@ export const handlers = {
       date, basisDate: basis, prevDate, hasSnapshot: has, baseline: has && prevDate === null,
       summary: summarize(rows, store.getTargets(year), date),
       dayDelta: has ? store.dayDelta(date) : 0,
-      changes, categories: store.listCategories(),
+      changes, categories: store.listCategories(), options: store.listOptions(rows),
       monthly: monthlyConfirmed(rows, year), monthTargets: store.getTargets(year).months,
       pipeline: openPipeline(rows),
     };
@@ -72,6 +72,29 @@ export const handlers = {
     if (!key) throw new ApiError('영업 건이 없습니다', 400);
     if (body.value === null) store.clearOverride(key, String(body.field ?? ''));
     else badRequest(() => store.setOverride(key, String(body.field ?? ''), body.value, date, uid));
+    return { ok: true };
+  },
+
+  /** 수정 창 저장: 칸 여러 개(fields, null이면 받아온 값)·구분(categoryId 또는 새 이름 categoryLabel)·증감액(delta, null이면 계산값) */
+  async bizEditSale(ctx: Ctx, body: { date?: unknown; key?: unknown; fields?: unknown; categoryId?: unknown; categoryLabel?: unknown; delta?: unknown }) {
+    const uid = requireUser(ctx);
+    const date = dateArg(body.date);
+    const key = String(body.key ?? '');
+    if (!key) throw new ApiError('영업 건이 없습니다', 400);
+    const fields = body.fields && typeof body.fields === 'object' ? (body.fields as store.SaleEdit['fields']) : undefined;
+    const edit: store.SaleEdit = {
+      fields,
+      categoryId: typeof body.categoryId === 'string' ? body.categoryId : undefined,
+      categoryLabel: typeof body.categoryLabel === 'string' ? body.categoryLabel : undefined,
+      delta: body.delta === undefined ? undefined : (body.delta as number | null),
+    };
+    badRequest(() => store.editSale(date, key, edit, uid));
+    return { ok: true };
+  },
+
+  async bizRemoveOption(ctx: Ctx, body: { field?: unknown; value?: unknown }) {
+    requireUser(ctx);
+    badRequest(() => store.removeOption(String(body.field ?? ''), String(body.value ?? '')));
     return { ok: true };
   },
 

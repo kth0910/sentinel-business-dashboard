@@ -95,6 +95,7 @@ export function BizTable({ block, cols, readOnly, className, filterRows, childre
   const width = (c: ColDef) => (drag?.key === c.key ? drag.width : layout.cols?.[c.key] ?? c.width);
   const total = cols.reduce((a, c) => a + width(c), 0);
   const box = useRef<HTMLDivElement>(null);
+  const rowGrabbed = useRef(false);
 
   const startCol = (e: React.PointerEvent, c: ColDef) => {
     e.preventDefault();
@@ -147,7 +148,12 @@ export function BizTable({ block, cols, readOnly, className, filterRows, childre
       onPointerDown={(e) => {
         e.stopPropagation();
         const tr = readOnly ? null : nearRowEdge(e);
+        rowGrabbed.current = !!tr;
         if (tr) startRow(e, tr);
+      }}
+      onClickCapture={(e) => {
+        // 행 높이를 끈 뒤의 클릭은 행 수정 창을 열지 않는다
+        if (rowGrabbed.current) { rowGrabbed.current = false; e.stopPropagation(); }
       }}
       onPointerMove={(e) => { if (!readOnly && !rowDrag) setRowEdge(!!nearRowEdge(e)); }}
       onPointerLeave={() => setRowEdge(false)}
