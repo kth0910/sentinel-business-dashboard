@@ -9,6 +9,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 import app.auth.models  # noqa: F401  (테이블을 Base.metadata에 등록)
+import app.records.store  # noqa: F401  (레코드 테이블도 등록)
 from app.auth.providers import AuthProvider
 from app.config import get_settings
 from app.db import Base, get_db, make_engine
@@ -27,8 +28,9 @@ async def test_engine():
 @pytest_asyncio.fixture
 async def db(test_engine) -> AsyncIterator[AsyncSession]:
     async with test_engine.begin() as conn:
-        for table in reversed(Base.metadata.sorted_tables):
-            await conn.execute(table.delete())
+        # RESTART IDENTITY: changes.lsn 시퀀스도 0부터 다시 시작하게 한다.
+        names = ", ".join(f'"{t.name}"' for t in Base.metadata.sorted_tables)
+        await conn.execute(text(f"TRUNCATE {names} RESTART IDENTITY CASCADE"))
     session_factory = async_sessionmaker(test_engine, expire_on_commit=False)
     async with session_factory() as session:
         yield session
