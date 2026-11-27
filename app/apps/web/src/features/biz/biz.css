@@ -62,8 +62,8 @@
 .biz-cal-title { display: grid; grid-template-columns: 40px auto 40px; justify-content: center; align-items: center; gap: 24px; }
 .biz-cal-title h1 { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 13px; font-weight: 500; line-height: 1; }
 .biz-cal-year { font-size: 24px; }
-/* 글자 사이 30%(5.4px). 마지막 글자 뒤 간격만큼 왼쪽을 채워 가운데를 맞춘다 */
-.biz-cal-month { font-size: 18px; letter-spacing: 5.4px; padding-left: 5.4px; }
+/* 디자인은 글자 사이 30%(5.4px)지만 한글 "11월"에는 너무 벌어져 2px로. 마지막 글자 뒤 간격만큼 왼쪽을 채워 가운데를 맞춘다 */
+.biz-cal-month { font-size: 18px; letter-spacing: 2px; padding-left: 2px; }
 .biz-cal-arrow {
   width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--lp-text-secondary);
   font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
@@ -85,9 +85,9 @@
 }
 .biz-cal-cell.other { cursor: default; color: var(--biz-cal-muted); }
 .biz-cal-cell:focus-visible { outline: 2px solid var(--biz-up); outline-offset: 2px; }
-/* 원 지름: 칸 높이에서 아래 점·증감액 두 줄(약 26px)을 뺀 만큼, 30~56px(디자인 원래 크기). 숫자는 지름의 43%(56→24px) */
+/* 원 지름: 칸 높이에서 아래 점·증감액 두 줄(약 29px)을 뺀 만큼, 28~56px(디자인 원래 크기). 숫자는 지름의 43%(56→24px) */
 .biz-cal-num {
-  --biz-cal-d: clamp(30px, calc(100cqh - 26px), 56px);
+  --biz-cal-d: clamp(28px, calc(100cqh - 29px), 56px);
   flex: none; width: var(--biz-cal-d); height: var(--biz-cal-d); border-radius: 50%; display: grid; place-items: center;
   font-size: calc(var(--biz-cal-d) * 0.43); font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums;
 }
@@ -97,7 +97,7 @@
 .biz-cal-cell.today .biz-cal-num,
 .biz-cal-cell.today:hover .biz-cal-num { background: url('./assets/current-day.svg') center / 100% 100% no-repeat; color: #ffffff; }
 /* 숫자 아래 두 줄: 1줄 업무보고·매출 점, 2줄 증감액. 값이 없어도 줄 높이를 비워 둬 숫자 위치를 맞춘다 */
-.biz-cal-info { flex: none; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.biz-cal-info { flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .biz-cal-marks { display: flex; justify-content: center; height: 8px; }
 .biz-cal-marks .biz-dot:last-child { margin-right: 0; }
 .biz-cal-cell .biz-delta { min-height: 13px; font-size: 12px; font-weight: 600; line-height: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -119,7 +119,7 @@
   .biz-cal-title { gap: 8px; }
   .biz-cal-title h1 { gap: 8px; }
   .biz-cal-year { font-size: 18px; }
-  .biz-cal-month { font-size: 14px; letter-spacing: 4.2px; padding-left: 4.2px; }
+  .biz-cal-month { font-size: 14px; letter-spacing: 1.5px; padding-left: 1.5px; }
   .biz-cal-grid { margin-top: 16px; row-gap: 4px; }
   .biz-cal-wd { margin-bottom: 10px; font-size: 13px; }
   .biz-cal-wd .full { display: none; }
