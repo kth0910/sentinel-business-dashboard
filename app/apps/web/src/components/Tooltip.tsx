@@ -1,6 +1,7 @@
 // Global hover tooltips: any element with data-tooltip="텍스트" (optional data-tooltip-sub="⌘K") shows a
 
 import { useEffect, useState } from 'react';
+import { keyComboLabel } from '../lib/shortcut.ts';
 import './tooltip.css';
 
 interface Tip {
@@ -68,7 +69,7 @@ export function TooltipLayer() {
       }}
     >
       <div>{tip.text}</div>
-      {tip.sub && <div className="nc-tooltip-sub">{tip.sub}</div>}
+      {tip.sub && <div className="nc-tooltip-sub">{keyComboLabel(tip.sub)}</div>}
     </div>
   );
 }

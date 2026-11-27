@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Icon } from './Icon.tsx';
 import { openOverlay, PopoverSurface, useOverlays, type Anchor, type Placement } from './overlay.tsx';
+import { keyComboLabel } from '../lib/shortcut.ts';
 import './menu.css';
 
 export interface MenuItemDef {
@@ -112,7 +113,7 @@ export function MenuRow({ item, active, onHover, onLeave, onClick, role = 'optio
             {item.description && <div className="nc-menu-desc">{item.description}</div>}
           </div>
           {item.right}
-          {item.shortcut && <span className="nc-menu-shortcut">{item.shortcut}</span>}
+          {item.shortcut && <span className="nc-menu-shortcut">{keyComboLabel(item.shortcut)}</span>}
           {item.checked && <Icon name="check" size={16} style={{ color: 'var(--lp-icon-primary)' }} />}
           {item.submenu && <Icon name="arrowChevronSingleRightSmall" size={16} style={{ color: 'var(--lp-icon-secondary)' }} />}
         </div>

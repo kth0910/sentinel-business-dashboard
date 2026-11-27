@@ -20,6 +20,7 @@ import { searchCustomEmojis, type CustomEmoji } from '../settings/customEmoji.ts
 import { insertEquationAt } from './inline/EquationEditor.tsx';
 import { valueOf } from './inline/format.ts';
 import { getBlock } from '../../lib/blocks.ts';
+import { keyComboLabel } from '../../lib/shortcut.ts';
 import { getPref, PREF, setPref } from './prefs.ts';
 
 const useQuery = create<{ q: string; full: boolean }>(() => ({ q: '', full: false }));
@@ -224,7 +225,7 @@ function SlashCommandMenu({ q }: { q: string }) {
         ),
         text: it.label, icon: it.icon, keywords: it.keywords,
         checked: !filtered && turnIntoItem && !!cur && it.turnType === cur.type && !!it.turnToggleable === !!cur.format?.toggleable,
-        right: (it.shortcut ?? it.hint) && it.section !== 'Suggested' && !turnIntoItem ? <span className="nc-menu-shortcut nc-slash-hint">{it.shortcut ?? it.hint}</span> : undefined,
+        right: (it.shortcut ?? it.hint) && it.section !== 'Suggested' && !turnIntoItem ? <span className="nc-menu-shortcut nc-slash-hint">{keyComboLabel(it.shortcut ?? it.hint)}</span> : undefined,
         onSelect: () => {
           const s = useEditor.getState().slash;
           const anchorEl = s ? leafFor(s.blockId, s.property) : null;

@@ -30,6 +30,7 @@ import {
 import { openWorkspaceMenu } from './sidebar/WorkspaceMenu.tsx';
 import { pageTitle } from '../page/pageActions.ts';
 import { records } from '../../lib/store/records.ts';
+import { keyComboLabel } from '../../lib/shortcut.ts';
 import './sidebar.css';
 
 export { PageTreeItem } from './sidebar/PageTree.tsx';
@@ -166,7 +167,7 @@ function Resizer({ onPointerDown, width }: { onPointerDown: (e: React.PointerEve
       />
       {tip && (
         <div className="nc-sb-resize-tip" style={{ left: width + 10, top: tip.y - 22 }}>
-          <div>{tParts('lp.shell.close_use_or_click', 'Close <invertedcolor>Use {keyboardShortcut} or click</invertedcolor>', { keyboardShortcut: '⌘\\' }).map((p, i) => p.tag ? <span key={i}>{p.text}</span> : <b key={i}>{p.text}</b>)}</div>
+          <div>{tParts('lp.shell.close_use_or_click', 'Close <invertedcolor>Use {keyboardShortcut} or click</invertedcolor>', { keyboardShortcut: keyComboLabel('⌘\\') }).map((p, i) => p.tag ? <span key={i}>{p.text}</span> : <b key={i}>{p.text}</b>)}</div>
           <div>{tParts('lp.shell.resize_drag_to_adjust', 'Resize <invertedcolor>드래그하여 조정</invertedcolor>').map((p, i) => p.tag ? <span key={i}>{p.text}</span> : <b key={i}>{p.text}</b>)}</div>
         </div>
       )}
@@ -234,7 +235,7 @@ function SidebarHeader() {
         >
           <span className="nc-ellipsis">{t('lp.shell.search_or_ask_here', 'Search or ask here')}</span>
           <span style={{ flexShrink: 0, marginInlineStart: 'auto' }}>
-            <div className="nc-sb-kbd"><span>⌘K</span></div>
+            <div className="nc-sb-kbd"><span>{keyComboLabel('⌘K')}</span></div>
           </span>
         </div>
       </div>
