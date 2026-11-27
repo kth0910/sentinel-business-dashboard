@@ -1,17 +1,39 @@
-"""레코드 기반 RPC: loadAccountData, createWorkspace. (원본 apps/server/src/api/handlers.ts)"""
+"""레코드 기반 RPC: 계정 데이터, 워크스페이스 만들기, 페이지 읽기, 사이드바, 화면 시작용 임시 응답.
+(원본 apps/server/src/api/handlers.ts, api/modules/sidebar.ts)"""
+import math
 from typing import Any
 
+from sqlalchemy import BigInteger, cast, select
+
 from app.auth.models import User
+from app.records.pages import PAGE_TYPES, add_ancestors, add_outline_block, page_chunk, sidebar_children
 from app.records.permissions import Lookup, effective_role, is_space_member
 from app.records.recordmap import RecordMapBuilder
-from app.records.seed import create_workspace, ensure_user_records
-from app.records.store import current_lsn, records_in_space
-from app.rpc.errors import UnauthorizedError
+from app.records.seed import create_workspace, ensure_user_records, save
+from app.records.store import TABLES, changes, current_lsn, get_record, now_ms, records, records_in_space
+from app.rpc.errors import NotFoundError, UnauthorizedError
 from app.rpc.registry import RpcContext, rpc
 
 DEFAULT_WORKSPACE_NAME = "내 워크스페이스"
 MAX_TREE_NODES = 3000
 TREE_TYPES = ("page", "collection_view_page")
+
+
+def _require_user(ctx: RpcContext) -> str:
+    if not ctx.user_id:
+        raise UnauthorizedError("로그인이 필요합니다.")
+    return ctx.user_id
+
+
+def _number(value: Any) -> float | None:
+    """원본의 Number(value)처럼 숫자로 읽는다. 숫자가 아니면 None."""
+    if isinstance(value, bool):
+        return float(value)
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        return None
+    return n if math.isfinite(n) else None
 
 
 async def _login_user(ctx: RpcContext) -> User:
@@ -114,3 +136,267 @@ async def create_workspace_rpc(ctx: RpcContext, body: dict[str, Any]) -> dict[st
     space = await create_workspace(ctx.db, user.id, name or DEFAULT_WORKSPACE_NAME, icon if isinstance(icon, str) else None)
     await ctx.db.commit()
     return {"spaceId": space["id"], "recordMap": {"__version__": 3}}
+
+
+# ---------- 페이지 읽기 ----------
+
+@rpc("loadPage")
+async def load_page(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    lookup = Lookup(ctx.db)
+    rm = RecordMapBuilder(lookup, ctx.user_id)
+    page_id = body.get("pageId")
+    if isinstance(page_id, str) and page_id:
+        await page_chunk(lookup, rm, page_id, ctx.user_id)
+    return {"recordMap": rm.map, "cursor": {"stack": []}}
+
+
+@rpc("loadPageCached")
+async def load_page_cached(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    page = body.get("page")
+    page_id = page.get("id") if isinstance(page, dict) and page.get("id") is not None else body.get("pageId")
+    return await load_page(ctx, {"pageId": page_id})
+
+
+@rpc("fetchRecords")
+async def fetch_records(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    lookup = Lookup(ctx.db)
+    rm = RecordMapBuilder(lookup, ctx.user_id)
+    requests = body.get("requests")
+    for r in (requests if isinstance(requests, list) else [])[:2000]:
+        pointer = r.get("pointer") if isinstance(r, dict) else None
+        table = pointer.get("table") if isinstance(pointer, dict) else None
+        rid = pointer.get("id") if isinstance(pointer, dict) else None
+        if table not in TABLES or not isinstance(rid, str):
+            continue
+        # 권한 없는 레코드는 RecordMapBuilder가 뺀다
+        await rm.add(table, await lookup.get(table, rid))
+    return {"recordMap": rm.map}
+
+
+@rpc("getChangesSince")
+async def get_changes_since(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    """재접속 복구용: lsn 뒤에 바뀐, 내가 멤버인 공간의 레코드들."""
+    uid = _require_user(ctx)
+    since = int(_number(body.get("lsn")) or 0)
+    wanted = body.get("spaceIds")
+    lookup = Lookup(ctx.db)
+    _, spaces = await _user_spaces(lookup, uid)
+    allowed = [s["id"] for s in spaces if not isinstance(wanted, list) or s["id"] in wanted]
+    rows = []
+    if allowed:
+        res = await ctx.db.execute(
+            select(changes.c.lsn, changes.c.tbl, changes.c.id)
+            .where(changes.c.lsn > since, changes.c.space_id.in_(allowed))
+            .order_by(changes.c.lsn)
+            .limit(5000)
+        )
+        rows = list(res)
+    rm = RecordMapBuilder(lookup, uid)
+    for row in rows:
+        await rm.add(row.tbl, await lookup.get(row.tbl, row.id))
+    return {"recordMap": rm.map, "lsn": rows[-1].lsn if rows else since}
+
+
+# ---------- 방문 기록 ----------
+
+@rpc("markPageVisited")
+async def mark_page_visited(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    uid = _require_user(ctx)
+    block = body.get("block")
+    page_id = block.get("id") if isinstance(block, dict) else None
+    lookup = Lookup(ctx.db)
+    page = await lookup.block(page_id)
+    if not page or await effective_role(lookup, page["id"], uid) == "none":
+        return {}
+    visit_id = f"{uid}:{page['id']}"
+    prev = await get_record(ctx.db, "page_visit", visit_id)
+    await save(ctx.db, "page_visit", {
+        "id": visit_id, "parent_id": page["id"], "parent_table": "block", "user_id": uid,
+        "space_id": page.get("space_id"), "visited_at": now_ms(),
+        "total_visits": ((prev or {}).get("total_visits") or 0) + 1,
+    })
+    await ctx.db.commit()
+    return {}
+
+
+@rpc("listRecentPages")
+async def list_recent_pages(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    uid = _require_user(ctx)
+    space_id = body.get("spaceId")
+    limit = min(max(int(_number(body.get("limit")) or 20), 1), 200)
+    visited_at = cast(records.c.data["visited_at"].astext, BigInteger)
+    res = await ctx.db.execute(
+        select(records.c.data)
+        .where(
+            records.c.tbl == "page_visit",
+            records.c.space_id == (space_id if isinstance(space_id, str) else ""),
+            records.c.data["user_id"].astext == uid,
+        )
+        .order_by(visited_at.desc().nulls_last())
+        .limit(limit)
+    )
+    lookup = Lookup(ctx.db)
+    rm = RecordMapBuilder(lookup, uid)
+    pages: list[dict[str, Any]] = []
+    for visit in res.scalars():
+        page = await lookup.block(visit.get("parent_id"))
+        if not page or not page.get("alive") or await effective_role(lookup, page["id"], uid) == "none":
+            continue
+        await rm.add("block", page)
+        await add_ancestors(lookup, rm, page)
+        pages.append({"id": page["id"], "visitedAt": visit.get("visited_at")})
+    return {"pages": pages, "recordMap": rm.map}
+
+
+# ---------- 사이드바 (원본 api/modules/sidebar.ts) ----------
+
+@rpc("getSidebarChildren")
+async def get_sidebar_children(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    uid = _require_user(ctx)
+    block_ids = body.get("blockIds")
+    ids = [str(b) for b in block_ids[:100]] if isinstance(block_ids, list) else []
+    lookup = Lookup(ctx.db)
+    rm = RecordMapBuilder(lookup, uid)
+    await sidebar_children(lookup, rm, ids, uid)
+    return {"recordMap": rm.map}
+
+
+@rpc("getSharedWithMe")
+async def get_shared_with_me(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    """다른 사람이 나에게 직접 공유한(user_permission) 맨 위 페이지 중 내 사이드바 목록에 없는 것."""
+    uid = _require_user(ctx)
+    lookup = Lookup(ctx.db)
+    space = await lookup.space(str(body.get("spaceId")))
+    if not space:
+        return {"pageIds": [], "recordMap": {}}
+    views, _ = await _user_spaces(lookup, uid)
+    view = next((v for v in views if v.get("space_id") == space["id"]), None) or {}
+    mine = {*(view.get("private_pages") or []), *(space.get("pages") or [])}
+    res = await ctx.db.execute(
+        select(records.c.data)
+        .where(
+            records.c.tbl == "block",
+            records.c.space_id == space["id"],
+            records.c.alive.is_(True),
+            records.c.parent_table.in_(("space", "block")),
+            records.c.data["permissions"].contains([{"type": "user_permission", "user_id": uid}]),
+        )
+        .order_by(records.c.last_edited_time.desc())
+        .limit(200)
+    )
+    rm = RecordMapBuilder(lookup, uid)
+    page_ids: list[str] = []
+    for b in res.scalars():
+        if b.get("type") not in PAGE_TYPES:
+            continue
+        if b["id"] in mine or b.get("created_by_id") == uid:
+            continue
+        # 공유받은 페이지 중 가장 위의 것만 사이드바에 나온다
+        if b.get("parent_table") == "block":
+            parent = await lookup.block(b.get("parent_id"))
+            if parent and await effective_role(lookup, parent["id"], uid) != "none":
+                continue
+        if await effective_role(lookup, b["id"], uid) == "none":
+            continue
+        await add_outline_block(lookup, rm, b)
+        page_ids.append(b["id"])
+    return {"pageIds": page_ids, "recordMap": rm.map}
+
+
+# ---------- 화면 시작 시 부르지만 아직 기능이 없는 RPC ----------
+# 원본 핸들러가 데이터가 하나도 없는 워크스페이스에서 돌려주는 것과 같은 모양의 빈 응답을 돌려준다.
+# 기능을 만들 때 이 임시 처리를 실제 구현으로 바꾼다.
+
+@rpc("getTemplate")
+async def get_template(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    # 템플릿 갤러리가 아직 없으므로 원본의 "없는 템플릿"(404)과 같다. 온보딩은 이 실패를 무시한다.
+    _require_user(ctx)
+    raise NotFoundError("템플릿을 찾을 수 없습니다.")
+
+
+@rpc("countUnreadInbox")
+async def count_unread_inbox(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    _require_user(ctx)
+    return {"count": 0}
+
+
+@rpc("getInbox")
+async def get_inbox(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    _require_user(ctx)
+    return {"notificationIds": [], "items": [], "updates": [], "unreadCount": 0, "recordMap": {"__version__": 3}}
+
+
+@rpc("noteSessionDevice")
+async def note_session_device(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    _require_user(ctx)
+    return {"isNew": False}
+
+
+@rpc("listBacklinks")
+async def list_backlinks(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    _require_user(ctx)
+    return {"backlinks": [], "recordMap": {"__version__": 3}}
+
+
+@rpc("recordPageView")
+async def record_page_view(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    # 원본도 로그인 없이 부를 수 있다(공개 페이지 방문). 페이지 분석은 아직 없다.
+    return {"recorded": False}
+
+
+@rpc("getAccounts")
+async def get_accounts(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    """여러 계정 전환은 아직 없으므로 지금 로그인한 계정 하나만 돌려준다."""
+    uid = _require_user(ctx)
+    lookup = Lookup(ctx.db)
+    user = await lookup.get("lit_user", uid) or {}
+    _, spaces = await _user_spaces(lookup, uid)
+    return {
+        "accounts": [{
+            "userId": uid, "name": user.get("name") or "", "email": user.get("email") or "",
+            "photo": user.get("profile_photo") or "", "current": True,
+            "spaces": [
+                {
+                    "id": s["id"], "name": s.get("name"), "icon": s.get("icon") or "", "domain": s.get("domain"),
+                    "plan": s.get("plan_type"),
+                    "memberCount": sum(
+                        1 for p in s.get("permissions") or []
+                        if isinstance(p, dict) and p.get("type") == "user_permission" and p.get("role") != "none"
+                    ),
+                }
+                for s in spaces
+            ],
+        }],
+        "recordMap": {"__version__": 3},
+    }
+
+
+@rpc("getMySessions")
+async def get_my_sessions(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    _require_user(ctx)
+    return {"sessions": []}
+
+
+@rpc("getAccountSecurity")
+async def get_account_security(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    user = await _login_user(ctx)
+    return {
+        "hasPassword": bool(user.password_hash),
+        # 2단계 인증과 보조 이메일은 아직 없다(원본 상한값: 인증 앱 2개, 이메일 5개)
+        "mfa": {"enabled": False, "factors": [], "backupCodesRemaining": 0, "maxAuthenticators": 2},
+        "emails": [{"email": user.email.lower(), "primary": True}],
+        "maxEmails": 5,
+    }
+
+
+@rpc("getPasskeys")
+async def get_passkeys(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    _require_user(ctx)
+    return {"passkeys": []}
+
+
+@rpc("searchWorkspace")
+async def search_workspace(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    # 실제 검색은 다음 계획에서 만든다
+    _require_user(ctx)
+    return {"results": [], "total": 0, "recordMap": {"__version__": 3}}

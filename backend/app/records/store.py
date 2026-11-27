@@ -85,11 +85,13 @@ async def get_records(db: AsyncSession, table: str, ids: list[str]) -> dict[str,
 
 async def put_record(db: AsyncSession, table: str, rec: dict) -> None:
     """레코드를 upsert하고 changes에 한 줄 남긴다. version은 호출하는 쪽이 정하고, 커밋하지 않는다."""
+    # 원본 putRecord처럼 space 레코드는 자기 자신의 공간에 속한다
+    space_id = rec.get("space_id") or (rec["id"] if table == "space" else None)
     values = {
         "tbl": table,
         "id": rec["id"],
         "version": rec["version"],
-        "space_id": rec.get("space_id"),
+        "space_id": space_id,
         "parent_id": rec.get("parent_id"),
         "parent_table": rec.get("parent_table"),
         "alive": rec.get("alive"),
@@ -104,7 +106,7 @@ async def put_record(db: AsyncSession, table: str, rec: dict) -> None:
     await db.execute(stmt)
     await db.execute(
         insert(changes).values(
-            tbl=table, id=rec["id"], space_id=rec.get("space_id"), version=rec["version"], time=now_ms()
+            tbl=table, id=rec["id"], space_id=space_id, version=rec["version"], time=now_ms()
         )
     )
 
