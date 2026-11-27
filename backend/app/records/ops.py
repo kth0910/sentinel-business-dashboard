@@ -5,6 +5,7 @@ JS의 `undefined`는 "키가 없음"으로 본다(JSON으로 오면 키가 빠�
 wireTransaction)는 `update`에서 지우려는 키(undefined)를 null로 보내므로, `update`의 None 값은 키를 지운다.
 """
 import copy
+import re
 from typing import Any
 
 from app.records.textmerge import apply_splice
@@ -15,6 +16,9 @@ COMMANDS = frozenset({"set", "update", "listAfter", "listBefore", "listRemove", 
 UNSAFE_KEYS = frozenset({"__proto__", "constructor", "prototype"})
 
 _MISSING = object()  # JS undefined(키 없음)
+
+# JS가 배열 인덱스로 보는 정규 형태("0", "12"). "01"·전각 숫자 등은 그냥 없는 키다.
+_ARRAY_INDEX = re.compile(r"0|[1-9][0-9]*")
 
 
 class OperationError(ValueError):
@@ -38,7 +42,7 @@ def get_at_path(obj, path: list[str]):
             return None
         if isinstance(cur, dict):
             cur = cur.get(p)
-        elif isinstance(cur, list) and isinstance(p, str) and p.isdigit() and int(p) < len(cur):
+        elif isinstance(cur, list) and isinstance(p, str) and _ARRAY_INDEX.fullmatch(p) and int(p) < len(cur):
             cur = cur[int(p)]  # JS의 arr["1"]
         else:
             return None

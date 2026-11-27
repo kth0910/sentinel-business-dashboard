@@ -54,7 +54,8 @@ def test_typing_at_the_same_point_keeps_both_insertions():
 
 def test_a_deletion_does_not_remove_text_another_user_inserted_inside_the_deleted_range():
     base = text("one two three")
-    delete = {"base": "one two three", "start": 5, "end": 9, "insert": []}  # "two " 삭제
+    # 원본 diffSplice가 내는 값: [5, 9)("wo t")를 지우면 "one three"가 된다.
+    delete = {"base": "one two three", "start": 5, "end": 9, "insert": []}
     theirs = apply_splice(base, {"base": "one two three", "start": 7, "end": 7, "insert": [["NEW"]]})
     merged = plain(apply_splice(theirs, delete))
     # 삭제한 base 글자는 사라지고, 그사이 다른 사람이 넣은 글자는 남는다.
@@ -103,3 +104,28 @@ def test_map_text_offset():
     # 동시에 바뀐 구간 안의 위치: 시작 쪽은 바뀐 글자 뒤로, 끝 쪽은 앞으로 붙는다.
     assert map_text_offset("abcdef", "abXYef", 3, "start") == 4
     assert map_text_offset("abcdef", "abXYef", 3, "end") == 2
+
+
+def test_worst_case_diff_stays_fast_and_small():
+    # 공통 글자가 하나도 없어 Myers가 D=2000까지 다 돌고 "일치 없음"으로 끝나는 최악의 경우.
+    # 서버는 워커 하나라 이 계산이 길어지면 모든 요청이 멈춘다(포팅 직후 최고 메모리 161MB였다).
+    import time
+    import tracemalloc
+
+    current = [["b" * 2000]]
+    sp = {"base": "a" * 2000, "start": 0, "end": 0, "insert": [["X"]]}
+
+    # 시간은 tracemalloc 없이 잰다(tracemalloc은 할당마다 비용을 더해 시간을 몇 배로 부풀린다).
+    t0 = time.perf_counter()
+    out = apply_splice(current, sp)
+    elapsed = time.perf_counter() - t0
+    assert out == [["b" * 2000 + "X"]]  # 원본 TS(Node)와 같은 결과: 일치가 없으니 삽입 지점이 끝으로 간다
+    assert elapsed < 1.5
+
+    tracemalloc.start()
+    try:
+        apply_splice(current, sp)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert peak < 40_000_000

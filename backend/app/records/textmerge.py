@@ -4,6 +4,7 @@ splice는 작성자가 본 평문(`base`)의 [start, end)를 `insert`로 바꾼�
 같은 블록에 입력) 글자 diff로 범위를 `base`에서 현재 글로 옮겨, 서로 다른 곳의 동시 수정이 둘 다 남게 한다.
 위치는 모두 UTF-16 코드 단위다(diff도 코드 단위로 비교한다).
 """
+from array import array
 from typing import Literal, TypedDict
 
 from app.records.richtext import (
@@ -62,32 +63,43 @@ def _matches(src: str, dst: str) -> list[Segment]:
 
 
 def _myers(a: list[str], b: list[str]) -> list[Segment]:
-    """Myers O((N+M)·D) diff로 일치 구간을 돌려준다. D가 너무 커지면 일치 없음([])."""
+    """Myers O((N+M)·D) diff로 일치 구간을 돌려준다. D가 너무 커지면 일치 없음([]).
+
+    원본은 대각선 k별 x를 Map에 두고 라운드마다 Map 전체를 복사해 둔다. 서버는 워커 하나라 최악의 경우
+    (D=2000) 그 복사가 수 초·수백 MB가 되므로, 여기서는 v를 리스트(v[k + off])로 두고 라운드 d의 기록은
+    되짚기가 읽는 k = -d-1 .. d+1 범위만 작은 정수 배열로 남긴다. 빈 칸은 원본 Map의 `?? 0`처럼 0이다.
+    """
     n = len(a)
     m = len(b)
     mx = min(n + m, _MAX_D)
-    v: dict[int, int] = {1: 0}
-    trace: list[dict[int, int]] = []
+    off = mx + 1
+    v = [0] * (2 * mx + 3)
+    trace: list[array] = []
     found = False
     d = 0
     while d <= mx and not found:
-        trace.append(dict(v))
-        for k in range(-d, d + 1, 2):
-            if k == -d or (k != d and v.get(k - 1, 0) < v.get(k + 1, 0)):
-                x = v.get(k + 1, 0)
+        trace.append(array("i", v[off - d - 1 : off + d + 2]))  # trace[d][k + d + 1] = 라운드 d 시작 때의 v[k]
+        for i in range(off - d, off + d + 1, 2):  # i = k + off
+            if i == off - d or (i != off + d and v[i - 1] < v[i + 1]):
+                x = v[i + 1]
             else:
-                x = v.get(k - 1, 0) + 1
-            y = x - k
+                x = v[i - 1] + 1
+            y = x - (i - off)
             while x < n and y < m and a[x] == b[y]:
                 x += 1
                 y += 1
-            v[k] = x
+            v[i] = x
             if x >= n and y >= m:
                 found = True
                 break
         d += 1
     if not found:
         return []
+
+    def at(vd: array, d: int, k: int) -> int:
+        j = k + d + 1
+        return vd[j] if 0 <= j < len(vd) else 0
+
     # 뱀(snake)을 거꾸로 따라간다
     runs: list[Segment] = []
     x, y = n, m
@@ -95,11 +107,11 @@ def _myers(a: list[str], b: list[str]) -> list[Segment]:
     while d >= 0 and (x > 0 or y > 0):
         vd = trace[d]
         k = x - y
-        if k == -d or (k != d and vd.get(k - 1, 0) < vd.get(k + 1, 0)):
+        if k == -d or (k != d and at(vd, d, k - 1) < at(vd, d, k + 1)):
             prev_k = k + 1
         else:
             prev_k = k - 1
-        prev_x = vd.get(prev_k, 0)
+        prev_x = at(vd, d, prev_k)
         prev_y = prev_x - prev_k
         if d == 0:
             start_x = 0

@@ -117,3 +117,8 @@ def test_get_at_path():
     assert get_at_path(rec, ["a", "x", "y"]) is None
     assert get_at_path(None, ["a"]) is None
     assert get_at_path(rec, []) == rec
+    # JS 배열 인덱스로 인정되는 정규 형태만 원소를 가리킨다("01"·전각 숫자는 그냥 없는 키).
+    assert get_at_path(rec, ["a", "b", "0"]) == 10
+    assert get_at_path(rec, ["a", "b", "01"]) is None
+    assert get_at_path(rec, ["a", "b", "１"]) is None
+    assert get_at_path(rec, ["a", "b", "-1"]) is None
