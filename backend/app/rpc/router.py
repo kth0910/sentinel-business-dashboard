@@ -25,7 +25,7 @@ def build_context(request: Request, db: AsyncSession) -> RpcContext:
     return RpcContext(
         user_id=None,
         token=request.cookies.get(SESSION_COOKIE),
-        client_id=request.headers.get("x-client-id"),
+        client_id=(request.headers.get("x-lit-client-id") or None) and request.headers["x-lit-client-id"][:100],
         ip=request.client.host if request.client else "",
         secure=request.url.scheme == "https",
         db=db,

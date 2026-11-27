@@ -26,6 +26,11 @@ async def _cookie(ctx, body):
     return {}
 
 
+@rpc("_testClientId")
+async def _client_id(ctx, body):
+    return {"clientId": ctx.client_id}
+
+
 JSON = {"content-type": "application/json"}
 
 
@@ -97,3 +102,10 @@ def test_duplicate_registration_raises():
         @rpc("_testEcho")
         async def _again(ctx, body):
             return {}
+
+
+async def test_client_id_comes_from_lit_header_and_is_cut_to_100(client):
+    res = await client.post("/api/rpc/_testClientId", json={}, headers={"x-lit-client-id": "a" * 150})
+    assert res.json()["clientId"] == "a" * 100
+    res = await client.post("/api/rpc/_testClientId", json={})
+    assert res.json()["clientId"] is None
