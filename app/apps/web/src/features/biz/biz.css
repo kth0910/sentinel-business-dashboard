@@ -20,6 +20,8 @@
 .biz-tag.hand { background: var(--biz-hand-bg); color: var(--biz-hand-ink); }
 
 /* ---------- 캘린더 ---------- */
+/* 화면 틀(nc-frame-content)에는 스크롤이 없어 달력 화면이 직접 세로 스크롤을 가진다(회의록 화면의 nc-lib-scroll과 같은 방식). */
+.biz-cal-scroller { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
 /* 월 달력: Figma "Calendar Building Blocks"(Example Calendar) 기준. 카드·연월 제목·요일·날짜 숫자·오늘 빨간 원. */
 .biz-cal {
   --biz-cal-card-bg: rgba(255, 255, 255, 0.8);
