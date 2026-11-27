@@ -9,7 +9,7 @@ import { useUserSettings } from '../../lib/hooks.ts';
 import { records } from '../../lib/store/records.ts';
 import { currentSpaceView, useSession } from '../../lib/store/session.ts';
 import { transactions } from '../../lib/store/transactions.ts';
-import { getLocale, setLocale } from '../shell/i18n.ts';
+import { getLocale } from '../shell/i18n.ts';
 import './contrast.css';
 import { PilcrowRight } from 'lucide-react';
 import { registerIcons } from '../../components/Icon.tsx';
@@ -172,13 +172,6 @@ export function savePreferredTheme(theme: Theme) {
   savePref('preferred_theme', theme);
 }
 
-/** Switch UI language: persist first (so the reloaded app reads it), then reload. */
-export async function saveLocale(locale: string) {
-  savePref('locale', locale);
-  await transactions.flush();
-  setLocale(locale, { reload: true });
-}
-
 /** Appearance › High contrast: marks the root with data-contrast="high" (tokens in contrast.css). */
 export function applyContrast(c: Contrast | undefined) {
   const high = c === 'high' || (c === 'system' && window.matchMedia?.('(prefers-contrast: more)').matches);
@@ -213,15 +206,12 @@ export function effectiveTimeZone(p: UserPrefs = getUserPrefs()): string {
   return typeof p.time_zone === 'string' && p.time_zone ? p.time_zone : device;
 }
 
-const RELOAD_GUARD = 'nc:localeReloaded';
-
-/** Called once by Workspace: syncs user_settings → UI (theme, contrast, locale). */
+/** Called once by Workspace: syncs user_settings → UI (theme, contrast). */
 export function useApplyUserSettings() {
   const settings = useUserSettings();
   const demo = useSession((s) => s.demoMode.enabled);
   const prefs = demo ? getUserPrefs() : (settings?.settings ?? {}) as UserPrefs;
   const theme = prefs.preferred_theme;
-  const locale = prefs.locale;
   const contrast = prefs.high_contrast;
 
   // theme: the device keeps its own choice ("on this device"); a fresh device adopts the account preference
@@ -255,20 +245,6 @@ export function useApplyUserSettings() {
   useEffect(() => {
     openSettingsFromUrl();
   }, []);
-
-  // language: follow the account setting (once per tab session to avoid reload loops)
-  useEffect(() => {
-    if (!locale) return;
-    const normalized = locale === 'ko-KR' ? 'ko-KR' : 'en-US';
-    if (normalized === getLocale()) return;
-    try {
-      if (sessionStorage.getItem(RELOAD_GUARD) === normalized) return;
-      sessionStorage.setItem(RELOAD_GUARD, normalized);
-    } catch {
-      /* ignore */
-    }
-    setLocale(normalized, { reload: true });
-  }, [locale, demo]);
 }
 
 /** `?target=` deep links → settings sections (the param is removed after opening). */

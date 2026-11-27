@@ -10,7 +10,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { useUI } from '../../lib/store/ui.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { openMenu } from '../../components/Menu.tsx';
-import { getLocale, LOCALES, setLocale, t } from '../shell/i18n.ts';
+import { getLocale, t } from '../shell/i18n.ts';
 import koCatalog from '../shell/i18n.ko-KR.json';
 import { AddAccountBar } from '../shell/accounts.tsx';
 import { signInWithPasskey } from '../settings/passkeys.tsx';
@@ -22,58 +22,6 @@ type Step = 'email' | 'code' | 'password' | 'mfa';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const RESEND_SECONDS = 30;
 
-
-export const LANGUAGE_OPTIONS: { id: string; native: string; english: string }[] = [
-  { id: 'ar-SA', native: 'العربية', english: 'Arabic' },
-  { id: 'da-DK', native: 'Dansk', english: 'Danish' },
-  { id: 'nl-NL', native: 'Nederlands', english: 'Dutch' },
-  { id: 'en-GB', native: 'English (UK)', english: 'English (UK)' },
-  { id: 'en-US', native: 'English (US)', english: 'English (US)' },
-  { id: 'fi-FI', native: 'Suomi', english: 'Finnish' },
-  { id: 'fr-FR', native: 'Français (France)', english: 'French (France)' },
-  { id: 'de-DE', native: 'Deutsch', english: 'German' },
-  { id: 'he-IL', native: 'עברית', english: 'Hebrew' },
-  { id: 'id-ID', native: 'Bahasa Indonesia', english: 'Indonesian' },
-  { id: 'it-IT', native: 'Italiano', english: 'Italian' },
-  { id: 'ja-JP', native: '日本語', english: 'Japanese' },
-  { id: 'ko-KR', native: '한국어', english: 'Korean' },
-  { id: 'nb-NO', native: 'Norsk', english: 'Norwegian' },
-  { id: 'pt-BR', native: 'Português (Brasil)', english: 'Portuguese (Brazil)' },
-  { id: 'zh-CN', native: '简体中文', english: 'Simplified Chinese' },
-  { id: 'es-LA', native: 'Español (Latinoamérica)', english: 'Spanish (Latin American)' },
-  { id: 'es-ES', native: 'Español (España)', english: 'Spanish (Spain)' },
-  { id: 'sv-SE', native: 'Svenska', english: 'Swedish' },
-  { id: 'th-TH', native: 'ภาษาไทย', english: 'Thai' },
-  { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese' },
-  { id: 'vi-VN', native: 'Tiếng Việt', english: 'Vietnamese' },
-];
-
-export function openLanguageMenu(anchor: HTMLElement) {
-  const cur = getLocale();
-  openMenu(anchor, {
-    width: 300,
-    maxHeight: 360,
-    sections: [{
-      items: LANGUAGE_OPTIONS.map((l) => {
-        const supported = LOCALES.some((x) => x.id === l.id);
-        return {
-          label: `${l.native} · ${l.english}`,
-          text: `${l.native} ${l.english}`,
-          checked: l.id === cur,
-          disabled: !supported,
-          onSelect: () => {
-            if (l.id !== cur) setLocale(l.id, { reload: true });
-          },
-        };
-      }),
-    }],
-  }, { placement: 'top' });
-}
-
-function currentLanguageName() {
-  const cur = getLocale();
-  return LANGUAGE_OPTIONS.find((l) => l.id === cur)?.native ?? 'English (US)';
-}
 
 function openHelpMenu(anchor: HTMLElement) {
   openMenu(anchor, {
@@ -621,18 +569,6 @@ function AuthScreen({ mode }: { mode: 'login' | 'signup' }) {
             {heading}
             {form}
             <div className="nc-auth-spacer-bottom" />
-          </div>
-          <div className="nc-auth-footer">
-            <div
-              role="button"
-              aria-label={t('lp.auth.language', 'Language: {language}', { language: currentLanguageName() })}
-              className="nc-auth-lang"
-              onClick={(e) => openLanguageMenu(e.currentTarget as HTMLElement)}
-            >
-              <Icon name="globe" size={18} />
-              <span>{t('lp.auth.language', 'Language: {language}', { language: currentLanguageName() })}</span>
-              <Icon name="arrowChevronSingleDownSmall" size={14} style={{ color: 'var(--lp-icon-secondary)' }} />
-            </div>
           </div>
         </div>
       </main>

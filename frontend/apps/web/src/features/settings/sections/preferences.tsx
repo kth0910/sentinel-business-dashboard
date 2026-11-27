@@ -6,38 +6,12 @@ import { useMemo, useState } from 'react';
 import { openMenu } from '../../../components/Menu.tsx';
 import { Icon } from '../../../components/Icon.tsx';
 import { useUI, type Theme } from '../../../lib/store/ui.ts';
-import { t, getLocale } from '../../shell/i18n.ts';
+import { t } from '../../shell/i18n.ts';
 import { Badge, Button, Dropdown, Group, Row, SectionPage, Switch, msg, rich, openSubDialog, type Option } from '../ui.tsx';
 import {
-  applyContrast, prefValue, saveLocale, savePref, savePrefs, savePreferredTheme, usePrefs, viewHistoryAllowed, type Contrast, type DateFormat, type NumberFormat,
+  applyContrast, prefValue, savePref, savePrefs, savePreferredTheme, usePrefs, viewHistoryAllowed, type Contrast, type DateFormat, type NumberFormat,
   type StartPage,
 } from '../userSettings.ts';
-
-/** Languages offered by the language picker (native name, English name). The UI itself is translated into en-US and ko-KR. */
-export const LANGUAGES: { id: string; native: string; english: string }[] = [
-  { id: 'ar-SA', native: 'العربية', english: 'Arabic' },
-  { id: 'da-DK', native: 'Dansk', english: 'Danish' },
-  { id: 'nl-NL', native: 'Nederlands', english: 'Dutch' },
-  { id: 'en-GB', native: 'English (UK)', english: 'English (UK)' },
-  { id: 'en-US', native: 'English (US)', english: 'English (US)' },
-  { id: 'fi-FI', native: 'Suomi', english: 'Finnish' },
-  { id: 'fr-FR', native: 'Français (France)', english: 'French (France)' },
-  { id: 'de-DE', native: 'Deutsch', english: 'German' },
-  { id: 'he-IL', native: 'עברית', english: 'Hebrew' },
-  { id: 'id-ID', native: 'Bahasa Indonesia', english: 'Indonesian' },
-  { id: 'it-IT', native: 'Italiano', english: 'Italian' },
-  { id: 'ja-JP', native: '日本語', english: 'Japanese' },
-  { id: 'ko-KR', native: '한국어', english: 'Korean' },
-  { id: 'nb-NO', native: 'Norsk', english: 'Norwegian' },
-  { id: 'pt-BR', native: 'Português (Brasil)', english: 'Portuguese (Brazil)' },
-  { id: 'zh-CN', native: '简体中文', english: 'Simplified Chinese' },
-  { id: 'es-LA', native: 'Español (Latinoamérica)', english: 'Spanish (Latin American)' },
-  { id: 'es-ES', native: 'Español (España)', english: 'Spanish (Spain)' },
-  { id: 'sv-SE', native: 'Svenska', english: 'Swedish' },
-  { id: 'th-TH', native: 'ภาษาไทย', english: 'Thai' },
-  { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese' },
-  { id: 'vi-VN', native: 'Tiếng Việt', english: 'Vietnamese' },
-];
 
 function dateSamples(): Record<DateFormat, string> {
   const d = new Date();
@@ -106,7 +80,6 @@ function TimeZoneButton({ value, disabled, onChange }: { value: string; disabled
 export function PreferencesSection() {
   const prefs = usePrefs();
   const theme = useUI((s) => s.theme);
-  const localeId = (prefs.locale as string | undefined) ?? getLocale();
   const tzAuto = prefValue(prefs, 'time_zone_auto');
   const deviceTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const tz = tzAuto ? deviceTz : ((prefs.time_zone as string | undefined) ?? deviceTz);
@@ -140,8 +113,6 @@ export function PreferencesSection() {
     { value: 'library', label: t('lp.settings.library', 'Library') },
     { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'Litpage AI') },
   ];
-  const langOpts: Option[] = LANGUAGES.map((l) => ({ value: l.id, label: l.native, description: l.english }));
-  const curLang = LANGUAGES.find((l) => l.id === localeId) ?? LANGUAGES.find((l) => l.id === 'en-US')!;
 
   return (
     <SectionPage title={t('lp.settings.preferences', 'Preferences')} subtitle={t('lp.settings.set_how_litpage_looks_and_works', 'Set how Litpage looks and works')}>
@@ -171,22 +142,6 @@ export function PreferencesSection() {
       </Group>
 
       <Group title={t('lp.settings.language_time', 'Language & time')}>
-        <Row
-          id="language"
-          label={t('lp.settings.language', 'Language')}
-          description={t('lp.settings.select_the_language_for_litpage', 'Select the language for Litpage')}
-          control={
-            <Dropdown
-              label="Language"
-              value={curLang.id}
-              options={langOpts}
-              width={260}
-              maxHeight={420}
-              renderLabel={() => curLang.native}
-              onChange={(v) => { if (v !== curLang.id) void saveLocale(v); }}
-            />
-          }
-        />
         <Row
           id="number-format"
           label={t('lp.settings.number_format', 'Number format')}

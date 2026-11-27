@@ -9,61 +9,32 @@
 //   t('lp.shell.count_plural_one_other', '{count, plural, one {# page} other {# pages}}', { count: 3 })
 import ko from './i18n.ko-KR.json';
 
-export type Locale = 'en-US' | 'ko-KR';
-export const LOCALES: { id: Locale; label: string; native: string }[] = [
-  { id: 'en-US', label: 'English (US)', native: 'English (US)' },
-  { id: 'ko-KR', label: 'Korean', native: '한국어' },
-];
+/** CoolNotion! is Korean-only: there is no language switching, the locale is fixed. */
+export type Locale = 'ko-KR';
 
-const STORAGE_KEY = 'nc:locale';
-const catalogs: Record<Locale, Record<string, string>> = { 'en-US': {}, 'ko-KR': ko as Record<string, string> };
+const catalog = ko as Record<string, string>;
+const LOCALE: Locale = 'ko-KR';
 
-function initialLocale(): Locale {
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'en-US' || v === 'ko-KR') return v;
-  } catch {
-    /* storage unavailable */
-  }
-  return 'en-US';
-}
-
-let current: Locale = initialLocale();
-document.documentElement.lang = current.slice(0, 2);
+document.documentElement.lang = 'ko';
 
 export function getLocale(): Locale {
-  return current;
-}
-
-
-export function setLocale(l: string | undefined | null, opts?: { reload?: boolean }): boolean {
-  const next: Locale = l === 'ko-KR' ? 'ko-KR' : 'en-US';
-  if (next === current) return false;
-  current = next;
-  try {
-    localStorage.setItem(STORAGE_KEY, next);
-  } catch {
-    /* ignore */
-  }
-  document.documentElement.lang = next.slice(0, 2);
-  if (opts?.reload) location.reload();
-  return true;
+  return LOCALE;
 }
 
 export type Values = Record<string, string | number | boolean | null | undefined>;
 
 
 export function t(id: string, defaultMessage: string, values?: Values): string {
-  const msg = (current !== 'en-US' && catalogs[current][id]) || defaultMessage;
-  return values || msg.includes('{') ? format(msg, values ?? {}, current) : msg;
+  const msg = catalog[id] || defaultMessage;
+  return values || msg.includes('{') ? format(msg, values ?? {}, LOCALE) : msg;
 }
 
 /**
  * Rich messages ("Close <invertedcolor>Click or {keyboardShortcut}</invertedcolor>"): returns [text, tag|null] runs so
  */
 export function tParts(id: string, defaultMessage: string, values?: Values): { text: string; tag: string | null }[] {
-  const msg = (current !== 'en-US' && catalogs[current][id]) || defaultMessage;
-  const formatted = format(msg, values ?? {}, current, true);
+  const msg = catalog[id] || defaultMessage;
+  const formatted = format(msg, values ?? {}, LOCALE, true);
   const out: { text: string; tag: string | null }[] = [];
   const re = /<([a-zA-Z][\w-]*)>([\s\S]*?)<\/\1>/g;
   let last = 0;
@@ -75,12 +46,6 @@ export function tParts(id: string, defaultMessage: string, values?: Values): { t
   }
   if (last < formatted.length) out.push({ text: formatted.slice(last), tag: null });
   return out;
-}
-
-/** Same as t() but for an explicit locale (e.g. previews in the language picker). */
-export function tIn(locale: Locale, id: string, defaultMessage: string, values?: Values): string {
-  const msg = (locale !== 'en-US' && catalogs[locale][id]) || defaultMessage;
-  return format(msg, values ?? {}, locale);
 }
 
 // ---- tiny ICU MessageFormat subset: {x}, {n, plural, =0 {…} one {# …} other {…}}, {v, select, a {…} other {…}},
