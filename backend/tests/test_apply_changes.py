@@ -1,4 +1,5 @@
 import json
+import secrets
 import uuid
 
 import pytest
@@ -433,4 +434,94 @@ async def test_invalid_transaction_id_400(client, ws, tx_id):
     t = tx(op("block", ws["team_text"], ["alive"], "set", True))
     t["id"] = tx_id
     res = await apply(client, t)
+    assert res.status_code == 400
+
+
+# ---------- 같은 호출 안에서 만든 레코드를 뒤 연산으로 바꾸기 ----------
+
+async def test_created_records_keep_server_authorship(client, db, ws):
+    # u2가 토론·댓글·블록을 만들고 같은 호출에서 작성자를 u1로 바꿔도 저장되는 작성자는 u2다
+    await as_user(client, "kim@example.com")
+    did, cid, bid = new_id(), new_id(), new_id()
+    res = await apply(client, tx(
+        op("discussion", did, [], "set", {"parent_id": ws["team_text"], "parent_table": "block", "comments": [cid]}),
+        op("comment", cid, [], "set", {"parent_id": did, "parent_table": "discussion", "text": [["안녕"]], "alive": True}),
+        op("block", ws["team_text"], ["discussions"], "listAfter", {"id": did}),
+        op("block", bid, [], "set", {"type": "text", "parent_id": ws["team_home"], "parent_table": "block", "alive": True}),
+        op("block", ws["team_home"], ["content"], "listAfter", {"id": bid}),
+        op("discussion", did, ["created_by_id"], "set", ws["u1"]),
+        op("comment", cid, ["created_by_id"], "set", ws["u1"]),
+        op("block", bid, [], "update", {"created_by_id": ws["u1"], "created_by_table": "bot"}),
+    ))
+    assert res.status_code == 200, res.text
+    assert (await get_record(db, "discussion", did))["created_by_id"] == ws["u2"]
+    assert (await get_record(db, "comment", cid))["created_by_id"] == ws["u2"]
+    block = await get_record(db, "block", bid)
+    assert block["created_by_id"] == ws["u2"] and block["created_by_table"] == "lit_user"
+
+
+async def test_created_notification_cannot_be_redirected(client, db, ws):
+    nid = new_id()
+    res = await apply(client, tx(
+        op("notification", nid, [], "set", {"user_id": ws["u1"], "type": "mention", "space_id": ws["space"]}),
+        op("notification", nid, [], "update", {"user_id": ws["u2"], "actor_id": "ceo"}),
+    ))
+    assert res.status_code == 403
+    assert await get_record(db, "notification", nid) is None
+
+
+async def test_created_space_view_cannot_be_given_away(client, db, ws):
+    sv = new_id()
+    res = await apply(client, tx(
+        op("space_view", sv, [], "set", {"parent_id": ws["u1"], "parent_table": "user_root", "space_id": ws["space"]}),
+        op("space_view", sv, ["parent_id"], "set", ws["u2"]),
+    ))
+    assert res.status_code == 403
+    assert await get_record(db, "space_view", sv) is None
+
+
+async def test_created_team_cannot_move_to_foreign_workspace(client, db, ws):
+    await as_user(client, "lee@example.com")
+    foreign = (await call(client, "createWorkspace", {"name": "남의 곳"})).json()["spaceId"]
+    await as_user(client, "hong@example.com")
+    tid = new_id()
+    res = await apply(client, tx(
+        op("team", tid, [], "set", {"name": "몰래", "space_id": ws["space"], "parent_id": ws["space"],
+                                    "parent_table": "space", "alive": True, "membership": []}),
+        op("team", tid, [], "update", {"space_id": foreign, "parent_id": foreign,
+                                       "membership": [{"user_id": ws["u1"], "role": "owner"}]}),
+    ))
+    assert res.status_code == 403
+    assert await get_record(db, "team", tid) is None
+
+
+async def test_created_follow_cannot_point_at_unreadable_block(client, db, ws):
+    await as_user(client, "kim@example.com")
+    fid = new_id()
+    res = await apply(client, tx(
+        op("follow", fid, [], "set", {"user_id": ws["u2"], "navigable_block_id": ws["team_home"], "following": True}),
+        op("follow", fid, ["navigable_block_id"], "set", ws["welcome"]),  # u1의 비공개 페이지
+    ))
+    assert res.status_code == 403
+    assert await get_record(db, "follow", fid) is None
+
+
+async def test_created_page_visit_cannot_be_reassigned(client, db, ws):
+    vid = f"{ws['u1']}:{ws['welcome']}"
+    res = await apply(client, tx(
+        op("page_visit", vid, [], "set", {"user_id": ws["u1"], "parent_id": ws["welcome"], "visited_at": 1}),
+        op("page_visit", vid, ["user_id"], "set", ws["u2"]),
+    ))
+    assert res.status_code == 403
+    assert await get_record(db, "page_visit", vid) is None
+
+
+@pytest.mark.parametrize("table,field", [
+    ("page_visit", "parent_id"), ("page_visit", "space_id"), ("notification", "space_id"),
+    ("space_view", "space_id"), ("follow", "space_id"), ("page_visit", "parent_table"),
+])
+async def test_too_long_index_values_400(client, ws, table, field):
+    # 압축이 잘 안 되는 임의 값이어야 B-tree 색인 한도를 넘는다(같은 글자 반복은 압축돼 들어간다)
+    rec = {"user_id": ws["u1"], "parent_id": ws["u1"], "navigable_block_id": ws["welcome"], field: secrets.token_hex(5000)}
+    res = await apply(client, tx(op(table, new_id(), [], "set", rec)))
     assert res.status_code == 400

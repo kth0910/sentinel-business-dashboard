@@ -221,8 +221,12 @@ def record_shape_problem(table: str, rec: dict) -> str | None:
     """저장하기 직전 레코드가 DB에 들어갈 수 있는 모양인지(→ 400). 색인 열(parent_id·space_id·alive·
     last_edited_time)의 타입, JSONB가 받지 않는 문자열·숫자, 정수로 정렬·변환하는 page_visit 숫자를 본다."""
     for key in ("parent_id", "parent_table", "space_id"):
-        if rec.get(key) is not None and not isinstance(rec.get(key), str):
+        v = rec.get(key)
+        if v is not None and not isinstance(v, str):
             return f"{key} must be a string"
+        # B-tree 색인 열이라 너무 긴 값은 색인에 들어가지 않는다(500 대신 400)
+        if isinstance(v, str) and len(v) > MAX_ID:
+            return f"{key} is too long"
     if rec.get("alive") is not None and not isinstance(rec.get("alive"), bool):
         return "alive must be a boolean"
     if not _int64_or_missing(rec, "last_edited_time"):
@@ -360,47 +364,12 @@ class TxGuard:
             # ---------------------------------------------------------------- 생성
             self.created[key] = None
             self._structural = True
-            if table in _AUTHORED:
-                a["created_by_id"] = uid  # 작성자는 클라이언트가 정하지 않는다(사칭 방지)
-                if table == "block":
-                    a["created_by_table"] = "lit_user"
-            match table:
-                case "block":
-                    return None if isinstance(a.get("type"), str) else "Blocks need a type"  # 부모는 finalize에서
-                case "collection" | "collection_view" | "discussion" | "comment":
-                    return None  # finalize
-                case "space":
-                    return "Workspaces are created with createWorkspace"
-                case "space_view":
-                    return None if a.get("parent_id") == uid else "Not your sidebar"
-                case "team":
-                    space = await self.get("space", a.get("space_id"))
-                    if not is_space_member(space, uid):
-                        return "Not a member of this workspace"
-                    if a.get("parent_table") != "space" or a.get("parent_id") != a.get("space_id"):
-                        return "Teamspaces live in their workspace"
-                    members = _members(space)
-                    membership = a.get("membership")
-                    if membership is not None and not isinstance(membership, list):
-                        return "Invalid membership"
-                    if any(not isinstance(m, dict) or m.get("user_id") not in members for m in membership or []):
-                        return "Teamspace members must be workspace members"
-                    return None
-                case "lit_user" | "user_root" | "user_settings":
-                    return None if rid == uid else "Not your account"
-                case "notification" | "page_visit":
-                    return None if a.get("user_id") == uid else "Not your record"
-                case "follow":
-                    if a.get("user_id") != uid:
-                        return "Not your record"
-                    nav = a.get("navigable_block_id")
-                    return None if nav and await self.role(nav) != "none" else "Not found"
-                case _:
-                    return "Unknown table"
+            return await self._creation_problem(table, rid, a)
 
         # ------------------------------------------------------------------ 기존 레코드 수정
         if key in self.created:
-            # 이번 호출에서 만든 것: 만든 사람이 계속 다듬을 수 있다(부모·포인터는 finalize에서 다시 본다)
+            # 이번 호출에서 만든 것: 만든 사람이 계속 다듬을 수 있다. 생성 규칙(작성자·주인·팀·부모·포인터)은
+            # finalize가 최종 값으로 다시 검사한다.
             self._structural = True
             return None
         if not keys:
@@ -486,6 +455,48 @@ class TxGuard:
                 if "navigable_block_id" in keys or "parent_id" in keys or "space_id" in keys:
                     return "Not allowed"
                 return None
+            case _:
+                return "Unknown table"
+
+    async def _creation_problem(self, table: str, rid: str, a: dict) -> str | None:
+        """새 레코드의 생성 규칙. 생성 연산 때 한 번, 그리고 같은 호출의 뒤 연산이 값을 바꿨을 수 있으므로
+        finalize에서 최종 값으로 한 번 더 부른다(작성자 도장도 다시 찍는다). 부모는 _parent_problem이 본다."""
+        uid = self.user_id
+        if table in _AUTHORED:
+            a["created_by_id"] = uid  # 작성자는 클라이언트가 정하지 않는다(사칭 방지)
+            if table == "block":
+                a["created_by_table"] = "lit_user"
+        match table:
+            case "block":
+                return None if isinstance(a.get("type"), str) else "Blocks need a type"
+            case "collection" | "collection_view" | "discussion" | "comment":
+                return None
+            case "space":
+                return "Workspaces are created with createWorkspace"
+            case "space_view":
+                return None if a.get("parent_id") == uid else "Not your sidebar"
+            case "team":
+                space = await self.get("space", a.get("space_id"))
+                if not is_space_member(space, uid):
+                    return "Not a member of this workspace"
+                if a.get("parent_table") != "space" or a.get("parent_id") != a.get("space_id"):
+                    return "Teamspaces live in their workspace"
+                members = _members(space)
+                membership = a.get("membership")
+                if membership is not None and not isinstance(membership, list):
+                    return "Invalid membership"
+                if any(not isinstance(m, dict) or m.get("user_id") not in members for m in membership or []):
+                    return "Teamspace members must be workspace members"
+                return None
+            case "lit_user" | "user_root" | "user_settings":
+                return None if rid == uid and a.get("id") == uid else "Not your account"
+            case "notification" | "page_visit":
+                return None if a.get("user_id") == uid else "Not your record"
+            case "follow":
+                if a.get("user_id") != uid:
+                    return "Not your record"
+                nav = a.get("navigable_block_id")
+                return None if nav and await self.role(nav) != "none" else "Not found"
             case _:
                 return "Unknown table"
 
@@ -705,6 +716,11 @@ class TxGuard:
                 stored = self.stored.get(key) or {}
                 if stored.get("space_id") and r.get("space_id") and stored["space_id"] != r["space_id"]:
                     return f"Pages can only be duplicated to another workspace, not moved ({key})"
+            if key in self.created:
+                # 같은 호출의 뒤 연산이 바꿨을 수 있는 최종 값으로 생성 규칙을 다시 본다(space_id는 위에서 맞췄다)
+                problem = await self._creation_problem(ch.table, r.get("id"), r)
+                if problem:
+                    return f"{problem} ({key})"
             if key in self.created and ch.table in _ATTACHED and not await self._anchored(ch.table, r):
                 return f"Record is not attached to a page ({key})"
             if r.get("space_id"):
