@@ -111,7 +111,6 @@ export interface Summary {
   edited?: Partial<Record<ActualPeriod, number>>;
 }
 
-export const REQUIRED_COLUMNS = ['구분', '영업대표', '영업코드', '사용고객', '계약사', '제품/서비스', '공급가', '영업진행사항', '계약일', '영업개시일', '최종영업확도'] as const;
 export const MAIN_DIVISION = '본 영업';
 export const OPEN_PROGRESS = ['진행', '장기관리'];
 export const CONFIRMED = '확정';

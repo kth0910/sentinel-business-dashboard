@@ -11,6 +11,9 @@ const WEEKDAYS_FULL = WEEKDAYS.map((w) => `${w}요일`);
 
 const monthOf = (date: string) => date.slice(0, 7);
 
+/** 매출 반영(파란 점): 그날 본영업 목표매출 페이지가 있거나, 넣어 둔 매출 데이터나 직접 입력한 증감이 있으면. */
+const hasSales = (d: CalendarDay | undefined) => !!d && (!!d.salesPageId || d.hasSnapshot || d.dayDelta !== 0);
+
 function shiftMonth(month: string, by: number): string {
   const [y, m] = month.split('-').map(Number);
   const d = new Date(y, m - 1 + by, 1);
@@ -105,7 +108,7 @@ export function CalendarPage() {
                   <span className="biz-cal-info">
                     <span className="biz-cal-marks">
                       {d.reportPageId && <i className="biz-dot report" title="업무보고" />}
-                      {d.hasSnapshot && <i className="biz-dot sales" title="매출 반영" />}
+                      {hasSales(d) && <i className="biz-dot sales" title="매출 반영" />}
                     </span>
                     <span className={`biz-delta ${d.dayDelta > 0 ? 'up' : d.dayDelta < 0 ? 'down' : ''}`}>{d.dayDelta !== 0 ? `${signed(d.dayDelta)} ${arrow(d.dayDelta)}` : ''}</span>
                   </span>
@@ -124,7 +127,7 @@ export function CalendarPage() {
               </button>
               <button type="button" disabled={busy !== null} onClick={() => open('sales')}>
                 <b>본영업 목표매출 관리 현황</b>
-                <span>{day?.hasSnapshot ? `매출 반영 · 증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : day?.dayDelta ? `증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : '매출 미반영'}</span>
+                <span>{hasSales(day) ? `매출 반영${day?.dayDelta ? ` · 증감 ${signed(day.dayDelta)} ${arrow(day.dayDelta)}` : ''}` : '매출 미반영'}</span>
               </button>
             </div>
           </section>

@@ -1,5 +1,5 @@
 // 업무 화면 RPC (POST /api/rpc/biz*). 로그인만 확인하고 권한은 따로 두지 않는다(설계 11.2).
-// 매출 데이터를 넣는 RPC는 없다: 서버 명령(scripts/biz-import.ts)·API 동기화만 biz/importer.ts로 넣는다.
+// 매출 데이터를 넣는 RPC는 없다. 엑셀 가져오기는 삭제했고, 업무관리시스템 API가 붙으면 그 동기화가 store.importSnapshot으로 넣는다.
 import { monthlyConfirmed, openPipeline, summarize, type Targets } from '@nc/biz';
 import type { SpaceRecord } from '@nc/shared/records.ts';
 import { getRecord } from '../../db.ts';

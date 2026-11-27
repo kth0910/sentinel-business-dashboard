@@ -1,8 +1,7 @@
-// 업무 데이터 저장소와 biz RPC: 스냅샷·변동 재계산, 구분 관리, 잘못된 엑셀 거부.
+// 업무 데이터 저장소와 biz RPC: 스냅샷·변동 재계산, 구분 관리. (엑셀 가져오기는 삭제됨)
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import ExcelJS from 'exceljs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { SalesRow } from '@nc/biz';
 
@@ -11,12 +10,10 @@ process.env.NC_SCHEDULER = '0';
 
 let store: typeof import('../src/biz/store.ts');
 let biz: typeof import('../src/api/modules/biz.ts');
-let importer: typeof import('../src/biz/importer.ts');
 
 beforeAll(async () => {
   store = await import('../src/biz/store.ts');
   biz = await import('../src/api/modules/biz.ts');
-  importer = await import('../src/biz/importer.ts');
 });
 
 function r(over: Partial<SalesRow> = {}): SalesRow {
@@ -87,26 +84,9 @@ describe('biz store', () => {
   });
 });
 
-async function xlsx(rows: unknown[][]): Promise<string> {
-  const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet('Sheet0');
-  for (const row of rows) ws.addRow(row);
-  return Buffer.from(await wb.xlsx.writeBuffer()).toString('base64');
-}
-
-const HEAD = ['번호', '구분', '영업대표', '영업코드', '사용고객', '계약사', '제품/서비스', '공급가', '영업진행사항', '계약일', '로그수', '영업개시일', '마지막 로그일', '최종영업확도'];
-
-describe('sales import and biz rpc', () => {
-  it('import rejects bad file without writing', async () => {
-    const fileBase64 = await xlsx([['번호', '구분'], [1, '본 영업']]);
-    await expect(importer.importSalesFile('2026-12-01', Buffer.from(fileBase64, 'base64'))).rejects.toMatchObject({ status: 400 });
-    expect(store.snapshotRows('2026-12-01')).toBeNull();
-  });
-
-  it('imports an xlsx and serves the sales view', async () => {
-    const fileBase64 = await xlsx([HEAD, [1, '본 영업', '홍길동', 501, '고객사 B', '협력사 B', 'CF v4.0(Cloud)', 1000, '완료', '2026-12-02 00:00:00.0', 1, '2026-11-01', null, '확정']]);
-    const res = await importer.importSalesFile('2026-12-02', Buffer.from(fileBase64, 'base64'));
-    expect(res).toMatchObject({ date: '2026-12-02', rowCount: 1, baseline: false });
+describe('biz rpc', () => {
+  it('serves the sales view', async () => {
+    store.importSnapshot('2026-12-02', [r({ key: '501::CF v4.0(Cloud)', code: 501, product: 'CF v4.0(Cloud)', customer: '고객사 B', contractor: '협력사 B', amount: 1000, progress: '완료', contractDate: '2026-12-02', probability: '확정', isCloud: true })]);
     const view = await biz.handlers.bizSalesView(ctx, { date: '2026-12-02' });
     expect(view.hasSnapshot).toBe(true);
     expect(view.prevDate).toBe('2026-11-30');
@@ -131,33 +111,6 @@ describe('sales import and biz rpc', () => {
   });
 });
 
-// 리뷰 #4: 일부만 담긴(필터된) 엑셀이나 빈 엑셀이 '목표매출 제외'를 쏟아내지 않게
-describe('partial export guard', () => {
-  const row = (i: number) => [i, '본 영업', '홍길동', 800 + i, '고객사', '협력사', `제품 ${i}`, 1000, '진행', null, 1, '2026-11-01', null, '중A'];
-  const many = (n: number) => Array.from({ length: n }, (_, i) => row(i));
-
-  it('rejects a file with headers but no rows, writing nothing', async () => {
-    const fileBase64 = await xlsx([HEAD]);
-    await expect(importer.importSalesFile('2026-12-09', Buffer.from(fileBase64, 'base64'))).rejects.toMatchObject({ status: 400 });
-    expect(store.snapshotRows('2026-12-09')).toBeNull();
-  });
-
-  it("asks before accepting a file missing many of yesterday's 본 영업 rows", async () => {
-    await importer.importSalesFile('2026-12-10', Buffer.from(await xlsx([HEAD, ...many(50)]), 'base64'));
-    const partial = await xlsx([HEAD, ...many(5)]);
-    await expect(importer.importSalesFile('2026-12-11', Buffer.from(partial, 'base64'))).rejects.toMatchObject({ status: 409 });
-    expect(store.snapshotRows('2026-12-11')).toBeNull();
-    const res = await importer.importSalesFile('2026-12-11', Buffer.from(partial, 'base64'), { force: true });
-    expect(res).toMatchObject({ rowCount: 5, missingCount: 45, changeCount: 45 });
-  });
-
-  it('a few missing rows go through without asking', async () => {
-    await importer.importSalesFile('2026-12-12', Buffer.from(await xlsx([HEAD, ...many(50)]), 'base64'));
-    const res = await importer.importSalesFile('2026-12-13', Buffer.from(await xlsx([HEAD, ...many(50).slice(1)]), 'base64'));
-    expect(res).toMatchObject({ rowCount: 49, missingCount: 1 });
-  });
-});
-
 // 리뷰 #2: 지운 기본 구분을 가리키는 변동이 생기지 않는다 (파일 맨 끝: 다른 테스트에 영향 없게)
 describe('deleted default category', () => {
   it('later auto-classified changes fall back to unclassified', () => {
@@ -170,21 +123,7 @@ describe('deleted default category', () => {
   });
 });
 
-// 목업: 엑셀에 없는 가중치·매출 구분·매출일정은 올릴 때 채워지고, 같은 파일을 다음 날 올려도 변동이 생기지 않는다
-describe('mock extras on upload', () => {
-  it('fills weight, revenue type and date, and the same file the next day has no changes', async () => {
-    const file = await xlsx([HEAD, [1, '본 영업', '홍길동', 9001, '고객사', '협력사', '목업 제품', 1000, '진행', null, 1, '2026-11-01', null, '중A']]);
-    await importer.importSalesFile('2027-02-01', Buffer.from(file, 'base64'));
-    const [row] = store.snapshotRows('2027-02-01')!;
-    expect(row.weight).toBeTruthy();
-    expect(row.revenueType).toBeTruthy();
-    expect(row.revenueDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    const res = await importer.importSalesFile('2027-02-02', Buffer.from(file, 'base64'));
-    expect(res.changeCount).toBe(0);
-  });
-});
-
-// 엑셀 업로드 화면 기능은 뺐다: 업로드 RPC가 없어야 로그인한 아무나 매출 데이터를 덮어쓰지 못한다
+// 엑셀 업로드·가져오기는 삭제했다: 업로드 RPC가 없어야 로그인한 아무나 매출 데이터를 덮어쓰지 못한다
 describe('no upload rpc', () => {
   it('bizImportSales is gone', () => {
     expect('bizImportSales' in biz.handlers).toBe(false);
