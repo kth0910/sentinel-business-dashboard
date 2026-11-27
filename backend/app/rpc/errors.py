@@ -27,6 +27,11 @@ class NotFoundError(RpcError):
     name = "NotFound"
 
 
+class PayloadTooLargeError(RpcError):
+    status = 413
+    name = "ValidationError"
+
+
 class RateLimitedError(RpcError):
     status = 429
     name = "RateLimitedError"

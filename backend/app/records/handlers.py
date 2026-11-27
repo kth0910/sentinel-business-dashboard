@@ -1,18 +1,22 @@
 """레코드 기반 RPC: 계정 데이터, 워크스페이스 만들기, 페이지 읽기, 사이드바, 화면 시작용 임시 응답.
 (원본 apps/server/src/api/handlers.ts, api/modules/sidebar.ts)"""
+import logging
 import math
 from typing import Any
 
 from sqlalchemy import BigInteger, cast, select
 
 from app.auth.models import User
+from app.records.apply import TransactionError, apply_transactions
 from app.records.pages import PAGE_TYPES, add_ancestors, add_outline_block, page_chunk, sidebar_children
 from app.records.permissions import Lookup, effective_role, is_space_member
 from app.records.recordmap import RecordMapBuilder
 from app.records.seed import create_workspace, ensure_user_records, save
 from app.records.store import TABLES, changes, current_lsn, get_record, now_ms, records, records_in_space
-from app.rpc.errors import NotFoundError, UnauthorizedError
+from app.rpc.errors import NotFoundError, PayloadTooLargeError, PermissionDenied, UnauthorizedError, ValidationError
 from app.rpc.registry import RpcContext, rpc
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_WORKSPACE_NAME = "내 워크스페이스"
 MAX_TREE_NODES = 3000
@@ -195,6 +199,43 @@ async def get_changes_since(ctx: RpcContext, body: dict[str, Any]) -> dict[str, 
     for row in rows:
         await rm.add(row.tbl, await lookup.get(row.tbl, row.id))
     return {"recordMap": rm.map, "lsn": rows[-1].lsn if rows else since}
+
+
+# ---------- 편집 적용 ----------
+
+MAX_TRANSACTIONS = 500
+MAX_OPERATIONS = 20_000
+BAD_REQUEST_MESSAGE = "잘못된 요청입니다."
+FORBIDDEN_MESSAGE = "이 작업을 할 권한이 없습니다."
+
+
+@rpc("applyChanges")
+async def apply_changes(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    uid = _require_user(ctx)
+    transactions = body.get("transactions")
+    if not isinstance(transactions, list) or len(transactions) > MAX_TRANSACTIONS:
+        raise ValidationError(BAD_REQUEST_MESSAGE)
+    n_ops = sum(len(t["operations"]) for t in transactions if isinstance(t, dict) and isinstance(t.get("operations"), list))
+    if n_ops > MAX_OPERATIONS:
+        raise PayloadTooLargeError("한 번에 보낼 수 있는 변경이 너무 많습니다.")
+    try:
+        changes = await apply_transactions(ctx.db, uid, transactions, ctx.client_id)
+    except TransactionError as e:
+        # 사유는 서버 기록에만 남기고 클라이언트에는 정해진 문구만 보낸다
+        logger.info("applyChanges 거절 (user=%s, status=%s): %s", uid, e.status, e.message)
+        if e.status == 403:
+            raise PermissionDenied(FORBIDDEN_MESSAGE) from None
+        raise ValidationError(BAD_REQUEST_MESSAGE) from None
+    # 서버가 확정한 값을 돌려줘 클라이언트가 대기 중인 연산을 바로 다시 얹게 한다
+    rm = RecordMapBuilder(Lookup(ctx.db), uid)
+    for ch in changes:
+        await rm.add(ch.table, ch.record)
+    return {"recordMap": rm.map}
+
+
+@rpc("applyChangesFanout")
+async def apply_changes_fanout(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    return await apply_changes(ctx, body)
 
 
 # ---------- 방문 기록 ----------
