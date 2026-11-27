@@ -4,6 +4,8 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth.providers import AuthProvider
+
 
 @dataclass
 class RpcContext:
@@ -13,6 +15,7 @@ class RpcContext:
     ip: str
     secure: bool
     db: AsyncSession
+    auth_provider: AuthProvider
     cookies: list[str] = field(default_factory=list)  # 응답에 붙일 Set-Cookie 값
 
 

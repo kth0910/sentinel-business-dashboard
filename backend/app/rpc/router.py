@@ -30,6 +30,7 @@ async def build_context(request: Request, db: AsyncSession) -> RpcContext:
         ip=request.client.host if request.client else "",
         secure=request.url.scheme == "https",
         db=db,
+        auth_provider=request.app.state.auth_provider,
     )
 
 

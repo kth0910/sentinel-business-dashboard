@@ -1,6 +1,6 @@
 import asyncio
 import os
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 
 import httpx
 import pytest
@@ -9,6 +9,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 import app.auth.models  # noqa: F401  (테이블을 Base.metadata에 등록)
+from app.auth.providers import AuthProvider
 from app.config import get_settings
 from app.db import Base, get_db, make_engine
 from app.main import app
@@ -69,3 +70,15 @@ async def client(db: AsyncSession) -> AsyncIterator[httpx.AsyncClient]:
 def pytest_asyncio_loop_factories(config, item):
     # Windows에서 psycopg 비동기는 SelectorEventLoop가 필요하다(정책 API는 3.15에서 폐기 예정).
     return {"selector": asyncio.SelectorEventLoop}
+
+
+@pytest.fixture
+def use_auth_provider() -> Iterator[Callable[[AuthProvider], None]]:
+    """앱이 쓰는 인증 공급자를 테스트 동안 바꿔 끼우고, 끝나면 원래대로 돌려놓는다."""
+    original = app.state.auth_provider
+
+    def set_provider(provider: AuthProvider) -> None:
+        app.state.auth_provider = provider
+
+    yield set_provider
+    app.state.auth_provider = original
