@@ -23,3 +23,19 @@ async def test_provision_external_user_once(db):
     second = await provision_external_user(db, ident, source="mail")
     assert first.id == second.id
     assert first.email == "park@company.co.kr" and first.auth_source == "mail" and first.password_hash is None
+
+
+async def test_provision_never_takes_over_other_source(db):
+    await create_user(db, "admin@example.com", "관리자", "secret-123", is_admin=True)
+    with pytest.raises(ValueError):
+        await provision_external_user(db, Identity(email="admin@example.com", name="가짜", external_id="mail-9"), source="mail")
+
+
+async def test_provision_links_external_id_for_same_source(db):
+    existing = await create_user(db, "lee@company.co.kr", "이순신", None, auth_source="mail")
+    assert existing.external_id is None
+    ident = Identity(email="Lee@Company.co.kr", name="이순신", external_id="mail-7")
+    linked = await provision_external_user(db, ident, source="mail")
+    assert linked.id == existing.id and linked.external_id == "mail-7"
+    by_id = await provision_external_user(db, Identity(email="other@company.co.kr", name="x", external_id="mail-7"), source="mail")
+    assert by_id.id == existing.id

@@ -57,6 +57,12 @@ async def provision_external_user(db: AsyncSession, identity: "Identity", source
             return user
     user = await find_user_by_email(db, identity.email)
     if user is not None:
+        if user.auth_source != source:
+            # 다른 출처 계정(로컬·샘플 관리자 등)과는 이메일이 같아도 합치지 않는다.
+            raise ValueError("이미 다른 방식으로 등록된 이메일입니다.")
+        if user.external_id is None and identity.external_id is not None:
+            user.external_id = identity.external_id
+            await db.commit()
         return user
     return await create_user(
         db, identity.email, identity.name, None, auth_source=source, external_id=identity.external_id
