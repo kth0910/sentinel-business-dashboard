@@ -1,5 +1,6 @@
 // Input/keyboard behavior shared by all rich-text blocks (text, headings, lists, quote, callout, code).
 // behaviors: (keyboard / markdown_autoformat / text_autoreplace).
+import { AI_ENABLED } from '../ai/enabled.ts';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { BlockType } from '@nc/shared/records.ts';
 import {
@@ -411,7 +412,7 @@ export function makeTextHandlers(blockId: string, property = 'title') {
       }
       case ' ': {
  // "Press ‘space’ for AI" in an empty text block: the AI owner marks the event handled
-        if (!e.shiftKey && !m && property === 'title' && b.type === 'text' && length(value) === 0) {
+        if (AI_ENABLED && !e.shiftKey && !m && property === 'title' && b.type === 'text' && length(value) === 0) {
           const ev = new CustomEvent('nc:ask-ai', { detail: { blockId, property, start: 0, end: 0, trigger: 'space', handled: false } });
           window.dispatchEvent(ev);
           if ((ev.detail as any).handled) e.preventDefault();

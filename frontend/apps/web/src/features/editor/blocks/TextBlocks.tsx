@@ -22,9 +22,11 @@ import { createToggleHeading } from './factories.ts';
 import { PREF, setPref } from '../prefs.ts';
 import './icons.tsx';
 import './blocks.css';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 
+// AI_ENABLED가 꺼져 있으면 AI 안내 없이 명령 안내만 보인다.
 const PLACEHOLDER: Record<string, string> = {
-  text: 'Press ‘space’ for AI or ‘/’ to open commands',
+  text: AI_ENABLED ? 'Press ‘space’ for AI or ‘/’ to open commands' : '‘/’를 입력해 명령 열기',
   header: 'Heading 1',
   sub_header: 'Heading 2',
   sub_sub_header: 'Heading 3',
@@ -54,6 +56,8 @@ export function useToggleOpen(blockId: string): [boolean, (v: boolean) => void] 
   }, [blockId]);
   return [open, (v) => setOpen(blockId, v)];
 }
+
+export const textPlaceholder = (type: string): string | undefined => PLACEHOLDER[type];
 
 export function Leaf({ block, readOnly, tag, className, placeholderAlways, placeholder }: { block: BlockRecord; readOnly: boolean; tag?: any; className?: string; placeholderAlways?: boolean; placeholder?: string }) {
   const handlers = useMemo(() => makeTextHandlers(block.id), [block.id]);

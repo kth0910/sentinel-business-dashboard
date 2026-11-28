@@ -20,8 +20,9 @@ import.meta.glob(
   ],
   { eager: true },
 );
+// eager glob은 조건문 안에 있어도 최상단 정적 import로 끌어올려지므로, 지연 로더로 두고 AI_ENABLED일 때만 호출한다.
 if (AI_ENABLED) {
-  import.meta.glob(
+  const aiBlocks = import.meta.glob(
     [
       '../../ai/AiBlock.block.tsx',
       '../../agents/AgentChat.block.tsx',
@@ -29,7 +30,7 @@ if (AI_ENABLED) {
       './ai.block.tsx',
       '../../meetings/MeetingNotes.block.tsx',
     ],
-    { eager: true },
   );
+  for (const load of Object.values(aiBlocks)) void load();
 }
 import.meta.glob('../../**/*.view.tsx', { eager: true });

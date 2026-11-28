@@ -21,7 +21,7 @@ import { turnIntoItems } from './inline/turnInto.ts';
 import { AI_ENABLED } from '../ai/enabled.ts';
 
 /** AI_ENABLED가 꺼져 있으면 슬래시 메뉴에서 빠지는 AI 항목 id. */
-export const AI_SLASH_IDS: readonly string[] = ['ai-meeting-notes', 'ai-meeting-notes-2', 'ai-block', 'ask-ai', 'ai-skill'];
+export const AI_SLASH_IDS: readonly string[] = ['ai-meeting-notes', 'ai-meeting-notes-2', 'ai-block', 'ai-image', 'ask-ai', 'ai-skill'];
 
 /** Stable ids of the slash "Turn into" items (block modules override some by id, e.g. turn-callout). */
 const TURN_IDS: Record<string, string> = {

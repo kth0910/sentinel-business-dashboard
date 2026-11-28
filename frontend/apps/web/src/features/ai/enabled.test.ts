@@ -70,6 +70,29 @@ describe('AI 기능 숨기기', () => {
     expect(ids).toContain('text');
   });
 
+  it('registerAll 이후 블록 레지스트리에 AI 블록 타입이 없다', async () => {
+    await import('../editor/blocks/registerAll.ts');
+    await new Promise((r) => setTimeout(r, 1500)); // AI_ENABLED가 켜지면 지연 로더가 끝날 시간을 준다
+    const { blockRegistry } = await import('../editor/Block.tsx');
+    for (const type of ['ai_block', 'agent_chat', 'meeting_notes', 'transcription']) expect(blockRegistry[type], type).toBeUndefined();
+    expect(blockRegistry.text).toBeDefined();
+  }, 60_000);
+
+  it('다른 영역이 등록한 AI 슬래시 항목(ai-image 등)도 메뉴에서 빠진다', async () => {
+    const { registerSlashItems } = await import('../editor/blocks/registry.ts');
+    const fake = (id: string) => ({ id, label: id, section: 'AI', icon: 'aiFace', apply: () => {} });
+    registerSlashItems(() => slashItems.AI_SLASH_IDS.map(fake));
+    const ids = slashItems.slashCatalog().map((i) => i.id);
+    for (const id of slashItems.AI_SLASH_IDS) expect(ids).not.toContain(id);
+    expect(slashItems.AI_SLASH_IDS).toContain('ai-image');
+  });
+
+  it('빈 텍스트 블록 안내문에 AI 문구가 없다', async () => {
+    const { textPlaceholder } = await import('../editor/blocks/TextBlocks.tsx');
+    expect(textPlaceholder('text')).toBe('‘/’를 입력해 명령 열기');
+    expect(source('features/editor/textHandlers.ts')).toContain('AI_ENABLED');
+  });
+
   it.each(['/ws/chat', '/ws/chat/abc', '/ws/meetings', '/ws/library', '/ws/library/skills', '/agent/0123456789abcdef0123456789abcdef'])('%s 는 홈으로 보낸다', (path) => {
     expect(router.parseLocation(path, '', '').route).toEqual({ name: 'root' });
   });

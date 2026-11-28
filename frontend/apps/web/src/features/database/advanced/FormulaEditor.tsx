@@ -433,7 +433,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
               insertText(e.clipboardData.getData('text/plain'));
             }}
           />
-          <div
+          {AI_ENABLED && <div
             role="button"
             aria-pressed={assistantOpen}
             aria-label="Switch formula helper"
@@ -446,7 +446,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
             }}
           >
             <Icon name="aiFace" size={12} />
-          </div>
+          </div>}
         </div>
       </div>
       <div className="nc-fx-preview">
