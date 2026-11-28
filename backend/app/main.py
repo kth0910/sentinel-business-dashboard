@@ -9,7 +9,12 @@ import app.records.handlers  # noqa: F401  (레코드 RPC 처리 함수 등록)
 from app.auth.providers import get_auth_provider
 from app.config import get_settings
 from app.db import get_db
+from app.realtime.endpoint import hub
+from app.realtime.endpoint import router as ws_router
+from app.records.apply import on_commit
 from app.rpc.router import router as rpc_router
+
+_hooked = False
 
 
 def create_app() -> FastAPI:
@@ -22,6 +27,11 @@ def create_app() -> FastAPI:
         return {"status": "ok", "db": "ok"}
 
     app.include_router(rpc_router)
+    app.include_router(ws_router)
+    global _hooked
+    if not _hooked:  # create_app이 여러 번 불려도 방송 훅은 한 번만 등록한다
+        on_commit(hub.broadcast)
+        _hooked = True
     return app
 
 

@@ -21,6 +21,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
 
 [dependency-groups]
 dev = [
