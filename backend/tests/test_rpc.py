@@ -84,11 +84,17 @@ async def test_unexpected_error_hides_details(client):
     assert res.json()["errorId"]
 
 
-async def test_body_over_1mb_is_413(client):
-    big = '{"a":"' + "x" * (1024 * 1024) + '"}'
+async def test_body_over_20mb_is_413(client):
+    big = '{"a":"' + "x" * (20 * 1024 * 1024) + '"}'
     res = await client.post("/api/rpc/_testEcho", content=big, headers=JSON)
     assert res.status_code == 413
     assert res.json()["name"] == "ValidationError"
+
+
+async def test_body_between_1mb_and_20mb_is_accepted(client):
+    big = '{"a":"' + "x" * (2 * 1024 * 1024) + '"}'
+    res = await client.post("/api/rpc/_testEcho", content=big, headers=JSON)
+    assert res.status_code == 200
 
 
 async def test_ctx_cookies_become_set_cookie_headers(client):

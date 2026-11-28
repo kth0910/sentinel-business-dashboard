@@ -383,6 +383,22 @@ async def test_too_many_transactions_or_operations(client, ws):
     assert res.status_code == 413
 
 
+async def test_large_paste_over_1mb_is_not_413(client, ws):
+    """붙여넣기 하나가 1MB를 넘어도(원본은 20MB까지) 본문 크기 때문에 거절되면 안 된다."""
+    bid = new_id()
+    big_title = "가" * 400_000  # UTF-8로 약 1.2MB
+    res = await apply(client, tx(
+        op("block", bid, [], "set", {
+            "id": bid, "type": "text", "properties": {"title": [[big_title]]}, "parent_id": ws["team_home"],
+            "parent_table": "block", "alive": True, "created_by_id": "someone-else",
+        }, space_id=ws["space"]),
+        op("block", ws["team_home"], ["content"], "listAfter", {"id": bid}, space_id=ws["space"]),
+    ))
+    assert res.request.content.__len__() > 1024 * 1024
+    assert res.status_code != 413
+    assert res.status_code == 200, res.text
+
+
 async def test_anonymous_401(client):
     res = await apply(client, tx())
     assert res.status_code == 401

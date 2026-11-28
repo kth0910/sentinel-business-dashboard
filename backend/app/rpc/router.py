@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-MAX_BODY_BYTES = 1024 * 1024
+MAX_BODY_BYTES = 20 * 1024 * 1024
 SESSION_COOKIE = "lit_session"
 INTERNAL_MESSAGE = "요청을 처리하는 중 문제가 발생했습니다."
 

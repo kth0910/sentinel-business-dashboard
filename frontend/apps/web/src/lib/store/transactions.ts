@@ -6,6 +6,7 @@ import type { TextSplice } from '@nc/shared/textmerge.ts';
 import { api, ApiError } from '../api.ts';
 import { records } from './records.ts';
 import { markTyping } from './typing.ts';
+import { useUI } from './ui.ts';
 
 export interface SelectionSnapshot {
   blockId?: string;
@@ -204,7 +205,7 @@ class TransactionManager {
       if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 408 && e.status !== 429) {
         records.rejectTransactions(ids);
         this.lastError = e.message;
-        this.onError?.(e.status === 403 ? "You don't have permission to edit this." : e.message);
+        this.onError?.(e.status === 403 ? '이 페이지를 편집할 권한이 없습니다.' : e.message || '변경 내용을 저장하지 못했습니다.');
       } else {
         // network/server failure: retry later, keeping order
         this.outbox.unshift(...batch);
@@ -236,6 +237,8 @@ class TransactionManager {
 }
 
 export const transactions = new TransactionManager();
+// A rejected save rolls the change back, so the user has to be told (otherwise pasted content just vanishes).
+transactions.onError = (message) => useUI.getState().toast(message);
 
 window.addEventListener('beforeunload', (e) => {
   if (transactions.pendingCount() > 0) {
