@@ -152,3 +152,38 @@ async def create_workspace(db: AsyncSession, user_id: str, name: str, icon: str 
     if root:
         await save(db, "user_root", {**root, "space_views": [*(root.get("space_views") or []), sv_id]})
     return space
+
+
+async def add_member(db: AsyncSession, space_id: str, user_id: str, role: str) -> None:
+    """기존 사용자를 워크스페이스에 넣는다(원본 addMember): space 권한 추가, space_view 생성, user_root 갱신,
+    기본 팀 멤버 추가. 커밋하지 않는다."""
+    space = await get_record(db, "space", space_id)
+    if space is None:
+        raise ValueError("워크스페이스 레코드가 없습니다.")
+    perms = [p for p in (space.get("permissions") or []) if p.get("user_id") != user_id]
+    perms.append({"type": "user_permission", "role": role, "user_id": user_id, "added_timestamp": now_ms()})
+    await save(db, "space", {**space, "permissions": perms})
+    root = await get_record(db, "user_root", user_id)
+    existing = None
+    for sv_id in (root or {}).get("space_views") or []:
+        sv = await get_record(db, "space_view", sv_id)
+        if sv and sv.get("space_id") == space_id:
+            existing = sv
+            break
+    if existing:
+        return
+    sv_id = new_id()
+    defaults = space.get("default_team_ids") or []
+    await save(db, "space_view", {
+        "id": sv_id, "space_id": space_id, "parent_id": user_id, "parent_table": "user_root", "alive": True,
+        "private_pages": [], "bookmarked_pages": [], "joined_teams": defaults,
+        "first_joined_space_time": now_ms(), "settings": {},
+    })
+    if root:
+        await save(db, "user_root", {**root, "space_views": [*(root.get("space_views") or []), sv_id]})
+    for team_id in defaults:
+        team = await get_record(db, "team", team_id)
+        if team and not any(m.get("user_id") == user_id for m in team.get("membership") or []):
+            await save(db, "team", {
+                **team, "membership": [*team["membership"], {"user_id": user_id, "role": "member", "added_time": now_ms()}],
+            })

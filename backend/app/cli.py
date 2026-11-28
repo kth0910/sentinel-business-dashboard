@@ -6,6 +6,7 @@ import sys
 from app.auth.users import create_user
 from app.config import get_settings
 from app.db import SessionLocal, engine
+from app.dev.join_workspace import join_workspace
 from app.dev.sample_users import seed_sample_users
 
 
@@ -19,6 +20,12 @@ async def _seed(password: str, app_env: str) -> None:
     async with SessionLocal() as db:
         count = await seed_sample_users(db, password, app_env)
     print(f"created {count} sample users")
+
+
+async def _join(email: str, space_id: str, role: str, app_env: str) -> None:
+    async with SessionLocal() as db:
+        await join_workspace(db, email, space_id, role, app_env)
+    print(f"{email} 을(를) 워크스페이스 {space_id} 에 {role} 로 추가했습니다.")
 
 
 async def _run(coro) -> None:
@@ -36,6 +43,10 @@ def main(argv: list[str] | None = None) -> int:
     cu.add_argument("--name", required=True)
     cu.add_argument("--admin", action="store_true")
     sub.add_parser("seed-sample-users", help="개발용 샘플 계정을 만든다")
+    jw = sub.add_parser("join-workspace", help="개발용: 기존 사용자를 워크스페이스에 넣는다")
+    jw.add_argument("email")
+    jw.add_argument("space_id")
+    jw.add_argument("--role", default="editor", choices=["editor", "comment_only", "reader"])
     args = parser.parse_args(argv)
     settings = get_settings()
 
@@ -49,6 +60,8 @@ def main(argv: list[str] | None = None) -> int:
                 print("비밀번호를 입력하세요.", file=sys.stderr)
                 return 1
             coro = _create_user(args.email, args.name, args.admin, password)
+        elif args.command == "join-workspace":
+            coro = _join(args.email, args.space_id, args.role, settings.app_env)
         else:
             if not settings.sample_user_password:
                 print("SAMPLE_USER_PASSWORD 설정이 필요합니다.", file=sys.stderr)
