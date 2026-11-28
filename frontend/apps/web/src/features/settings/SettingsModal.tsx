@@ -2,6 +2,7 @@
 // Access & billing groups) and the selected section. Search settings matches tab names and individual settings
 // (searchIndex.ts: result location "Workspace / General", picking one scrolls to the row and flashes it).
 // Admin-only sections (Teamspaces, Security, Identity, Requests, Billing) are shown to workspace admins only.
+import { AI_ENABLED } from '../ai/enabled.ts';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { isSpaceAdmin } from '@nc/shared/permissions.ts';
@@ -47,7 +48,14 @@ interface NavItem {
   keywords: string[];
 }
 
+/** AI_ENABLED가 꺼져 있으면 설정에서 숨기는 AI 섹션(CoolNotion! AI·회의록·MCP). */
+const AI_SETTINGS_KEYS: readonly string[] = ['lit-ai', 'meeting-notes', 'lit-mcp'];
+
 function navGroups(): { title: string; items: NavItem[] }[] {
+  return allNavGroups().map((g) => (AI_ENABLED ? g : { ...g, items: g.items.filter((i) => !AI_SETTINGS_KEYS.includes(i.key)) }));
+}
+
+function allNavGroups(): { title: string; items: NavItem[] }[] {
   return [
     {
       title: t('lp.settings.account', 'Account'),
@@ -220,10 +228,10 @@ export function SettingsModal() {
     case 'security': body = <SecuritySection />; break;
     case 'identity': body = <IdentitySection />; break;
     case 'import': body = <ImportSection />; break;
-    case 'lit-ai': body = <LitAISection />; break;
-    case 'meeting-notes': body = <MeetingNotesSection />; break;
+    case 'lit-ai': body = AI_ENABLED ? <LitAISection /> : null; break;
+    case 'meeting-notes': body = AI_ENABLED ? <MeetingNotesSection /> : null; break;
     case 'connections': body = <ConnectionsSection />; break;
-    case 'lit-mcp': body = <LitMcpSection />; break;
+    case 'lit-mcp': body = AI_ENABLED ? <LitMcpSection /> : null; break;
     case 'verified-pages': body = <VerifiedPagesSection />; break;
     case 'public-pages': body = <PublicPagesSection />; break;
     case 'emoji': body = <EmojiSection />; break;

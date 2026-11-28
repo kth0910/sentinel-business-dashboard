@@ -26,6 +26,7 @@ import { t } from '../shell/i18n.ts';
 import { openVersionHistory } from './VersionHistory.tsx';
 import { ShareButton } from './ShareMenu.tsx';
 import { TranslatePill } from './TranslatePill.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 import { openPageMenu } from './PageMenu.tsx';
 import { pageTitle, toggleFavorite } from './pageActions.ts';
 import './panels.css';
@@ -133,7 +134,7 @@ function PanelTopbar({ pageId, close }: { pageId: string; close: () => void }) {
         <Icon name="arrowChevronDoubleRight" size={20} style={{ color: 'var(--lp-icon-secondary)' }} />
       </div>
       <div className="actions">
-        <TranslatePill pageId={pageId} compact />
+        {AI_ENABLED && <TranslatePill pageId={pageId} compact />}
         <TopbarFacepile pageId={pageId} />
         <ShareButton pageId={pageId} />
         <TopbarCommentsButton pageId={pageId} />

@@ -24,6 +24,7 @@ import { isVideoFile, videoEmbedUrl } from './media/embedProviders.ts';
 import { openImageEditor, openImageLinkPopover } from './media/ImageTools.tsx';
 import { followLink } from '../inline/LinkPopups.tsx';
 import { AiImageEditButton } from '../../aiImage/EditWithAi.tsx';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 
 const PLACEHOLDER: Record<string, [string, string]> = {
   image: ['Add an image file', 'photo'],
@@ -185,7 +186,7 @@ function ImageBlock({ block, readOnly }: BlockProps) {
       aspect={aspect}
       bar={(
         <>
-          <AiImageEditButton block={block} readOnly={readOnly} />
+          {AI_ENABLED && <AiImageEditButton block={block} readOnly={readOnly} />}
           <AlignButton block={block} />
           <ActionButton icon="caption" tooltip="Caption" label="Add a caption" onClick={() => showCaption(block.id)} />
           <ActionButton icon="commentFilled" tooltip="Comment" onClick={() => startCommentOnBlock(block.id)} />

@@ -29,6 +29,7 @@ import { relativeEdited } from '../../lib/format.ts';
 import { t } from './i18n.ts';
 import { InboxBadge } from './Sidebar.tsx';
 import { AgentCrumbs, AgentTopbarActions } from '../agents/AgentPage.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 
 export function Topbar({ pageId, routeName }: { pageId: string | null; routeName: string }) {
   const typing = useUI((s) => s.typing);
@@ -40,7 +41,7 @@ export function Topbar({ pageId, routeName }: { pageId: string | null; routeName
         <div className="lit-topbar-breadcrumb-region">{pageId && <Breadcrumb pageId={pageId} />}{!pageId && <RouteTitle name={routeName} />}</div>
         {pageId && <TopbarActions pageId={pageId} />}
         {!pageId && routeName === 'marketplace' && <MarketplaceActions />}
-        {!pageId && routeName === 'agent' && <AgentTopbarActions />}
+        {AI_ENABLED && !pageId && routeName === 'agent' && <AgentTopbarActions />}
       </div>
     </div>
   );
@@ -79,7 +80,7 @@ function OpenSidebarButton() {
 function RouteTitle({ name }: { name: string }) {
   const { route } = useLocation();
   if (name === 'people') return <PeopleCrumbs userId={route.name === 'people' ? route.userId : undefined} />;
-  if (name === 'agent') return <AgentCrumbs />;
+  if (AI_ENABLED && name === 'agent') return <AgentCrumbs />;
   if (name === 'tasks') {
     return (
       <div className="nc-breadcrumb notranslate">
@@ -216,7 +217,7 @@ function TopbarActions({ pageId }: { pageId: string }) {
     <div className="lit-topbar-action-buttons">
       <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <div className="nc-topbar-edited" data-tooltip={editor?.name ? `Edited by ${editor.name}` : undefined}>{relativeEdited(page.last_edited_time)}</div>
-        <TranslatePill pageId={pageId} />
+        {AI_ENABLED && <TranslatePill pageId={pageId} />}
         <TopbarFacepile pageId={pageId} />
         <SuggestingPill pageId={pageId} />
         <ShareButton pageId={pageId} />

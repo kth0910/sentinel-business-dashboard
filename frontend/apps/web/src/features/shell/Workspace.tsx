@@ -19,6 +19,7 @@ import { PeoplePage } from '../home/PeoplePage.tsx';
 import { MyTasksPage } from '../home/MyTasksPage.tsx';
 import { UniqueIdRedirect } from '../database/uniqueIdRoute.tsx';
 import { AgentPage } from '../agents/AgentPage.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 import { installPersonHoverDelegation } from '../presence/PersonHoverCard.tsx';
 import { GlobalModals } from './GlobalModals.tsx';
 import { usePageLoader } from '../page/usePageLoader.ts';
@@ -103,11 +104,11 @@ export function Workspace() {
       case 'page':
         return <PageView key={route.pageId} pageId={route.pageId} state={loaded} />;
       case 'chat':
-        return <ChatPage chatId={route.chatId} />;
+        return AI_ENABLED ? <ChatPage chatId={route.chatId} /> : null;
       case 'meetings':
-        return <MeetingsPage />;
+        return AI_ENABLED ? <MeetingsPage /> : null;
       case 'library':
-        return <LibraryPage />;
+        return AI_ENABLED ? <LibraryPage /> : null;
       case 'marketplace':
         return <MarketplacePage tab={route.tab} />;
       case 'people':
@@ -119,7 +120,7 @@ export function Workspace() {
       case 'uniqueId':
         return <UniqueIdRedirect key={route.uid} uid={route.uid} />;
       case 'agent':
-        return <AgentPage key={route.agentId} agentId={route.agentId} />;
+        return AI_ENABLED ? <AgentPage key={route.agentId} agentId={route.agentId} /> : null;
       default:
         return null;
     }
@@ -201,8 +202,8 @@ export function openStartPage(spaceId: string) {
   const settings = records.get<UserSettingsRecord>('user_settings', uid)?.settings as { start_page?: StartPage } | undefined;
   const mode: StartPage = settings?.start_page ?? 'last_visited';
   const domain = spaceDomain(spaceId);
-  if (mode === 'library') return navigate(`/${domain}/library`, { replace: true });
-  if (mode === 'lit_ai') return navigate(`/${domain}/chat`, { replace: true });
+  if (AI_ENABLED && mode === 'library') return navigate(`/${domain}/library`, { replace: true });
+  if (AI_ENABLED && mode === 'lit_ai') return navigate(`/${domain}/chat`, { replace: true });
   if (mode === 'last_visited') {
     let last: string | null = null;
     try {
@@ -215,7 +216,7 @@ export function openStartPage(spaceId: string) {
   }
   const top = topSidebarPage(spaceId);
   if (top) return openPage(top, { replace: true });
-  navigate(`/${domain}/library`, { replace: true });
+  if (AI_ENABLED) navigate(`/${domain}/library`, { replace: true });
 }
 
 /** Resolves once the transaction outbox is empty (max ~3s). */

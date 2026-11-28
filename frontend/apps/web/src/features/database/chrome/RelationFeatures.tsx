@@ -18,6 +18,7 @@ import { itemNoun, setSubitemDisplayMode, setSubitemFilterScope, turnOffSubitems
 import { turnOffDependencies, turnOnDependencies, updateDependencySettings, firstDateProperty } from '../dependencies.ts';
 import { isTaskDatabase, undoTaskDatabase } from '../taskdb.ts';
 import { openTurnIntoTasksDialog } from './TurnIntoTasks.tsx';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 import { isSkillsDatabase, openTurnIntoSkillsDialog, undoSkillsDatabase } from '../../ai/SkillsDatabase.tsx';
 import { SprintSettingsBody } from '../sprints/SprintSettings.tsx';
 import { useCollectionAccess } from '../access.ts';
@@ -67,7 +68,7 @@ export function turnIntoItems(collection: CollectionRecord, close: () => void): 
   }
   return [
     { id: 'tasks', label: 'Change to Tasks table', icon: 'checkmarkSquare', disabled: isSprintsDatabase(collection), onSelect: () => { close(); openTurnIntoTasksDialog(collection.id); } },
-    { id: 'skills', label: 'Change to Skills table', icon: 'paperBolt', onSelect: () => { close(); openTurnIntoSkillsDialog(collection.id); } },
+    ...(AI_ENABLED ? [{ id: 'skills', label: 'Change to Skills table', icon: 'paperBolt', onSelect: () => { close(); openTurnIntoSkillsDialog(collection.id); } }] : []),
   ];
 }
 

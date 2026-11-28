@@ -26,6 +26,7 @@ import { openEmojiPopover } from './EmojiMenu.tsx';
 import { turnIntoItems, blockTypeLabel } from './turnInto.ts';
 import { isMac } from '../textHandlers.ts';
 import { useSkills } from '../../ai/aiStores.ts';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 import { openPage } from '../../../lib/router.ts';
 import './icons.tsx';
 import { colorToken } from '../../../lib/colorToken.ts';
@@ -286,7 +287,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
   const enabledSkills = useSkills((s) => s.enabled);
   const userSkills = enabledSkills.filter((x) => !x.builtin && x.inPage);
   useEffect(() => {
-    if (range && pos && !readOnly) void useSkills.getState().load().catch(() => {});
+    if (AI_ENABLED && range && pos && !readOnly) void useSkills.getState().load().catch(() => {});
   }, [!!range && !!pos, readOnly]);
 
   useLayoutEffect(() => {
@@ -435,6 +436,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
               <TBtn icon="commentPencil" tip="Suggest edits" sub={`${mod}${shift}${alt}X`} onPress={() => { hideTextMenu(); void import('../../comments/suggest.ts').then((m) => m.startSuggestingOnRange(r)); }} />
             </div>
           </div>
+          {AI_ENABLED && (<>
           <div className="nc-tam-divider" style={{ marginBlock: '4px 0' }} />
           <div style={{ position: 'relative' }}>
             {/* The list shows a 15px scrollbar and rows 161px wide. */}
@@ -494,6 +496,7 @@ export function TextActionMenu({ readOnly }: { readOnly: boolean }) {
             />
             <div className="nc-tam-ai-hint">{isMac ? '⌘⌃E' : `${ctrl}${alt}E`}</div>
           </div>
+          </>)}
         </div>
       </div>
     </div>

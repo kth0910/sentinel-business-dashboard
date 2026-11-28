@@ -49,6 +49,7 @@ import { NoAccessPage } from '../shell/access/NoAccessPage.tsx';
 import { PermissionBanner } from '../shell/access/PermissionBanner.tsx';
 import { InstructionsBanner } from '../meetings/instructions.tsx';
 import { AgentInstructionsBanner } from '../agents/InstructionsBanner.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 import '../editor/blocks/TextBlocks.tsx';
 import '../editor/blocks/registerAll.ts';
 import '../editor/editor.css';
@@ -116,7 +117,7 @@ export function PageView({ pageId, state, inPeek, publicView }: { pageId: string
       {page.alive && !publicView && <ArchivedBanner page={page} />}
       {page.alive && !publicView && !inPeek && <SitesBanner page={page} />}
       {page.alive && !publicView && !inPeek && <PermissionBanner page={page} />}
-      {page.alive && !publicView && <AgentInstructionsBanner page={page} />}
+      {AI_ENABLED && page.alive && !publicView && <AgentInstructionsBanner page={page} />}
     </>
   );
   // full-page databases, and inline databases opened "as full page" (↗ in the database toolbar)
@@ -151,7 +152,7 @@ export function PageView({ pageId, state, inPeek, publicView }: { pageId: string
               <PageHeader page={page} readOnly={readOnly} publicView={publicView} backlinks={blMode} />
               {!publicView && <PageVerification pageId={page.id} readOnly={readOnly} />}
               {/* AI meeting notes instructions page: "This page contains AI meeting notes summary instructions." */}
-              {!publicView && <InstructionsBanner pageId={page.id} />}
+              {AI_ENABLED && !publicView && <InstructionsBanner pageId={page.id} />}
             </div>
             {/* database rows: properties + "Comments" block in the data source's layout order */}
             {page.parent_table === 'collection' && <RowLayoutTop page={page} readOnly={readOnly} publicView={publicView} canComment={roleAtLeast(role, 'comment_only')} />}

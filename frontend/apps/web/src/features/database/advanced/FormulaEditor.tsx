@@ -21,6 +21,7 @@ import { formulaContext, rowsOfCollection, titleOf } from './context.ts';
 import { getCaret, highlightSegments, readFormula, renderFormula, setCaret, type ChipInfo } from './formulaDom.ts';
 import { applyItem, buildItems, caretContext, propertyIconFor, type CompletionItem } from './formulaComplete.ts';
 import { FormulaValueView } from './FormulaValueView.tsx';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 import { assistantOpenPref, FormulaAssistant, setAssistantOpenPref } from './FormulaAssistant.tsx';
 import './advanced.css';
 
@@ -394,7 +395,7 @@ function FormulaEditor({ collectionId, propertyId, rowId, close, state, custom }
         {dirty && <div role="button" className="nc-fx-discard" title="Restores the formula from when this editor opened." onClick={() => { setSrc(state.original); setCaretState(state.original.length); }}>Drop all edits</div>}
         <div role="button" className="nc-fx-close" aria-label="Close" onClick={close}><Icon name="xSmall" size={14} /></div>
       </div>
-      {assistantOpen && (
+      {AI_ENABLED && assistantOpen && (
         <FormulaAssistant
           collectionId={collectionId}
           blockId={custom?.blockId}

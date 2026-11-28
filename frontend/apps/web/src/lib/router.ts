@@ -13,6 +13,7 @@ import { compactId, expandId, idFromSlug, pageSlug } from '@nc/shared/ids.ts';
 import { toPlainText } from '@nc/shared/richtext.ts';
 import type { BlockRecord, SpaceRecord } from '@nc/shared/records.ts';
 import { records } from './store/records.ts';
+import { AI_ENABLED } from '../features/ai/enabled.ts';
 
 export type Route =
   | { name: 'login' }
@@ -44,9 +45,18 @@ export interface Location {
   hash: string;
 }
 
+// AI_ENABLED가 꺼져 있으면 AI 경로는 홈(`/`)으로 보낸다.
+const AI_ROUTES = new Set(['chat', 'meetings', 'library', 'agent']);
+
 const SPECIAL = new Set(['chat', 'meetings', 'library', 'marketplace', 'people', 'tasks', 'developers']);
 
 export function parseLocation(pathname: string, search: string, hash: string): Location {
+  const loc = parseRaw(pathname, search, hash);
+  if (!AI_ENABLED && AI_ROUTES.has(loc.route.name)) return { route: { name: 'root' }, peek: null, hash: '' };
+  return loc;
+}
+
+function parseRaw(pathname: string, search: string, hash: string): Location {
   const parts = pathname.split('/').filter(Boolean).map(decodeURIComponent);
   const q = new URLSearchParams(search);
   const p = q.get('p');

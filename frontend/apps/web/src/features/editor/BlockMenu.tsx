@@ -26,6 +26,7 @@ import { presentFrom } from './slashItems.ts';
 import { showTextDirectionControls } from '../settings/userSettings.ts';
 import { developerMenuSection } from '../settings/developerMode.ts';
 import { useSkills } from '../ai/aiStores.ts';
+import { AI_ENABLED } from '../ai/enabled.ts';
 
 function blockLabel(b: BlockRecord): string {
   if (b.format?.toggleable) return `Toggle ${BLOCK_LABELS[b.type] ?? 'block'}`.replace('Toggle Heading', 'Toggle heading');
@@ -154,12 +155,12 @@ export function blockActionMenu(ids: string[]): MenuDef {
     { items: [{ label: 'Start presenting here', icon: 'playButton', badge: 'Beta', shortcut: '⌘⌥P', onSelect: () => presentFrom(b.id) }] },
     // Settings › Developer › Enable developer features: Copy block / database / data source ID 
     ...(!multi && developerMenuSection(b.id) ? [developerMenuSection(b.id)!] : []),
-    {
+    ...(!AI_ENABLED ? [] : [{
       items: [
         { label: 'Ask AI', icon: 'aiFace', shortcut: '⌘J', onSelect: () => window.dispatchEvent(new CustomEvent('nc:ask-ai', { detail: { blockId: b.id } })) },
         { label: 'Skills', icon: 'paperBolt', submenu: () => blockSkillsMenu(b.id) },
       ],
-    },
+    }]),
   ];
   // "Search actions…" also reaches the Turn into targets and the colors (catalog: action, block and color names)
   const searchSections = (): MenuSectionDef[] => {
@@ -223,7 +224,7 @@ function handleRect(el: HTMLElement): DOMRect {
 
 export function openBlockMenu(ids: string[], anchor: HTMLElement | DOMRect, opts?: { atPointer?: boolean }) {
   useEditor.getState().selectBlocks(ids, ids[0]);
-  void useSkills.getState().load().catch(() => {}); // ⋮⋮ › Skills lists the user's own skills (cached ~15s)
+  if (AI_ENABLED) void useSkills.getState().load().catch(() => {}); // ⋮⋮ › Skills lists the user's own skills (cached ~15s)
   // The menu sits 5px left of the 18×24 handle, vertically centered
   // on it (justify-content: center) and clamped to the viewport. Anchors wider than a handle (⌘/, the selection
   // menu's •••) are mapped to the block's handle position. A right-click opens it at the pointer.

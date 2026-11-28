@@ -39,6 +39,7 @@ import { Mail, MailOpen } from 'lucide-react';
 import { registerIcons } from '../../components/Icon.tsx';
 import './comments.css';
 import { agentMentionItems } from '../agents/mentions.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 
 registerIcons({ commentUnread: Mail, commentRead: MailOpen });
 
@@ -476,7 +477,7 @@ function MentionMenu({ close, onPick }: { close: () => void; onPick: MentionPick
       id: `p:${b.id}`, label: toPlainText(b.properties?.title), icon: <span style={{ fontSize: 16 }}>{typeof b.format?.page_icon === 'string' && !b.format.page_icon.startsWith('lit-icon') && !b.format.page_icon.startsWith('/') && !b.format.page_icon.startsWith('http') ? b.format.page_icon : '📄'}</span>,
       onSelect: () => onPick('p', b.id),
     }));
-    const agents = agentMentionItems(q, (a) => onPick('u', a.botId));
+    const agents = AI_ENABLED ? agentMentionItems(q, (a) => onPick('u', a.botId)) : [];
     return { width: 300, maxHeight: 320, emptyText: t('lp.comments.no_results', 'No results'), sections: [{ title: 'Date', items: dateItems }, { title: 'People', items: people }, ...(agents.length ? [{ title: 'Agents', items: agents }] : []), { title: 'Page link', items: pageItems.slice(0, 50) }] };
   }, [onPick, q]);
   // picking must not close the overlays around the composer (Menu closes them all unless onSelect returns false)

@@ -13,6 +13,7 @@ import { useSession } from '../../lib/store/session.ts';
 import { t } from '../shell/i18n.ts';
 import { AiImageTab, aiImageTabs } from '../aiImage/AiImageTab.tsx';
 import { generateCover } from '../aiImage/api.ts';
+import { AI_ENABLED } from '../ai/enabled.ts';
 import './pickers.css';
 
 const c = (name: string) => `/covers/${name}.svg`;
@@ -212,7 +213,7 @@ function CoverPicker({ page, close }: { page: BlockRecord; close: () => void }) 
     ['link', t('lp.page.link', 'Link')],
     ['unsplash', 'Unsplash'],
     // Litpage AI: a generated cover, where the workspace can generate images (plan + Settings › Litpage AI)
-    ...aiImageTabs(page).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'CoolNotion! AI')]),
+    ...(AI_ENABLED ? aiImageTabs(page) : []).map((k): [CoverTab, string] => [k, t('lp.page.litpage_ai', 'CoolNotion! AI')]),
   ];
   return (
     <PopoverSurface width={540} maxHeight={485} className="nc-cover-picker lit-media-menu" style={{ height: 485 }}>

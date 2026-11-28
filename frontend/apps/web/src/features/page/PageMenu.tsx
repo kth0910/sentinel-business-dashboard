@@ -29,6 +29,7 @@ import { openMergeCsv } from '../import/MergeCsv.tsx';
 import { backlinksMode, setBacklinksMode } from './Backlinks.tsx';
 import { connectionsMenuItem } from '../developer/PageConnections.tsx';
 import { markAsMeetingInstructions } from '../meetings/instructions.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 import { collectionAccess } from '../database/access.ts';
 
 type FormatKey = 'page_small_text' | 'page_full_width' | 'block_locked' | 'page_floating_table_of_contents' | 'page_discussions';
@@ -237,7 +238,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
     sections: [
       { items: [
         item(t('lp.page.present', 'Present'), 'present', { badge: 'Beta', shortcut: '⌘⌥P', description: undefined, onSelect: () => startPresentation(pageId) }),
-        item(t('lp.page.translate', 'Translate'), 'translate', { submenu: () => ({ width: 240, search: 'Search languages…', sections: [{ items: LANGUAGES.map((l) => ({ label: l, onSelect: () => translatePage(pageId, l) })) }] }) }),
+        ...(AI_ENABLED ? [item(t('lp.page.translate', 'Translate'), 'translate', { submenu: () => ({ width: 240, search: 'Search languages…', sections: [{ items: LANGUAGES.map((l) => ({ label: l, onSelect: () => translatePage(pageId, l) })) }] }) })] : []),
         item(t('lp.page.undo', 'Undo'), 'undo', { shortcut: '⌘Z', disabled: !transactions.canUndo(), onSelect: () => { transactions.undo(); } }),
         // imports land inside this page; databases also take rows from a CSV
         item(t('lp.page.import', 'Import'), 'import', { onSelect: () => openImport({ pageId }), disabled: !canEdit }),
@@ -279,7 +280,7 @@ export function openPageMenu(pageId: string, anchor: HTMLElement) {
         item(t('lp.page.updates_analytics', 'Updates & analytics'), 'clock', { keywords: ['analytics', 'views', 'updates', 'activity'], onSelect: () => useUI.getState().set({ rightPanel: 'updates' }) }),
       ] },
       { items: [item(t('lp.page.appearance_layout', 'Appearance & layout'), 'textFormat', { keywords: ['font', 'serif', 'mono', 'small text', 'full width', 'contents list', 'page discussions', 'inline comments', 'customize page', 'style'], submenu: appearance })] },
-      { items: [item(t('lp.page.use_in_ai', 'Use in AI'), 'aiFace', { keywords: ['skill', 'agent', 'instructions'], submenu: useWithAi })] },
+      ...(AI_ENABLED ? [{ items: [item(t('lp.page.use_in_ai', 'Use in AI'), 'aiFace', { keywords: ['skill', 'agent', 'instructions'], submenu: useWithAi })] }] : []),
       { items: [
         // toggles suggest mode (features/comments/suggest.ts listens); "Stop" while suggesting
         item(t('lp.page.suggest_edits', 'Suggest edits'), 'commentPencil', { right: <SuggestStop pageId={pageId} />, onSelect: () => { window.dispatchEvent(new CustomEvent('nc:suggest-edits', { detail: { pageId } })); }, disabled: !canEdit && role !== 'comment_only' }),

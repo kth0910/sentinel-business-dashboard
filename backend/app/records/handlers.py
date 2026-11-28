@@ -441,3 +441,19 @@ async def search_workspace(ctx: RpcContext, body: dict[str, Any]) -> dict[str, A
     # 실제 검색은 다음 계획에서 만든다
     _require_user(ctx)
     return {"results": [], "total": 0, "recordMap": {"__version__": 3}}
+
+
+@rpc("aiStatus")
+async def ai_status(ctx: RpcContext, body: dict[str, Any]) -> dict[str, Any]:
+    # CoolNotion!은 AI를 제외한 노션 기능만 제공한다. 화면(useAiStatus)이 AI를 끄도록 항상 "꺼짐"을 돌려준다.
+    _require_user(ctx)
+    return {
+        "configured": False, "model": "", "modelLabel": "", "message": None,
+        "skills": [], "languages": [], "tones": [], "models": [], "autoModel": "",
+        "policy": {
+            "enabled": False, "webSearch": False, "webConfirm": False, "skipApprovals": False, "customMcp": False,
+            "memories": False, "litMcp": False, "mcpSkills": False, "localSkills": False,
+        },
+        "prefs": {"web": False, "approvalMode": "", "model": ""},
+        "limits": {"attachments": 0},
+    }

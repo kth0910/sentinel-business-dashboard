@@ -14,6 +14,7 @@ import { openMenu, type MenuDef, type MenuItemDef, type MenuSectionDef } from '.
 import { CONTENT_EDITOR_CAPTION, CONTENT_EDITOR_LABEL, DatabaseShareSection, dbRoleExtras, dbRoleLabel, rolesForPage } from '../database/permissions/share.tsx';
 import { ShareGroupRows, ShareGroupSuggestions, UnlinkedBanner, canRemoveInherited, changeInheritedAccess, hideInSearchSection, requestGuestsInstead, restrictGeneralAccess } from '../shell/access/shareAccess.tsx';
 import { ShareAgentRows, ShareAgentSuggestions, openAgentAccessSettings } from '../agents/ShareAgents.tsx';
+import { AI_ENABLED } from '../ai/enabled.ts';
 import { Icon } from '../../components/Icon.tsx';
 import { api } from '../../lib/api.ts';
 import { getBlock, me, run } from '../../lib/blocks.ts';
@@ -386,7 +387,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
         </div>
       )}
       <ShareGroupSuggestions model={model} query={emails} role={inviteRole} onInvited={() => { setEmails(''); void refresh(); }} />
-      <ShareAgentSuggestions pageId={pageId} query={emails} onInvited={() => setEmails('')} />
+      {AI_ENABLED && <ShareAgentSuggestions pageId={pageId} query={emails} onInvited={() => setEmails('')} />}
       {err && <div className="nc-share-error inline">{err}</div>}
       <UnlinkedBanner model={model} />
       <div className="nc-share-people">
@@ -419,7 +420,7 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
           );
         })}
         <ShareGroupRows model={model} />
-        <ShareAgentRows pageId={pageId} canManage={model.canManage} />
+        {AI_ENABLED && <ShareAgentRows pageId={pageId} canManage={model.canManage} />}
       </div>
       <div className="nc-share-spacer" />
       <div className="nc-share-general">
@@ -474,10 +475,12 @@ function ShareTab({ model, page, refresh, close }: { model: SharingModel; page: 
       )}
       <DatabaseShareSection page={page} canManage={model.canManage} />
       <div className="nc-share-footer">
-        <div role="button" className="nc-share-advanced" onClick={(e) => openAgentAccessSettings(e.currentTarget, pageId, model.canManage)}>
-          <Icon name="gear" size={20} style={{ color: 'var(--lp-icon-secondary)' }} />
-          <span>{t('lp.page.advanced', 'Advanced')}</span>
-        </div>
+        {AI_ENABLED && (
+          <div role="button" className="nc-share-advanced" onClick={(e) => openAgentAccessSettings(e.currentTarget, pageId, model.canManage)}>
+            <Icon name="gear" size={20} style={{ color: 'var(--lp-icon-secondary)' }} />
+            <span>{t('lp.page.advanced', 'Advanced')}</span>
+          </div>
+        )}
         <button role="button" className="nc-dialog-btn outline nc-share-copy" onClick={() => { copyPageLink(pageId); close(); }}>
           <Icon name="link" size={17} className="nc-share-copy-icon" style={{ color: 'var(--lp-icon-secondary)' }} />
           {t('lp.page.copy_link', 'Copy link')}

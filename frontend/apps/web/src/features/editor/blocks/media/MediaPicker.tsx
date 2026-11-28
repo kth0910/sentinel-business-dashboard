@@ -13,6 +13,7 @@ import { useSession } from '../../../../lib/store/session.ts';
 import { fileSizeLabel, isValidUrl, normalizeUrl, containerWidthOf, toast } from '../shared.tsx';
 import { isAudioFile, isImageFile, isPdfFile, isVideoFile, providerByName, providerForType, providerForUrl, resolveEmbed, videoEmbedUrl } from './embedProviders.ts';
 import { AiImageTab, aiImageTabs } from '../../../aiImage/AiImageTab.tsx';
+import { AI_ENABLED } from '../../../ai/enabled.ts';
 
 type Tab = 'upload' | 'link' | 'unsplash' | 'giphy' | 'embed' | 'add' | 'ai';
 
@@ -203,7 +204,7 @@ function configFor(b: BlockRecord): PickerConfig {
   const provider = providerByName(b.format?.embed_provider as string | undefined) ?? (b.type !== 'embed' ? providerForType(b.type) : undefined);
   switch (b.type) {
     case 'image':
-      return { width: 540, tabs: ['upload', 'link', 'unsplash', 'giphy', ...aiImageTabs(b)], accept: 'image/*', uploadLabel: 'Upload file', uploadStyle: 'outline', linkPlaceholder: 'Paste an image URL…', linkButton: 'Embed image', linkCaption: 'Accepts image URLs from the web' };
+      return { width: 540, tabs: ['upload', 'link', 'unsplash', 'giphy', ...(AI_ENABLED ? aiImageTabs(b) : [])], accept: 'image/*', uploadLabel: 'Upload file', uploadStyle: 'outline', linkPlaceholder: 'Paste an image URL…', linkButton: 'Embed image', linkCaption: 'Accepts image URLs from the web' };
     case 'video':
       return { width: 300, tabs: ['upload', 'link'], accept: 'video/*', uploadLabel: 'Choose a video', uploadStyle: 'primary', linkPlaceholder: 'Paste a video URL…', linkButton: 'Embed video', linkCaption: 'Supports YouTube, Vimeo, and other sites' };
     case 'audio':

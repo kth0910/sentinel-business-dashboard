@@ -291,3 +291,20 @@ async def test_stub_account_security(client, u1):
     assert data["hasPassword"] is True
     assert data["mfa"] == {"enabled": False, "factors": [], "backupCodesRemaining": 0, "maxAuthenticators": 2}
     assert data["emails"] == [{"email": "hong@example.com", "primary": True}]
+
+
+async def test_ai_status_disabled(client, u1):
+    await sign_in(client, "hong@example.com")
+    space_id, _ = await _workspace(client)
+    res = await call(client, "aiStatus", {"spaceId": space_id})
+    assert res.status_code == 200
+    body = res.json()
+    # 원본 aiStatus 핸들러가 돌려주는 최상위 키
+    assert set(body) == {"configured", "model", "modelLabel", "message", "skills", "languages", "tones", "models", "autoModel", "policy", "prefs", "limits"}
+    assert body["configured"] is False
+    assert body["policy"]["enabled"] is False
+    assert body["models"] == [] and body["skills"] == []
+
+
+async def test_ai_status_requires_login(client):
+    assert (await call(client, "aiStatus")).status_code == 401

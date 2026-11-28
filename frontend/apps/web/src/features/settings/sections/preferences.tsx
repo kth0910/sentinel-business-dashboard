@@ -1,4 +1,5 @@
 import { HELP_URL } from '@nc/shared/brand.ts';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 // Settings › Preferences: Appearance (theme, high
 // contrast), Input options, Language & time (language, number format, text direction, week start, date format,
 // time zone), Desktop app (open links, open on start), Privacy (cookies, view history, discoverability).
@@ -110,8 +111,10 @@ export function PreferencesSection() {
   const startOpts: Option<StartPage>[] = [
     { value: 'last_visited', label: t('lp.settings.last_opened_page', 'Last opened page') },
     { value: 'top_page', label: t('lp.settings.first_sidebar_page', 'First sidebar page') },
-    { value: 'library', label: t('lp.settings.library', 'Library') },
-    { value: 'lit_ai', label: t('lp.settings.litpage_ai', 'CoolNotion! AI') },
+    ...(AI_ENABLED ? [
+      { value: 'library' as const, label: t('lp.settings.library', 'Library') },
+      { value: 'lit_ai' as const, label: t('lp.settings.litpage_ai', 'CoolNotion! AI') },
+    ] : []),
   ];
 
   return (

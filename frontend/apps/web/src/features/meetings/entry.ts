@@ -11,8 +11,10 @@ import { openPage } from '../../lib/router.ts';
 import { createBlockIn, getBlock, run } from '../../lib/blocks.ts';
 import { useCurrentSpace, useUserSettings } from '../../lib/hooks.ts';
 import { getLocale, t } from '../shell/i18n.ts';
+import { AI_ENABLED } from '../ai/enabled.ts';
 
 export function meetingsEnabled(spaceId?: string | null): boolean {
+  if (!AI_ENABLED) return false;
   const s = records.get<SpaceRecord>('space', spaceId ?? useSession.getState().spaceId);
   return (s?.settings as Record<string, unknown> | undefined)?.meeting_notes_enabled !== false;
 }
@@ -20,6 +22,7 @@ export function meetingsEnabled(spaceId?: string | null): boolean {
 export function useMeetingsTabHidden(): boolean {
   const space = useCurrentSpace();
   const us = useUserSettings();
+  if (!AI_ENABLED) return true;
   const off = (space?.settings as Record<string, unknown> | undefined)?.meeting_notes_enabled === false;
   const pref = (us?.settings as Record<string, unknown> | undefined)?.meeting_hide_tab;
   return off || pref === 'always';

@@ -20,6 +20,7 @@ import { SprintToolbarButton } from '../sprints/SprintSettings.tsx';
 import { openTemplateItemMenu, templateCaption } from '../templates/templates.tsx';
 import { loadAutomations } from '../automations/api.ts';
 import { openToolbarAutofillMenu } from '../../ai/autofillUi.tsx';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 
 export function ToolButton({ icon, label, onClick, active, pressed, className, rotate }: { icon: string; label: string; onClick?: (e: React.MouseEvent<HTMLDivElement>) => void; active?: boolean; pressed?: boolean; className?: string; rotate?: boolean }) {
   return (
@@ -196,7 +197,7 @@ export function Toolbar(p: ToolbarProps) {
           <ToolButton icon="dbToolFilter" label="Filter" className="lit-collection-filter" active={filterCount > 0} pressed={filterOpen} onClick={(e) => p.onFilter(e.currentTarget)} />
           <ToolButton icon="arrowUpDownSmall" label="Sort" className="lit-collection-sort" active={sortCount > 0} pressed={sortOpen} onClick={(e) => p.onSort(e.currentTarget)} />
           <ToolButton icon="dbToolLightning" label="Automations" className="lit-collection-automation-edit-view" onClick={(e) => openAutomations(collection, e.currentTarget)} />
-          <ToolButton icon="magicWandSmall" label="AI Autofill" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />
+          {AI_ENABLED && <ToolButton icon="magicWandSmall" label="AI Autofill" onClick={(e) => openToolbarAutofillMenu(e.currentTarget, collection.id, view)} />}
           <div className={`nc-db-search ${p.search !== null ? 'open' : ''}`}>
             <ToolButton icon="dbToolSearch" label="Search" onClick={() => (p.search === null ? p.setSearch('') : searchRef.current?.focus())} />
             {p.search !== null && (

@@ -18,6 +18,10 @@ import { useUI } from '../../lib/store/ui.ts';
 import { ColorSwatch } from './colorSwatch.tsx';
 import { stickyFormat } from './prefs.ts';
 import { turnIntoItems } from './inline/turnInto.ts';
+import { AI_ENABLED } from '../ai/enabled.ts';
+
+/** AI_ENABLED가 꺼져 있으면 슬래시 메뉴에서 빠지는 AI 항목 id. */
+export const AI_SLASH_IDS: readonly string[] = ['ai-meeting-notes', 'ai-meeting-notes-2', 'ai-block', 'ask-ai', 'ai-skill'];
 
 /** Stable ids of the slash "Turn into" items (block modules override some by id, e.g. turn-callout). */
 const TURN_IDS: Record<string, string> = {
@@ -297,7 +301,8 @@ export function slashCatalog(): SlashItem[] {
   ];
   // block modules (editor/blocks/*.block.tsx) replace how some items create their block (callout v2, tabs, embeds…);
   // other areas add items through registerSlashItems (AI image, skills …)
-  return applySlashOverrides([...items, ...extraSlashItems()]);
+  const all = applySlashOverrides([...items, ...extraSlashItems()]);
+  return AI_ENABLED ? all : all.filter((it) => !AI_SLASH_IDS.includes(it.id));
 }
 
 /** Compact aliases of a Turn into target: "Bulleted list" → turnbullet, turnintobulletedlist … (…078). */

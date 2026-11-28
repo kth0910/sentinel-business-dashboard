@@ -3,6 +3,7 @@
 // Admin-only sections are dropped by SettingsModal for people who can't open them.
 import { create } from 'zustand';
 import { t } from '../shell/i18n.ts';
+import { AI_ENABLED } from '../ai/enabled.ts';
 
 export interface SettingsHit {
   section: string;
@@ -23,7 +24,13 @@ export const useSettingsFocus = create<{ id?: string; tab?: string; section?: st
   focus: (h) => set((s) => ({ id: h.id, tab: h.tab, section: h.section, nonce: s.nonce + 1 })),
 }));
 
+const AI_SECTIONS: readonly string[] = ['lit-ai', 'meeting-notes', 'lit-mcp'];
+
 export function settingsIndex(): SettingsHit[] {
+  return AI_ENABLED ? allSettingsIndex() : allSettingsIndex().filter((h) => !AI_SECTIONS.includes(h.section));
+}
+
+function allSettingsIndex(): SettingsHit[] {
   return [
     // Account
     { section: 'account', id: 'preferred-name', label: t('lp.settings.preferred_name', 'Preferred name'), keywords: ['profile', 'name', 'photo'] },

@@ -32,6 +32,7 @@ import { REMINDER_OPTIONS_DATE, canRestrictProperty, hasPropertyRule, subitemCon
 import './properties.css';
 import { openNestedMenu } from '../menus.ts';
 import { autofillMenuItems, createAutofillProperty } from '../../ai/autofillUi.tsx';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 
 export interface PropMenuContext {
   collectionId: string;
@@ -717,7 +718,7 @@ export function openPropertyHeaderMenu(anchor: HTMLElement, ctx: PropMenuContext
   if (!NO_ACCESS.has(type) && canRestrictProperty(prop, propId, subitemPairOf(c))) s2.push({ id: 'access', label: 'Property access', icon: 'lockKeyhole', right: hasPropertyRule(prop) ? <span className="nc-menu-value">On</span> : undefined, onSelect: () => openPropertyAccess(collectionId, propId) });
   if (!isTitle && type !== 'auto_increment_id' && !ctx.readOnly) s2.push({ id: 'type', label: 'Change type', icon: 'dbTurnInto', submenu: () => changeTypeMenuDef(collectionId, propId, prop) });
   // header-menu-name / -status: "AI Autofill ›" (no promo badge any more), also on the title column
-  if (AI_AUTOFILL_TYPES.has(type) || isTitle) s2.push({
+  if (AI_ENABLED && (AI_AUTOFILL_TYPES.has(type) || isTitle)) s2.push({
     id: 'ai', label: 'AI Autofill', icon: 'magicWandSparkle',
     // Basic autofill is configured / run by features/ai; Custom Agent autofill comes with Custom Agents
     submenu: () => ({ width: 260, sections: [{ items: [
@@ -865,7 +866,7 @@ function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () 
       </div>
       <div className="nc-add-prop-card">
         <div className="lit-scroller vertical nc-add-prop-scroll" role="grid">
-          <div className="nc-add-prop-section">
+          {AI_ENABLED && <div className="nc-add-prop-section">
             <div className="nc-add-prop-section-title">AI Autofill</div>
             {/* add-property-menu: regular rows; presets open a submenu */}
             {AI_PRESETS.map((a) => (
@@ -876,7 +877,7 @@ function AddPropertyMenu({ opts, close }: { opts: AddPropertyOptions; close: () 
                 <Icon name="arrowChevronSingleRightSmall" size={16} style={{ color: 'var(--lp-icon-secondary)', marginInlineStart: 'auto' }} />
               </div>
             ))}
-          </div>
+          </div>}
           <div className="nc-add-prop-section types-head with-divider">
             <div className="nc-add-prop-section-title">
               <span>Select type</span>

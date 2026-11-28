@@ -21,6 +21,7 @@ import { useDeveloperMode } from '../developerMode.ts';
 import { AiWorkspaceControls, LitMcpAccess, SharedChatsTable, useSharedChats } from '../../ai/AiSettings.tsx';
 import { VerifiedPagesTable } from '../../page/VerifiedPagesTable.tsx';
 import { AgentsAdmin } from '../../agents/AgentsAdmin.tsx';
+import { AI_ENABLED } from '../../ai/enabled.ts';
 import { ImageGenerationSettings } from '../../aiImage/ImageSettings.tsx';
 import { developersUrl, openDevelopers } from '../../developer/api.ts';
 
@@ -119,7 +120,7 @@ export function LitAISection() {
           { value: 'skills', label: t('lp.settings.skills', 'Skills') },
         ]}
       />
-      {tab === 'agents' && <AgentsAdmin />}
+      {AI_ENABLED && tab === 'agents' && <AgentsAdmin />}
       {tab === 'general' && (
         <div className="nc-set-ai-general">
           {/* Personalization: text column vertically centred on the 197×124 illustration, 16px apart */}
@@ -169,9 +170,9 @@ export function LitAISection() {
             </div>
           </div>
           {/* workspace controls, model controls, MCP connections, usage (features/ai) */}
-          <AiWorkspaceControls />
+          {AI_ENABLED && <AiWorkspaceControls />}
           {/* Image generation (features/aiImage) */}
-          <ImageGenerationSettings />
+          {AI_ENABLED && <ImageGenerationSettings />}
         </div>
       )}
       {tab === 'connectors' && (
@@ -557,7 +558,7 @@ export function LitMcpSection() {
         </div>
       </Group>
       {/* Litpage MCP server: access tokens and owner governance. */}
-      <LitMcpAccess />
+      {AI_ENABLED && <LitMcpAccess />}
     </SectionPage>
   );
 }
@@ -623,7 +624,7 @@ interface PublicPage { blockId: string; kind: 'site' | 'link' | 'form'; publishe
 
 export function PublicPagesSection() {
   const { space, owner } = useSpaceAccess();
-  const sharedChats = useSharedChats(space?.id);
+  const sharedChats = useSharedChats(AI_ENABLED ? space?.id : undefined);
   const [list, setList] = useState<PublicPage[] | null>(null);
   const [open, setOpen] = useState<'site' | 'form' | 'link' | 'chats' | null>(null);
   useEffect(() => {
@@ -676,7 +677,7 @@ export function PublicPagesSection() {
           {tile('site', t('lp.settings.published_sites', 'Published sites'), of('site'), t('lp.settings.no_sites_published', 'No sites published'))}
           {tile('form', t('lp.settings.public_forms', 'Public forms'), of('form'), t('lp.settings.no_public_forms_yet', 'No public forms yet'))}
           {tile('link', t('lp.settings.anyone_who_has_the_link', 'Anyone who has the link'), of('link'), t('lp.settings.no_links_shared_publicly', 'No links shared publicly'))}
-          {tile('chats', t('lp.settings.ai_chats_shared', 'AI chats shared'), (sharedChats ?? []).map((c) => ({ blockId: c.id, kind: 'link' as const, title: c.title || 'Untitled chat' })), t('lp.settings.no_chats_are_shared', 'No chats are shared'))}
+          {AI_ENABLED && tile('chats', t('lp.settings.ai_chats_shared', 'AI chats shared'), (sharedChats ?? []).map((c) => ({ blockId: c.id, kind: 'link' as const, title: c.title || 'Untitled chat' })), t('lp.settings.no_chats_are_shared', 'No chats are shared'))}
         </div>
         {open === 'chats' && sharedChats && sharedChats.length > 0 && <SharedChatsTable chats={sharedChats} onClose={closeSettings} />}
         {open && open !== 'chats' && rows.length > 0 && (
